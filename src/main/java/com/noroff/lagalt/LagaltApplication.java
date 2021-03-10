@@ -9,6 +9,7 @@ public class LagaltApplication {
 	public static void main(String[] args) {
 		//Hei fra bjørnar
 		//Hei fra Thomas
+		//hei fra Camilla
 		SpringApplication.run(LagaltApplication.class, args);
 	}
 
