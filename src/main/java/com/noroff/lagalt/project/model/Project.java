@@ -2,6 +2,7 @@ package com.noroff.lagalt.project.model;
 import com.noroff.lagalt.model.User;
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
 
 enum Progress{
     FOUNDING,
@@ -29,6 +30,15 @@ public class Project {
     @Column(name = "image")
     private String image;
 
+
+    @ManyToMany()
+    @JoinTable(
+            name = "project_users",
+            joinColumns = {@JoinColumn(name = "projects_id")},
+            inverseJoinColumns = {@JoinColumn(name = "users_id")}
+    )
+    private List<User> owners;
+
     
     public Project(){}
 
@@ -38,6 +48,10 @@ public class Project {
         this.description = description;
         this.progress = progress;
         this.image = image;
+    }
+
+    public List<User> getOwners() {
+        return owners;
     }
 
     public long getId(){
