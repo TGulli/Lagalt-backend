@@ -1,5 +1,6 @@
 package com.noroff.lagalt.service;
 
+import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -36,6 +38,11 @@ public class UserService {
         }
 
         return null;
+    }
+
+    public ResponseEntity<User> getById(long id) throws NoItemFoundException{
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        return ResponseEntity.ok(fetchedUser);
     }
 
 }

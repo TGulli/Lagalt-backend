@@ -1,5 +1,6 @@
 package com.noroff.lagalt.controller;
 
+import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,12 @@ public class UserController {
     @GetMapping("/")
     public List<User> getAllUsers() {
         return userService.getAll();
+    }
+
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable (value="id") long id) throws NoItemFoundException {
+        return userService.getById(id);
     }
 
     @PostMapping("/add")
