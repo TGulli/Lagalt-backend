@@ -53,11 +53,12 @@ public class Project {
         this.image = image;
     }
 
-    // Maybe do List<List<Int, String>> instead to avoid conversion
     @JsonGetter("owners")
     public List<String> getOwnerNames(){
         if(owners != null) {
-            return owners.stream().flatMap(e -> Stream.of(String.valueOf(e.getId()), e.getName())).collect(Collectors.toList());
+            return owners.stream()
+                    .map(User::getName)
+                    .collect(Collectors.toList());
         }
         return null;
     }
