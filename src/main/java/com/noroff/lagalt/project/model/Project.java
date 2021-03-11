@@ -1,8 +1,11 @@
 package com.noroff.lagalt.project.model;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.model.User;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 enum Progress{
     FOUNDING,
@@ -48,6 +51,15 @@ public class Project {
         this.description = description;
         this.progress = progress;
         this.image = image;
+    }
+
+    // Maybe do List<List<Int, String>> instead to avoid conversion
+    @JsonGetter("owners")
+    public List<String> getOwnerNames(){
+        if(owners != null) {
+            return owners.stream().flatMap(e -> Stream.of(String.valueOf(e.getId()), e.getName())).collect(Collectors.toList());
+        }
+        return null;
     }
 
     public List<User> getOwners() {

@@ -30,6 +30,9 @@ public class User {
         this.secret = secret;
     }
 
+    public List<Project> getOwnedProjects() {
+        return ownedProjects;
+    }
 
     public long getId() {
         return id;
