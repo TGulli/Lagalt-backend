@@ -1,5 +1,7 @@
 package com.noroff.lagalt.project.controller;
 
+import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,11 @@ public class ProjectController {
     @GetMapping("/projects")
     public ResponseEntity<List<Project>> getAllProjects(){
         return projectService.getAll();
+    }
+
+    @GetMapping("/projects/get/{id}")
+    public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) throws NoItemFoundException {
+        return projectService.getById(id);
     }
 
     @PostMapping("/projects")
