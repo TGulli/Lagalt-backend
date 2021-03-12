@@ -2,8 +2,11 @@ package com.noroff.lagalt.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.project.model.Project;
+import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,9 @@ public class UserService {
 
     @Autowired
     public UserRepository userRepository;
+
+    @Autowired
+    public ProjectRepository projectRepository;
 
 
     public ResponseEntity<User> create(User user){
@@ -43,6 +49,18 @@ public class UserService {
     public ResponseEntity<User> getById(long id) throws NoItemFoundException{
         User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
         return ResponseEntity.ok(fetchedUser);
+    }
+
+    public HttpStatus deleteUser(long id) throws  NoItemFoundException{
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+
+        List<Project> projects = projectRepository.findAll();
+        for (Project p: projects) {
+            p.getOwners().remove(fetchedUser);
+        }
+        userRepository.delete(fetchedUser);
+        HttpStatus status = HttpStatus.OK;
+        return status;
     }
 
 }

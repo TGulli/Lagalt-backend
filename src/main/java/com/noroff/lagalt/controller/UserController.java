@@ -4,6 +4,7 @@ import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,11 @@ public class UserController {
     @PostMapping("/find")
     public ResponseEntity<User> findByNameAndSecret(@RequestBody User user) {
         return userService.findByNameAndSecret(user);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public HttpStatus deleteUser(@PathVariable (value="id") long id) throws NoItemFoundException{
+        return userService.deleteUser(id);
     }
 
 
