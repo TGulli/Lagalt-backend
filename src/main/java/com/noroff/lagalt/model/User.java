@@ -1,6 +1,9 @@
 package com.noroff.lagalt.model;
 
+import com.noroff.lagalt.project.model.Project;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "Users")
@@ -16,9 +19,10 @@ public class User {
     @Column(name = "secret")
     private String secret;
 
-    public User() {
+    @ManyToMany(mappedBy = "owners")
+    private List<Project> ownedProjects;
 
-    }
+    public User() { }
 
     public User(long id, String name, String secret) {
         this.id = id;
@@ -26,6 +30,9 @@ public class User {
         this.secret = secret;
     }
 
+    public List<Project> getOwnedProjects() {
+        return ownedProjects;
+    }
 
     public long getId() {
         return id;

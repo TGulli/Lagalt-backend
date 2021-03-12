@@ -1,7 +1,11 @@
 package com.noroff.lagalt.project.model;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.model.User;
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 enum Progress{
     FOUNDING,
@@ -29,6 +33,15 @@ public class Project {
     @Column(name = "image")
     private String image;
 
+
+    @ManyToMany()
+    @JoinTable(
+            name = "project_users",
+            joinColumns = {@JoinColumn(name = "projects_id")},
+            inverseJoinColumns = {@JoinColumn(name = "users_id")}
+    )
+    private List<User> owners;
+
     
     public Project(){}
 
@@ -38,6 +51,20 @@ public class Project {
         this.description = description;
         this.progress = progress;
         this.image = image;
+    }
+
+    @JsonGetter("owners")
+    public List<String> getOwnerNames(){
+        if(owners != null) {
+            return owners.stream()
+                    .map(User::getName)
+                    .collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    public List<User> getOwners() {
+        return owners;
     }
 
     public long getId(){
