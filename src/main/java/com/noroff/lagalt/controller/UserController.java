@@ -17,13 +17,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @GetMapping("/")
     public List<User> getAllUsers() {
         return userService.getAll();
     }
-
-
+    
     @GetMapping("/get/{id}")
     public ResponseEntity<User> getUserById(@PathVariable (value="id") long id) throws NoItemFoundException {
         return userService.getById(id);
