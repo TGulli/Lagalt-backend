@@ -1,5 +1,7 @@
 package com.noroff.lagalt.project.model;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.model.User;
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -53,7 +55,7 @@ public class Project {
         this.image = image;
     }
 
-    @JsonGetter("owners")
+    /*
     public List<String> getOwnerNames(){
         if(owners != null) {
             return owners.stream()
@@ -62,6 +64,18 @@ public class Project {
         }
         return null;
     }
+
+     */
+
+    @JsonGetter("owners")
+    public List<ReturnUser> getOwnerNames(){
+        if(owners != null) {
+            return owners.stream().map(temp -> new ReturnUser(temp.getId(), temp.getName())).collect(Collectors.toList());
+        }
+        return null;
+    }
+
+
 
     public List<User> getOwners() {
         return owners;
@@ -102,4 +116,18 @@ public class Project {
     public void setImage(String image) {
         this.image = image;
     }
+
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    class ReturnUser {
+        private long id;
+        private String name;
+
+        public ReturnUser(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+    }
+
+
 }

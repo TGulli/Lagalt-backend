@@ -19,6 +19,9 @@ public class User {
     @Column(name = "secret")
     private String secret;
 
+    @Column(name = "hidden")
+    private boolean hidden;
+
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
 
@@ -30,6 +33,7 @@ public class User {
         this.secret = secret;
     }
 
+    //JsonGetter
     public List<Project> getOwnedProjects() {
         return ownedProjects;
     }
