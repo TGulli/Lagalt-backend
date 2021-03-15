@@ -34,8 +34,7 @@ public class Project {
 
     @Column(name = "image")
     private String image;
-
-
+    
     @ManyToMany()
     @JoinTable(
             name = "project_users",
