@@ -40,4 +40,9 @@ public class ProjectController {
         return projectService.showDisplayProjects(page);
     }
 
+    @PutMapping("/projects/{id}")
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project){
+        return projectService.editProject(id, project);
+    }
+
 }

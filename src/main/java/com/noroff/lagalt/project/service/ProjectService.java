@@ -44,5 +44,9 @@ public class ProjectService {
     }
 
 
-
+    public ResponseEntity<Project> editProject(long id, Project project) {
+        project.setId(id);
+        Project savedProject = projectRepository.save(project);
+        return ResponseEntity.ok(savedProject);
+    }
 }
