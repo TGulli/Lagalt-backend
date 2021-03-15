@@ -5,7 +5,7 @@ import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 
 import javax.persistence.*;
-
+//
 enum Status {
     PENDING,
     APPROVED,
