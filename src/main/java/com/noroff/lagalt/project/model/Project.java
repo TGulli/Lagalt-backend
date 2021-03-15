@@ -33,8 +33,7 @@ public class Project {
 
     @Column(name = "image")
     private String image;
-
-
+    
     @ManyToMany()
     @JoinTable(
             name = "project_users",
@@ -86,6 +85,10 @@ public class Project {
 
     public long getId(){
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -5,6 +5,9 @@ import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,16 @@ public class ProjectService {
         return ResponseEntity.ok(fetchedProject);
     }
 
+    public ResponseEntity<Page<Project>> showDisplayProjects(int page) {
+        Pageable p = PageRequest.of(page, 3);
+        Page<Project> givenPage = projectRepository.findAll(p);
+        return ResponseEntity.ok(givenPage);
+    }
 
 
+    public ResponseEntity<Project> editProject(long id, Project project) {
+        project.setId(id);
+        Project savedProject = projectRepository.save(project);
+        return ResponseEntity.ok(savedProject);
+    }
 }
