@@ -23,7 +23,7 @@ public class ProjectController {
         return projectService.getAll();
     }
 
-    @GetMapping("/projects/get/{id}")
+    @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) throws NoItemFoundException {
         return projectService.getById(id);
     }

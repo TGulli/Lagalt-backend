@@ -10,29 +10,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("api/v1")
 @CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/")
+    @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.getAll();
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable (value="id") long id) throws NoItemFoundException {
         return userService.getById(id);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user){
         return userService.create(user);
     }
 
-    @PostMapping("/find")
+    @PostMapping("/users/name")//unique username?
     public ResponseEntity<User> findByNameAndSecret(@RequestBody User user) {
         return userService.findByNameAndSecret(user);
     }
