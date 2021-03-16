@@ -38,7 +38,7 @@ public class UserController {
         return userService.findByNameAndSecret(user);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/users/{id}")
     public HttpStatus deleteUser(@PathVariable (value="id") long id) throws NoItemFoundException{
         return userService.deleteUser(id);
     }
