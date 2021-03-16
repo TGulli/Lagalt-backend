@@ -5,13 +5,15 @@ import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.repository.UserRepository;
+import com.noroff.lagalt.utility.GoogleTokenVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -63,4 +65,16 @@ public class UserService {
         return status;
     }
 
+    public HttpStatus verifiyToken(String token){
+        try {
+            if (GoogleTokenVerifier.verifiyGoogleToken(token)){
+                return HttpStatus.ACCEPTED;
+            }
+            else {
+                return HttpStatus.CONFLICT;
+            }
+        } catch (IOException | GeneralSecurityException io){
+            return HttpStatus.BAD_REQUEST;
+        }
+    }
 }

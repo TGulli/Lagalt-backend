@@ -1,6 +1,7 @@
 package com.noroff.lagalt.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.model.Token;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +44,10 @@ public class UserController {
         return userService.deleteUser(id);
     }
 
+    @PostMapping("/oauth/login/{token}")
+    public HttpStatus oauthLogin(@PathVariable(value="token") String token) {
+        System.out.println(token);
+        return userService.verifiyToken(String.valueOf(token));
+    }
 
 }
