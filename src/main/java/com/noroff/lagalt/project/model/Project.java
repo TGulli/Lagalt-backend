@@ -1,13 +1,12 @@
 package com.noroff.lagalt.project.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 enum Progress{
     FOUNDING,
@@ -34,8 +33,7 @@ public class Project {
 
     @Column(name = "image")
     private String image;
-
-
+    
     @ManyToMany()
     @JoinTable(
             name = "project_users",
@@ -44,6 +42,8 @@ public class Project {
     )
     private List<User> owners;
 
+    @OneToMany(mappedBy = "project")
+    List<ProjectCollaborators> collaborators;
     
     public Project(){}
 
@@ -75,7 +75,9 @@ public class Project {
         return null;
     }
 
-
+    public List<ProjectCollaborators> getCollaborators() {
+        return collaborators;
+    }
 
     public List<User> getOwners() {
         return owners;
@@ -83,6 +85,10 @@ public class Project {
 
     public long getId(){
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

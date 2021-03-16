@@ -1,0 +1,43 @@
+package com.noroff.lagalt.projectcollaborators.controller;
+
+import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.project.model.Project;
+import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.projectcollaborators.service.ProjectCollaboratorsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("api/v1")
+@CrossOrigin(origins = "*")
+public class ProjectCollaboratorsController {
+
+    @Autowired
+    private ProjectCollaboratorsService projectCollaboratorsService;
+
+    @GetMapping("/project/collaborators")
+    public ResponseEntity<List<ProjectCollaborators>> getAllProjectCollaborators(){
+        return projectCollaboratorsService.getAll();
+    }
+
+    @GetMapping("/project/collaborators/{id}")
+    public ResponseEntity<Optional<ProjectCollaborators>> getProjectCollaboratorsById(@PathVariable (value="id") long id) {
+        return projectCollaboratorsService.getById(id);
+    }
+
+    @PostMapping("/project/collaborators")
+    public ResponseEntity<ProjectCollaborators> addProjectCollaborator(@RequestBody ProjectCollaborators projectCollaborators){
+        return projectCollaboratorsService.create(projectCollaborators);
+    }
+
+    @PutMapping("/project/collaborators/{id}")
+    public ResponseEntity<ProjectCollaborators> updateStatus(@PathVariable long id, @RequestBody ProjectCollaborators collaborators){
+        return projectCollaboratorsService.updateStatus(id, collaborators);
+    }
+
+
+}
