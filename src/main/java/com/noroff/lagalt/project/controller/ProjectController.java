@@ -1,12 +1,10 @@
 package com.noroff.lagalt.project.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
