@@ -48,8 +48,9 @@ public class ProjectCollaboratorsService {
         updatedCollaborators = projectCollaboratorsRepository.save(collaborators);
         status = HttpStatus.OK;
         return new ResponseEntity<>(updatedCollaborators, status);
-
     }
+
+
 
 
 }
