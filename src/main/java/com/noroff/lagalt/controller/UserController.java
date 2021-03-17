@@ -3,11 +3,13 @@ package com.noroff.lagalt.controller;
 import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
+import com.noroff.lagalt.utility.FacebookTokenVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -43,5 +45,24 @@ public class UserController {
         return userService.deleteUser(id);
     }
 
+    @PostMapping("/users/{accessToken}")
+    public ResponseEntity<User> createUserWithToken(@PathVariable (value = "accessToken") String accessToken) {
+        try{
+            User createdUSer = FacebookTokenVerifier.verify(accessToken);
+
+            if (createdUSer != null){
+                ResponseEntity<User> existingUser = findByNameAndSecret(createdUSer);
+                if (existingUser != null){
+                    return existingUser;
+                }
+
+                createdUSer.setHidden(false);
+                return userService.create(createdUSer);
+            }
+        } catch (IOException | InterruptedException e){
+            System.out.println(e);
+        }
+        return null;
+    }
 
 }
