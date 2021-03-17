@@ -33,6 +33,9 @@ public class Project {
 
     @Column(name = "image")
     private String image;
+
+    @Column(name = "category")
+    private String category;
     
     @ManyToMany()
     @JoinTable(
@@ -47,12 +50,13 @@ public class Project {
     
     public Project(){}
 
-    public Project(long id, String name, String description, Progress progress, String image) {
+    public Project(long id, String name, String description, Progress progress, String image, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.progress = progress;
         this.image = image;
+        this.category = category;
     }
 
     /*
@@ -77,6 +81,10 @@ public class Project {
 
     public List<ProjectCollaborators> getCollaborators() {
         return collaborators;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public List<User> getOwners() {

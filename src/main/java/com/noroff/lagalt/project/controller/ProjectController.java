@@ -25,6 +25,12 @@ public class ProjectController {
         return projectService.getAll();
     }
 
+    //Kanskje slett?
+    @GetMapping("/projects/category/{category}")
+    public ResponseEntity<List<Project>> getAllFromCategory(@PathVariable(value="category") String category){
+        return projectService.getAllFromCategory(category);
+    }
+
     @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) throws NoItemFoundException {
         return projectService.getById(id);

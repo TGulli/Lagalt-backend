@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -48,5 +49,15 @@ public class ProjectService {
         project.setId(id);
         Project savedProject = projectRepository.save(project);
         return ResponseEntity.ok(savedProject);
+    }
+
+    // Trengs kanskje?
+    public ResponseEntity<List<Project>> getAllFromCategory(String category) {
+        List<Project> projects = projectRepository.findAll()
+                .stream()
+                .filter(p -> p.getCategory().equals(category))
+                .collect(Collectors.toList());
+        HttpStatus status = HttpStatus.OK;
+        return new ResponseEntity<>(projects, status);
     }
 }
