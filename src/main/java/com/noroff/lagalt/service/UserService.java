@@ -72,6 +72,7 @@ public class UserService {
             //Token was verified
             if (created != null){
                 // check for existing user
+                // replace with findByEmail once 2FA is implemented.
                 ResponseEntity<User> fetchedUser = findByNameAndSecret(created);
                 if (fetchedUser != null){
                     System.out.println("EXISTING USER");

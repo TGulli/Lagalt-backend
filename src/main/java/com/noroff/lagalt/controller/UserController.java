@@ -44,6 +44,7 @@ public class UserController {
         return userService.deleteUser(id);
     }
 
+    //temp
     @PostMapping("/oauth/login/{token}")
     public ResponseEntity<User> oauthLogin(@PathVariable(value="token") String token) {
         return userService.verifiyToken(token);
