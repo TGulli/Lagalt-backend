@@ -4,6 +4,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.noroff.lagalt.model.User;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -14,7 +15,7 @@ import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterN
 
 public class GoogleTokenVerifier {
 
-    public static boolean verifiyGoogleToken(String idTokenString) throws IOException, GeneralSecurityException {
+    public static User verifiyGoogleToken(String idTokenString) throws IOException, GeneralSecurityException {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Collections.singletonList("119104222557-up2cfjpdaijqfnchovd4t33blblu11nv.apps.googleusercontent.com"))
                 .build();
@@ -24,6 +25,7 @@ public class GoogleTokenVerifier {
 
             Payload payload = idToken.getPayload();
 
+            System.out.println(payload);
             // Print user identifier
             String userId = payload.getSubject();
             System.out.println("User ID: " + userId);
@@ -45,10 +47,17 @@ public class GoogleTokenVerifier {
             System.out.println("locale: " + locale);
             System.out.println("familyName: " + familyName);
             System.out.println("givenName: " + givenName);
-            return true;
+
+            User gUser = new User();
+            gUser.setName(name);
+            gUser.setSecret(userId);
+            gUser.setHidden(false);
+
+
+            return gUser;
         } else {
             System.out.println("Invalid ID token.");
-            return false;
+            return null;
         }
     }
 

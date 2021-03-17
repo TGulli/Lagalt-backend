@@ -11,7 +11,7 @@ public class LagaltApplication {
 		//Hei fra Thomas
 		//hei fra Camilla
 		//hei fra Thea
-		
+
 		SpringApplication.run(LagaltApplication.class, args);
 	}
 

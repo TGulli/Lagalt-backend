@@ -65,16 +65,32 @@ public class UserService {
         return status;
     }
 
-    public HttpStatus verifiyToken(String token){
+    public ResponseEntity<User> verifiyToken(String token){
+
         try {
-            if (GoogleTokenVerifier.verifiyGoogleToken(token)){
-                return HttpStatus.ACCEPTED;
+            User created = GoogleTokenVerifier.verifiyGoogleToken(token);
+            //Token was verified
+            if (created != null){
+                // check for existing user
+                ResponseEntity<User> fetchedUser = findByNameAndSecret(created);
+                if (fetchedUser != null){
+                    System.out.println("EXISTING USER");
+                    // fetch that user
+                    return fetchedUser;
+                }
+                else {
+                    //create new user
+                    System.out.println("CREATED NEW GOOGLE USER");
+                    created = userRepository.save(created);
+                    return ResponseEntity.ok(created);
+                }
             }
             else {
-                return HttpStatus.CONFLICT;
+                return null;
             }
         } catch (IOException | GeneralSecurityException io){
-            return HttpStatus.BAD_REQUEST;
+            System.out.println(io);
+            return null;
         }
     }
 }

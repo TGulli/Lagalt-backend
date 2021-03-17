@@ -45,9 +45,8 @@ public class UserController {
     }
 
     @PostMapping("/oauth/login/{token}")
-    public HttpStatus oauthLogin(@PathVariable(value="token") String token) {
-        System.out.println(token);
-        return userService.verifiyToken(String.valueOf(token));
+    public ResponseEntity<User> oauthLogin(@PathVariable(value="token") String token) {
+        return userService.verifiyToken(token);
     }
 
 }
