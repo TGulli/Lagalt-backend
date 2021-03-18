@@ -25,6 +25,9 @@ public class User {
     @Column(name = "hidden")
     private Boolean hidden;
 
+    @Column(name = "email", unique = true)
+    private String email;
+
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
 
@@ -32,15 +35,22 @@ public class User {
     private List<ProjectCollaborators> collaboratorIn;
 
 
-
-
     public User() { }
 
-    public User(long id, String name, String secret, Boolean hidden) {
+    public User(long id, String name, String secret, String email, Boolean hidden) {
         this.id = id;
         this.name = name;
         this.secret = secret;
         this.hidden = hidden;
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     //JsonGetter

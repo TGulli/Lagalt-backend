@@ -1,6 +1,7 @@
 package com.noroff.lagalt.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.exceptions.UserAlreadyExist;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +30,13 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user){
+    public ResponseEntity<User> createUser(@RequestBody User user) throws UserAlreadyExist {
         return userService.create(user);
     }
 
     @PostMapping("/users/name")//unique username?
-    public ResponseEntity<User> findByNameAndSecret(@RequestBody User user) {
-        return userService.findByNameAndSecret(user);
+    public ResponseEntity<User> findByEmailAndSecret(@RequestBody User user) {
+        return userService.findByEmailAndSecret(user);
     }
 
     @DeleteMapping("/delete/{id}")

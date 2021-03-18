@@ -1,6 +1,7 @@
 package com.noroff.lagalt.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.exceptions.UserAlreadyExist;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -23,9 +24,13 @@ public class UserService {
     public ProjectRepository projectRepository;
 
 
-    public ResponseEntity<User> create(User user){
-        User x = userRepository.save(user);
-        return ResponseEntity.ok(x);
+    public ResponseEntity<User> create(User user) throws UserAlreadyExist{
+        User newUser = userRepository.findByEmail(user.getEmail());
+        if (newUser != null){
+          throw new UserAlreadyExist("User with the given email already exists.");
+        }
+        newUser = userRepository.save(user);
+        return ResponseEntity.ok(newUser);
     }
 
     public List<User> getAll() {
@@ -34,11 +39,11 @@ public class UserService {
 
 
     //Make me pretty!
-    public ResponseEntity<User> findByNameAndSecret(User user){
+    public ResponseEntity<User> findByEmailAndSecret(User user){
         List<User> users = userRepository.findAll();
 
         for (User retrievedUser : users){
-           if (retrievedUser.getName().equals(user.getName()) && retrievedUser.getSecret().equals(user.getSecret())){
+           if (retrievedUser.getEmail().equals(user.getEmail()) && retrievedUser.getSecret().equals(user.getSecret())){
                return ResponseEntity.ok(retrievedUser);
            }
         }

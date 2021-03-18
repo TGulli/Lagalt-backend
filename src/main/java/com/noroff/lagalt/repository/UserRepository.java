@@ -10,4 +10,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+    User findByEmail(String email);
 }
