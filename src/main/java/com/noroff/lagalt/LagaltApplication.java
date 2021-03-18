@@ -12,14 +12,6 @@ public class LagaltApplication {
 		//hei fra Camilla
 		//hei fra Thea
 
-
-		//model
-		//controller
-		//services
-		//repo
-
-
-
 		SpringApplication.run(LagaltApplication.class, args);
 	}
 

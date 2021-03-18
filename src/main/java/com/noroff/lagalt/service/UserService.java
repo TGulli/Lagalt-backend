@@ -5,13 +5,15 @@ import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.repository.UserRepository;
+import com.noroff.lagalt.utility.GoogleTokenVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -63,4 +65,33 @@ public class UserService {
         return status;
     }
 
+    public ResponseEntity<User> verifiyToken(String token){
+
+        try {
+            User created = GoogleTokenVerifier.verifiyGoogleToken(token);
+            //Token was verified
+            if (created != null){
+                // check for existing user
+                // replace with findByEmail once 2FA is implemented.
+                ResponseEntity<User> fetchedUser = findByNameAndSecret(created);
+                if (fetchedUser != null){
+                    System.out.println("EXISTING USER");
+                    // fetch that user
+                    return fetchedUser;
+                }
+                else {
+                    //create new user
+                    System.out.println("CREATED NEW GOOGLE USER");
+                    created = userRepository.save(created);
+                    return ResponseEntity.ok(created);
+                }
+            }
+            else {
+                return null;
+            }
+        } catch (IOException | GeneralSecurityException io){
+            System.out.println(io);
+            return null;
+        }
+    }
 }
