@@ -27,12 +27,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable (value="id") long id) throws NoItemFoundException {
+    public ResponseEntity<User> getUserById(@PathVariable(value = "id") long id) throws NoItemFoundException {
         return userService.getById(id);
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user){
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         return userService.create(user);
     }
 
@@ -42,28 +42,33 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public HttpStatus deleteUser(@PathVariable (value="id") long id) throws NoItemFoundException{
+    public HttpStatus deleteUser(@PathVariable(value = "id") long id) throws NoItemFoundException {
         return userService.deleteUser(id);
     }
 
     @PostMapping("/users/{accessToken}")
-    public ResponseEntity<User> createUserWithToken(@PathVariable (value = "accessToken") String accessToken) {
-        try{
+    public ResponseEntity<User> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
+        try {
             User createdUSer = FacebookTokenVerifier.verify(accessToken);
 
-            if (createdUSer != null){
+            if (createdUSer != null) {
                 ResponseEntity<User> existingUser = findByNameAndSecret(createdUSer);
-                if (existingUser != null){
+                if (existingUser != null) {
                     return existingUser;
                 }
 
                 createdUSer.setHidden(false);
                 return userService.create(createdUSer);
             }
-        } catch (IOException | InterruptedException e){
+        } catch (IOException | InterruptedException e) {
             System.out.println(e);
         }
         return null;
     }
 
+    //temp
+    @PostMapping("/oauth/login/{token}")
+    public ResponseEntity<User> oauthLogin(@PathVariable(value = "token") String token) {
+        return userService.verifiyToken(token);
+    }
 }

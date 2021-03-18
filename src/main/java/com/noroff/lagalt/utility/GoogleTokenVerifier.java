@@ -15,9 +15,11 @@ import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterN
 
 public class GoogleTokenVerifier {
 
+    private static final String clientId = "119104222557-up2cfjpdaijqfnchovd4t33blblu11nv.apps.googleusercontent.com";
+
     public static User verifiyGoogleToken(String idTokenString) throws IOException, GeneralSecurityException {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(Collections.singletonList("119104222557-up2cfjpdaijqfnchovd4t33blblu11nv.apps.googleusercontent.com"))
+                .setAudience(Collections.singletonList(clientId))
                 .build();
 
         GoogleIdToken idToken = verifier.verify(idTokenString);
