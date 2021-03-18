@@ -1,9 +1,15 @@
 package com.noroff.lagalt.project.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.service.ProjectService;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1")
@@ -41,8 +48,14 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project){
-        return projectService.editProject(id, project);
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException, NoItemFoundException {
+        JsonNode JsonUserId = json.get("user");
+        Long userId = JsonUserId.get("id").asLong();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonProject = json.get("project");
+        Project project = objectMapper.treeToValue(jsonProject, Project.class);
+
+        return projectService.editProject(id, project, userId);
     }
 
 }
