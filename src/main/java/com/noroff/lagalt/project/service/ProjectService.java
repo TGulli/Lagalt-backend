@@ -44,9 +44,28 @@ public class ProjectService {
     }
 
 
-    public ResponseEntity<Project> editProject(long id, Project project) {
-        project.setId(id);
-        Project savedProject = projectRepository.save(project);
-        return ResponseEntity.ok(savedProject);
+    public ResponseEntity<Project> editProject(long id, Project project, Long userId) throws NoItemFoundException{
+        HttpStatus status;
+
+        if(id != project.getId()){
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>(null, status);
+        }
+
+        Project existingProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No Project by id: " + id));
+        List<User> owners = existingProject.getOwners();
+        for (User owner : owners){
+            System.out.println("Userid: " + userId );
+            System.out.println("Ownerid: " + owner.getId());
+            if (owner.getId() == userId){
+                Project savedProject = projectRepository.save(project);
+                status = HttpStatus.OK;
+                return new ResponseEntity<>(savedProject, status);
+            }
+        }
+        status = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(null, status);
+
+
     }
 }

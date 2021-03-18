@@ -5,6 +5,8 @@ import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 
 import javax.persistence.*;
+import java.util.stream.Collectors;
+
 //
 enum Status {
     PENDING,
@@ -27,6 +29,7 @@ public class ProjectCollaborators {
     @JsonGetter("user")
     public String user() {
         if(user != null){
+            //return user;
             return "/api/v1/users/" + user.getId();
         }else{
             return null;
@@ -42,6 +45,7 @@ public class ProjectCollaborators {
     @JsonGetter("project")
     public String project() {
         if(project != null){
+            //return project;
             return "/api/v1/projects/" + project.getId();
         }else{
             return null;
