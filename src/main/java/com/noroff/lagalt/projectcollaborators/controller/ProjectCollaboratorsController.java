@@ -1,6 +1,11 @@
 package com.noroff.lagalt.projectcollaborators.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.service.ProjectCollaboratorsService;
@@ -9,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,13 +36,18 @@ public class ProjectCollaboratorsController {
     }
 
     @PostMapping("/project/collaborators")
-    public ResponseEntity<ProjectCollaborators> addProjectCollaborator(@RequestBody ProjectCollaborators projectCollaborators){
+    public ResponseEntity<ProjectCollaborators> addProjectCollaborator(@RequestBody ProjectCollaborators projectCollaborators) throws NoItemFoundException{
         return projectCollaboratorsService.create(projectCollaborators);
     }
 
     @PutMapping("/project/collaborators/{id}")
-    public ResponseEntity<ProjectCollaborators> updateStatus(@PathVariable long id, @RequestBody ProjectCollaborators collaborators){
-        return projectCollaboratorsService.updateStatus(id, collaborators);
+    public ResponseEntity<ProjectCollaborators> updateStatus(@PathVariable long id, @RequestBody ObjectNode json) throws JsonProcessingException, NoItemFoundException {
+        JsonNode JsonUserId = json.get("user");
+        Long userId = JsonUserId.get("id").asLong();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonProjectCollaborators = json.get("projectCollaborators");
+        ProjectCollaborators collaborators = objectMapper.treeToValue(jsonProjectCollaborators, ProjectCollaborators.class);
+        return projectCollaboratorsService.updateStatus(id, collaborators, userId);
     }
 
 
