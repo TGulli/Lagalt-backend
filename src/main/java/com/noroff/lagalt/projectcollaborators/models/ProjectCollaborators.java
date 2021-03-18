@@ -69,6 +69,14 @@ public class ProjectCollaborators {
         this.motivation = motivation;
     }
 
+    public String getMotivation() {
+        return motivation;
+    }
+
+    public void setMotivation(String motivation) {
+        this.motivation = motivation;
+    }
+
     public long getId() {
         return id;
     }
