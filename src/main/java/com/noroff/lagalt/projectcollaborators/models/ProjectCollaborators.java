@@ -55,16 +55,19 @@ public class ProjectCollaborators {
     @Column
     private Status status;
 
+    @Column
+    private String motivation;
+
     public ProjectCollaborators() {
     }
 
-    public ProjectCollaborators(long id, User user, Project project, Status status) {
+    public ProjectCollaborators(long id, User user, Project project, Status status, String motivation) {
         this.id = id;
         this.user = user;
         this.project = project;
         this.status = status;
+        this.motivation = motivation;
     }
-
 
     public long getId() {
         return id;
