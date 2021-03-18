@@ -63,4 +63,10 @@ public class UserService {
         return status;
     }
 
+    // Edit -> Add skills with mEeEeEeeEeEee.
+    public ResponseEntity<User> editUser(User user, long id) {
+        user.setId(id);
+        User editUser = userRepository.save(user);
+        return ResponseEntity.ok(editUser);
+    }
 }

@@ -36,6 +36,10 @@ public class Project {
 
     @Column(name = "category")
     private String category;
+
+    @Column(name = "tags")
+    @ElementCollection
+    private List<String> tags;
     
     @ManyToMany()
     @JoinTable(
@@ -85,6 +89,10 @@ public class Project {
 
     public String getCategory() {
         return category;
+    }
+
+    public List<String> getTags() {
+        return tags;
     }
 
     public List<User> getOwners() {

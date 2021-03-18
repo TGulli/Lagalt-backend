@@ -1,12 +1,10 @@
 package com.noroff.lagalt.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "Users")
@@ -22,8 +20,15 @@ public class User {
     @Column(name = "secret")
     private String secret;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "hidden")
     private Boolean hidden;
+
+    @Column(name ="tags")
+    @ElementCollection
+    private List<String> tags;
 
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
@@ -46,6 +51,18 @@ public class User {
     //JsonGetter
     public List<Project> getOwnedProjects() {
         return ownedProjects;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public long getId() {
