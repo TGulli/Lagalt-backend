@@ -57,13 +57,15 @@ public class ProjectService {
 
         if (!project.getName().equals("")) databaseProject.setName(project.getName());
         if (!project.getDescription().equals("")) databaseProject.setDescription(project.getDescription());
+        if (!project.getImage().equals("")) databaseProject.setImage(project.getImage());
+        databaseProject.setProgress(project.getProgress());
+
 
         //Create the tags!
         if (project.getProjectTags() != null){
             for (ProjectTag tag: project.getProjectTags()) {
-
                 if (!databaseProject.getProjectTags().contains(tag)) {
-                    tag.setProject(project);
+                    tag.setProject(databaseProject);
                     projectTagRepository.save(tag);
                 }
             }

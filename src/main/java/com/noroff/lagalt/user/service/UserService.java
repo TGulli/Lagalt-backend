@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -27,7 +29,7 @@ public class UserService {
     public UserTagRepository userTagRepository;
 
 
-    public ResponseEntity<User> create(User user){
+    public ResponseEntity<User> create(User user) {
         User x = userRepository.save(user);
         return ResponseEntity.ok(x);
     }
@@ -38,28 +40,28 @@ public class UserService {
 
 
     //Make me pretty!
-    public ResponseEntity<User> findByNameAndSecret(User user){
+    public ResponseEntity<User> findByNameAndSecret(User user) {
         List<User> users = userRepository.findAll();
 
-        for (User retrievedUser : users){
-           if (retrievedUser.getName().equals(user.getName()) && retrievedUser.getSecret().equals(user.getSecret())){
-               return ResponseEntity.ok(retrievedUser);
-           }
+        for (User retrievedUser : users) {
+            if (retrievedUser.getName().equals(user.getName()) && retrievedUser.getSecret().equals(user.getSecret())) {
+                return ResponseEntity.ok(retrievedUser);
+            }
         }
 
         return null;
     }
 
-    public ResponseEntity<User> getById(long id) throws NoItemFoundException{
+    public ResponseEntity<User> getById(long id) throws NoItemFoundException {
         User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
         return ResponseEntity.ok(fetchedUser);
     }
 
-    public HttpStatus deleteUser(long id) throws  NoItemFoundException{
+    public HttpStatus deleteUser(long id) throws NoItemFoundException {
         User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
 
         List<Project> projects = projectRepository.findAll();
-        for (Project p: projects) {
+        for (Project p : projects) {
             p.getOwners().remove(fetchedUser);
         }
         userRepository.delete(fetchedUser);
@@ -76,12 +78,19 @@ public class UserService {
         if (!user.getDescription().equals("")) currentUserState.setDescription(user.getDescription());
 
         //Create the tags!
-        if (user.getUserTags() != null){
-            for (UserTag tag: user.getUserTags()) {
-                if (!currentUserState.getUserTags().contains(tag)) {
+        if (user.getUserTags() != null) {
+
+            List<String> currentTags = new ArrayList<>();
+            for (UserTag t : currentUserState.getUserTags()) {
+                currentTags.add(t.getTag());
+            }
+            for (UserTag tag : user.getUserTags()) {
+                String userTag = tag.getTag();
+                if (!currentTags.contains(userTag)) {
                     tag.setUser(currentUserState);
                     userTagRepository.save(tag);
                 }
+
             }
         }
 
