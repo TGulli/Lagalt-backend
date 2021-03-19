@@ -1,8 +1,8 @@
-package com.noroff.lagalt.controller;
+package com.noroff.lagalt.user.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
-import com.noroff.lagalt.service.UserService;
+import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +44,8 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") long id){
+    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") long id) throws NoItemFoundException{
         return userService.editUser(user, id);
     }
-
 
 }

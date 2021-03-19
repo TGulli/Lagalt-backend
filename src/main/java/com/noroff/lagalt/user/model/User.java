@@ -1,7 +1,8 @@
-package com.noroff.lagalt.model;
+package com.noroff.lagalt.user.model;
 
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
 import java.util.List;
@@ -26,17 +27,14 @@ public class User {
     @Column(name = "hidden")
     private Boolean hidden;
 
-    @Column(name ="tags")
-    @ElementCollection
-    private List<String> tags;
-
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
 
     @OneToMany(mappedBy = "user")
     private List<ProjectCollaborators> collaboratorIn;
 
-
+    @OneToMany(mappedBy = "user")
+    private List<UserTag> userTags;
 
 
     public User() { }
@@ -53,9 +51,10 @@ public class User {
         return ownedProjects;
     }
 
-    public List<String> getTags() {
-        return tags;
+    public List<UserTag> getUserTags() {
+        return userTags;
     }
+
 
     public String getDescription() {
         return description;

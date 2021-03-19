@@ -45,7 +45,7 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project){
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project) throws NoItemFoundException{
         return projectService.editProject(id, project);
     }
 

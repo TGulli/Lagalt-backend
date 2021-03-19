@@ -1,17 +1,18 @@
-package com.noroff.lagalt.service;
+package com.noroff.lagalt.user.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
-import com.noroff.lagalt.repository.UserRepository;
+import com.noroff.lagalt.user.repository.UserRepository;
+import com.noroff.lagalt.usertags.model.UserTag;
+import com.noroff.lagalt.usertags.repository.UserTagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -21,6 +22,9 @@ public class UserService {
 
     @Autowired
     public ProjectRepository projectRepository;
+
+    @Autowired
+    public UserTagRepository userTagRepository;
 
 
     public ResponseEntity<User> create(User user){
@@ -47,12 +51,12 @@ public class UserService {
     }
 
     public ResponseEntity<User> getById(long id) throws NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
         return ResponseEntity.ok(fetchedUser);
     }
 
     public HttpStatus deleteUser(long id) throws  NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
 
         List<Project> projects = projectRepository.findAll();
         for (Project p: projects) {
@@ -64,9 +68,24 @@ public class UserService {
     }
 
     // Edit -> Add skills with mEeEeEeeEeEee.
-    public ResponseEntity<User> editUser(User user, long id) {
-        user.setId(id);
-        User editUser = userRepository.save(user);
+    public ResponseEntity<User> editUser(User user, long id) throws NoItemFoundException {
+
+        User currentUserState = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id"));
+
+        if (!user.getName().equals("")) currentUserState.setName(user.getName());
+        if (!user.getDescription().equals("")) currentUserState.setDescription(user.getDescription());
+
+        //Create the tags!
+        if (user.getUserTags() != null){
+            for (UserTag tag: user.getUserTags()) {
+                if (!currentUserState.getUserTags().contains(tag)) {
+                    tag.setUser(currentUserState);
+                    userTagRepository.save(tag);
+                }
+            }
+        }
+
+        User editUser = userRepository.save(currentUserState);
         return ResponseEntity.ok(editUser);
     }
 }
