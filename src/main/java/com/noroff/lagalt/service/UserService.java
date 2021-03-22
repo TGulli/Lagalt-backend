@@ -25,12 +25,11 @@ public class UserService {
 
 
     public ResponseEntity<User> create(User user) throws UserAlreadyExist{
-        User newUser = userRepository.findByEmail(user.getEmail());
-        if (newUser != null){
+        Optional<User> newUser = userRepository.findByEmail(user.getEmail());
+        if (newUser.isPresent()){
           throw new UserAlreadyExist("User with the given email already exists.");
         }
-        newUser = userRepository.save(user);
-        return ResponseEntity.ok(newUser);
+        return ResponseEntity.ok(userRepository.save(user));
     }
 
     public List<User> getAll() {
