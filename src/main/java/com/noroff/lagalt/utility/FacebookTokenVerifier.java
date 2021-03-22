@@ -27,7 +27,7 @@ public class FacebookTokenVerifier {
 
         // TODO add more data to user?
         JsonNode userData = new ObjectMapper().readTree(response.body());
-        facebookUser.setName(userData.get("name").toString().replace("\"", ""));
+        facebookUser.setUsername(userData.get("name").toString().replace("\"", ""));
         facebookUser.setSecret(userData.get("id").toString().replace("\"", "")); // id from facebook
 
         return facebookUser;

@@ -8,6 +8,7 @@ import com.noroff.lagalt.utility.FacebookTokenVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -33,6 +34,8 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user) {
+        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
+        user.setSecret(encodedPassword);
         return userService.create(user);
     }
 

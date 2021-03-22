@@ -1,29 +1,32 @@
 package com.noroff.lagalt.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.stream.Collectors;
-
-
 
 
 @Entity
-@Table(name = "Users")
+@Table(name = "Users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
+})
+
 public class User {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "username")
+    private String username;
 
     @Column(name = "secret")
     private String secret;
+
+    @Column(name = "email")
+    private String email;
 
     @Column(name = "hidden")
     private Boolean hidden;
@@ -35,20 +38,27 @@ public class User {
     private List<ProjectCollaborators> collaboratorIn;
 
 
-
-
     public User() { }
 
-    public User(long id, String name, String secret, Boolean hidden) {
+    public User(long id, String username, String secret, String email, Boolean hidden) {
         this.id = id;
-        this.name = name;
+        this.username = username;
         this.secret = secret;
+        this.email = email;
         this.hidden = hidden;
     }
 
     //JsonGetter
     public List<Project> getOwnedProjects() {
         return ownedProjects;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public long getId() {
@@ -59,12 +69,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String name) {
+        this.username = name;
     }
 
     public String getSecret() {

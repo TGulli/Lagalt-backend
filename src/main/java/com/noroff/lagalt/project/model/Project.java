@@ -70,7 +70,7 @@ public class Project {
     @JsonGetter("owners")
     public List<ReturnUser> getOwnerNames(){
         if(owners != null) {
-            return owners.stream().map(temp -> new ReturnUser(temp.getId(), temp.getName())).collect(Collectors.toList());
+            return owners.stream().map(temp -> new ReturnUser(temp.getId(), temp.getUsername())).collect(Collectors.toList());
         }
         return null;
     }

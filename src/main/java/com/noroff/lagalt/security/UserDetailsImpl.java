@@ -3,14 +3,10 @@ package com.noroff.lagalt.security;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.model.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /*
     This class is our extension of the default UserDetails Spring Security has.
@@ -18,7 +14,7 @@ import java.util.stream.Collectors;
     roles into GrantedAuthority.
  */
 
-public class JwtUserDetails implements UserDetails {
+public class UserDetailsImpl implements UserDetails {
     // Fields
     private Long id;
 
@@ -31,7 +27,7 @@ public class JwtUserDetails implements UserDetails {
     private String password;
 
     // Constructor
-    public JwtUserDetails(Long id, String username, String email,
+    public UserDetailsImpl(Long id, String username, String email,
                            String password) {
         this.id = id;
         this.username = username;
@@ -40,15 +36,15 @@ public class JwtUserDetails implements UserDetails {
     }
 
     // Build method to create a new UserDetailsImpl, this method converts our Role into GrantedAuthority
-    public static JwtUserDetails build(User user) {
+    public static UserDetailsImpl build(User user) {
         /*
          Here we use StreamAPI to create a list of GrantedAuthority from or role names.
          SimpleGrantedAuthority has a constructor that can take an argument that represents the role.
         */
 
-        return new JwtUserDetails(
+        return new UserDetailsImpl(
                 user.getId(),
-                user.getName(),
+                user.getUsername(),
                 user.getEmail(),
                 user.getSecret());
     }
@@ -116,7 +112,7 @@ public class JwtUserDetails implements UserDetails {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        JwtUserDetails user = (JwtUserDetails) o;
+        UserDetailsImpl user = (UserDetailsImpl) o;
         return Objects.equals(id, user.id);
     }
 }

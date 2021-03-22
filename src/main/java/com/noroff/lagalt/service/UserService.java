@@ -40,7 +40,7 @@ public class UserService {
         List<User> users = userRepository.findAll();
 
         for (User retrievedUser : users){
-           if (retrievedUser.getName().equals(user.getName()) && retrievedUser.getSecret().equals(user.getSecret())){
+           if (retrievedUser.getUsername().equals(user.getUsername()) && retrievedUser.getSecret().equals(user.getSecret())){
                return ResponseEntity.ok(retrievedUser);
            }
         }

@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
-
-import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames.CLIENT_ID;
-
 public class GoogleTokenVerifier {
 
     private static final String clientId = "119104222557-up2cfjpdaijqfnchovd4t33blblu11nv.apps.googleusercontent.com";
@@ -51,7 +48,7 @@ public class GoogleTokenVerifier {
             System.out.println("givenName: " + givenName);
 
             User gUser = new User();
-            gUser.setName(name);
+            gUser.setUsername(name);
             gUser.setSecret(userId);
             gUser.setHidden(false);
 
