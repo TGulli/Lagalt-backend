@@ -33,6 +33,8 @@ public class Project {
 
     @Column(name = "image")
     private String image;
+
+    //GITHUB REPO/EXTRA DETAILS
     
     @ManyToMany()
     @JoinTable(

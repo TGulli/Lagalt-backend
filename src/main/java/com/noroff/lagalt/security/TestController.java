@@ -4,7 +4,6 @@ import com.noroff.lagalt.security.dto.JwtResponse;
 import com.noroff.lagalt.security.dto.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -26,22 +25,15 @@ public class TestController {
     private UserDetailsServiceImpl userDetailsService;
 
 
-    // Endpoints
-    @GetMapping("/all")
-    public String allAccess() {
-        return "Public Resources.";
-    }
-
-
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
 
+        // Validate username & password
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        String token = jwtTokenUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new JwtResponse(token));
     }
@@ -50,28 +42,10 @@ public class TestController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            throw new Exception("USER DISABLED", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new Exception("BAD CREDENTIALS", e);
         }
     }
 
-
-    @GetMapping("/user")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public String userAccess() {
-        return "User Resources.";
-    }
-
-    @GetMapping("/mod")
-    @PreAuthorize("hasRole('MODERATOR')")
-    public String moderatorAccess() {
-        return "Moderator Resources.";
-    }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String adminAccess() {
-        return "Admin Resources.";
-    }
 }

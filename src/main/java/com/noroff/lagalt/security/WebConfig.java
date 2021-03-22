@@ -58,27 +58,6 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
         // Add a filter to validate the tokens with every request
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
-
-        /*
-        http
-                // Enable CORS and disable CSRF
-                .cors().and().csrf().disable()
-                // Set unauthorized requests exception handler
-                .exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and()
-                // Set session management to stateless
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                // Set permissions on endpoints
-                .authorizeRequests()
-                // Our public endpoints
-                .antMatchers("/").permitAll()
-                // Our protected endpoints
-                .antMatchers("/api/test/**").permitAll()
-                .anyRequest().authenticated();
-
-        // Add JWT token filter
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
-         */
     }
 
     @Bean

@@ -31,6 +31,8 @@ public class User {
     @Column(name = "hidden")
     private Boolean hidden;
 
+    //BIO
+
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
 

@@ -22,7 +22,6 @@ public class UserDetailsImpl implements UserDetails {
 
     private String email;
 
-    // We dont want the password to be shown, so we simply ignore it.
     @JsonIgnore
     private String password;
 
@@ -35,12 +34,8 @@ public class UserDetailsImpl implements UserDetails {
         this.password = password;
     }
 
-    // Build method to create a new UserDetailsImpl, this method converts our Role into GrantedAuthority
+    // Bærre ein vanlig builder, mulighet for å legge te roller eittehvert.
     public static UserDetailsImpl build(User user) {
-        /*
-         Here we use StreamAPI to create a list of GrantedAuthority from or role names.
-         SimpleGrantedAuthority has a constructor that can take an argument that represents the role.
-        */
 
         return new UserDetailsImpl(
                 user.getId(),
@@ -48,8 +43,6 @@ public class UserDetailsImpl implements UserDetails {
                 user.getEmail(),
                 user.getSecret());
     }
-
-    // Extensions
 
     public String getEmail(){
         return email;
@@ -59,6 +52,7 @@ public class UserDetailsImpl implements UserDetails {
         return id;
     }
 
+    // Må overrides for å bruke UserDetails...
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
@@ -74,12 +68,9 @@ public class UserDetailsImpl implements UserDetails {
         return username;
     }
 
-    /*
-     The following override methods have their default configurations.
-     We could implement logic in our application to handle the expiration of account and credentials
-     and we could make a way to lock our users out.
-     These are out of the scope of our project, but have merit in real world applications.
-    */
+    /**
+     * KEN FIKSE DETTA UM OSS VIL
+     */
 
     // Our accounts will never expire
     @Override
