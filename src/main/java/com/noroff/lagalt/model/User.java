@@ -27,7 +27,6 @@ public class User {
     @Column(name = "name")
     private String name;
 
-    @JsonIgnore
     @Column(name = "secret")
     private String secret;
 
@@ -55,15 +54,16 @@ public class User {
 
     public User() { }
 
-    public User(long id, String username, String secret, String email, Boolean hidden) {
+    public User(long id, String username, String name, String secret, String email, Boolean hidden, String locale, String bio) {
         this.id = id;
         this.username = username;
+        this.name = name;
         this.secret = secret;
         this.email = email;
         this.hidden = hidden;
+        this.locale = locale;
+        this.bio = bio;
     }
-
-
 
     //JsonGetter
     public List<Project> getOwnedProjects() {

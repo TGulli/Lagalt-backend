@@ -35,7 +35,7 @@ public class ProjectController {
         return projectService.create(project);
     }
 
-    @GetMapping("/projects/show/{page}")
+    @GetMapping("/public/projects/show/{page}")
     public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
         return projectService.showDisplayProjects(page);
     }

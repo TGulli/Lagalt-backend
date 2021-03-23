@@ -24,7 +24,7 @@ import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/public")
 @CrossOrigin(origins = "*")
 public class LoginController {
 
@@ -41,7 +41,7 @@ public class LoginController {
     private UserRepository userRepository;
 
 
-    @RequestMapping(value = "/login/internal", method = RequestMethod.POST)
+    @PostMapping("/login/internal")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
 
         // Validate username & password

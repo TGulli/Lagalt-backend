@@ -32,14 +32,6 @@ public class UserController {
         return userService.getById(id);
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
-        user.setLoginMethod(LoginMethod.internal);
-        user.setSecret(encodedPassword);
-        return userService.create(user);
-    }
-
     @PostMapping("/users/name")//unique username?
     public ResponseEntity<User> findByNameAndSecret(@RequestBody User user) {
         return userService.findByNameAndSecret(user);

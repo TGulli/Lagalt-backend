@@ -59,13 +59,11 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
+    public String getPassword() { return this.password; }
 
     @Override
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     /**

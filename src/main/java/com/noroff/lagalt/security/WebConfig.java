@@ -40,10 +40,9 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //http.csrf().disable().authorizeRequests().antMatchers("/").permitAll();
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/login/**").permitAll().
+                .antMatchers("/api/v1/public/**").permitAll().
                         anyRequest().authenticated().and().
                         exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
