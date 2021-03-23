@@ -1,5 +1,7 @@
 package com.noroff.lagalt.controller;
 
+import com.noroff.lagalt.exceptions.AuthenticateException;
+import com.noroff.lagalt.exceptions.CreateAuthenticationTokenException;
 import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.repository.UserRepository;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -45,25 +48,30 @@ public class LoginController {
     public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
 
         // Validate username & password
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        try {
+
+            authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         // GEnerates user
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        String token = jwtTokenUtil.generateToken(userDetails);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+            String token = jwtTokenUtil.generateToken(userDetails);
 
-        // Gets the correct User Object
-        User returnedUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
+            // Gets the correct User Object
+            User returnedUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
+            return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
 
-        return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
+        } catch (UsernameNotFoundException | AuthenticateException | NoItemFoundException e){
+            throw new CreateAuthenticationTokenException("Failed to create authenticate token.");
+        }
     }
 
-    private void authenticate(String username, String password) throws Exception {
+    private void authenticate(String username, String password) throws AuthenticateException {
+
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("BAD CREDENTIALS", e);
+
+        } catch (DisabledException | BadCredentialsException e) {
+            throw new AuthenticateException("Authenticate failed.");
         }
     }
 

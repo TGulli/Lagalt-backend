@@ -1,6 +1,7 @@
 package com.noroff.lagalt.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.exceptions.UserExistException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -25,7 +27,12 @@ public class UserService {
     public ProjectRepository projectRepository;
 
 
-    public ResponseEntity<User> create(User user){
+    public ResponseEntity<User> create(User user) throws UserExistException {
+        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+
+        if (existingUser.isPresent()){
+            throw new UserExistException("User already exists");
+        }
         User x = userRepository.save(user);
         return ResponseEntity.ok(x);
     }
@@ -49,12 +56,12 @@ public class UserService {
     }
 
     public ResponseEntity<User> getById(long id) throws NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
         return ResponseEntity.ok(fetchedUser);
     }
 
     public HttpStatus deleteUser(long id) throws  NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
 
         List<Project> projects = projectRepository.findAll();
         for (Project p: projects) {

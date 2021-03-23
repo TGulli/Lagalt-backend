@@ -1,5 +1,7 @@
 package com.noroff.lagalt.controller;
 
+import com.noroff.lagalt.exceptions.CreateAuthenticationTokenException;
+import com.noroff.lagalt.exceptions.UserExistException;
 import com.noroff.lagalt.model.LoginMethod;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
@@ -18,10 +20,11 @@ public class RegisterController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) throws UserExistException {
         String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
         user.setLoginMethod(LoginMethod.internal);
         user.setSecret(encodedPassword);
         return userService.create(user);
+
     }
 }
