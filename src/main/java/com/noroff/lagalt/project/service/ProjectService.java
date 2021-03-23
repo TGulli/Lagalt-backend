@@ -4,6 +4,7 @@ import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
+import com.noroff.lagalt.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public ResponseEntity<Project> create (Project project){
         Project createdProject = projectRepository.save(project);
@@ -65,7 +69,18 @@ public class ProjectService {
         }
         status = HttpStatus.BAD_REQUEST;
         return new ResponseEntity<>(null, status);
-
-
     }
+
+    public HttpStatus deleteProject(long id) throws  NoItemFoundException{
+        Project fetchedProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No project by id: " + id));
+
+        List<User> users = userRepository.findAll();
+        for (User u: users) {
+            u.getOwnedProjects().remove(fetchedProject);
+        }
+        projectRepository.delete(fetchedProject);
+        HttpStatus status = HttpStatus.OK;
+        return status;
+    }
+
 }

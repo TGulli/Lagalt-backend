@@ -13,6 +13,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,5 +58,11 @@ public class ProjectController {
 
         return projectService.editProject(id, project, userId);
     }
+
+    @DeleteMapping("/projects/{id}")
+    public HttpStatus deleteProject(@PathVariable(value="id") long id) throws NoItemFoundException{
+        return projectService.deleteProject(id);
+    }
+
 
 }
