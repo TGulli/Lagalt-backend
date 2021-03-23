@@ -27,7 +27,7 @@ public class UserController {
         return userService.getAll();
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("public/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable(value = "id") long id) throws NoItemFoundException {
         return userService.getById(id);
     }

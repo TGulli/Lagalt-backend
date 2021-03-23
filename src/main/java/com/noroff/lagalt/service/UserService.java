@@ -50,6 +50,15 @@ public class UserService {
 
     public ResponseEntity<User> getById(long id) throws NoItemFoundException{
         User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        //TODO:
+        // Fetch by anyone but project owner. Find way to differentiate between project owner and everyone else
+        // 3 state: ikkje logga, logga inn, owner
+        if (fetchedUser.isHidden()){
+            User hiddenUser = new User();
+            hiddenUser.setUsername(fetchedUser.getUsername());
+            return ResponseEntity.ok(hiddenUser);
+        }
+
         return ResponseEntity.ok(fetchedUser);
     }
 

@@ -22,6 +22,7 @@ public class RegisterController {
         String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
         user.setLoginMethod(LoginMethod.internal);
         user.setSecret(encodedPassword);
+        user.setHidden(false);
         return userService.create(user);
     }
 }
