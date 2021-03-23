@@ -1,7 +1,7 @@
 package com.noroff.lagalt.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.Token;
+import com.noroff.lagalt.model.LoginMethod;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
 import com.noroff.lagalt.utility.FacebookTokenVerifier;
@@ -35,6 +35,7 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
+        user.setLoginMethod(LoginMethod.internal);
         user.setSecret(encodedPassword);
         return userService.create(user);
     }
@@ -47,31 +48,5 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public HttpStatus deleteUser(@PathVariable(value = "id") long id) throws NoItemFoundException {
         return userService.deleteUser(id);
-    }
-
-    @PostMapping("/users/{accessToken}")
-    public ResponseEntity<User> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
-        try {
-            User createdUSer = FacebookTokenVerifier.verify(accessToken);
-
-            if (createdUSer != null) {
-                ResponseEntity<User> existingUser = findByNameAndSecret(createdUSer);
-                if (existingUser != null) {
-                    return existingUser;
-                }
-
-                createdUSer.setHidden(false);
-                return userService.create(createdUSer);
-            }
-        } catch (IOException | InterruptedException e) {
-            System.out.println(e);
-        }
-        return null;
-    }
-
-    //temp
-    @PostMapping("/oauth/login/{token}")
-    public ResponseEntity<User> oauthLogin(@PathVariable(value = "token") String token) {
-        return userService.verifiyToken(token);
     }
 }

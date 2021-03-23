@@ -1,5 +1,6 @@
 package com.noroff.lagalt.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 
@@ -7,12 +8,13 @@ import javax.persistence.*;
 import java.util.List;
 
 
+
+
 @Entity
 @Table(name = "Users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")
 })
-
 public class User {
 
     @Id
@@ -22,6 +24,10 @@ public class User {
     @Column(name = "username")
     private String username;
 
+    @Column(name = "name")
+    private String name;
+
+    @JsonIgnore
     @Column(name = "secret")
     private String secret;
 
@@ -31,7 +37,14 @@ public class User {
     @Column(name = "hidden")
     private Boolean hidden;
 
-    //BIO
+    @Column(name = "locale")
+    private String locale;
+
+    @Column(name = "bio")
+    private String bio;
+
+    @Column(name = "loginMethod")
+    private LoginMethod loginMethod;
 
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
@@ -50,9 +63,44 @@ public class User {
         this.hidden = hidden;
     }
 
+
+
     //JsonGetter
     public List<Project> getOwnedProjects() {
         return ownedProjects;
+    }
+
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public LoginMethod getLoginMethod() {
+        return loginMethod;
+    }
+
+    public void setLoginMethod(LoginMethod loginMethod) {
+        this.loginMethod = loginMethod;
     }
 
     public String getEmail() {
@@ -102,4 +150,5 @@ public class User {
     public void setCollaboratorIn(List<ProjectCollaborators> collaboratorIn) {
         this.collaboratorIn = collaboratorIn;
     }
+
 }

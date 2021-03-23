@@ -4,6 +4,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.noroff.lagalt.model.LoginMethod;
 import com.noroff.lagalt.model.User;
 
 import java.io.IOException;
@@ -21,37 +22,16 @@ public class GoogleTokenVerifier {
 
         GoogleIdToken idToken = verifier.verify(idTokenString);
         if (idToken != null) {
-
             Payload payload = idToken.getPayload();
 
-            System.out.println(payload);
-            // Print user identifier
-            String userId = payload.getSubject();
-            System.out.println("User ID: " + userId);
-
-            // Get profile information from payload
-            String email = payload.getEmail();
-            boolean emailVerified = payload.getEmailVerified();
-            String name = (String) payload.get("name");
-            String pictureUrl = (String) payload.get("picture");
-            String locale = (String) payload.get("locale");
-            String familyName = (String) payload.get("family_name");
-            String givenName = (String) payload.get("given_name");
-
-            // Use or store profile information
-            System.out.println("Email: " + email);
-            System.out.println("emailVerified: " + emailVerified);
-            System.out.println("name: " + name);
-            System.out.println("pictureUrl: " + pictureUrl);
-            System.out.println("locale: " + locale);
-            System.out.println("familyName: " + familyName);
-            System.out.println("givenName: " + givenName);
-
             User gUser = new User();
-            gUser.setUsername(name);
-            gUser.setSecret(userId);
+            gUser.setUsername((String) payload.get("name"));
+            gUser.setEmail(payload.getEmail());
+            gUser.setName((String) payload.get("given_name") + " " + (String) payload.get("family_name"));
             gUser.setHidden(false);
-
+            gUser.setLocale((String) payload.get("locale"));
+            gUser.setBio("");
+            gUser.setLoginMethod(LoginMethod.google);
 
             return gUser;
         } else {
