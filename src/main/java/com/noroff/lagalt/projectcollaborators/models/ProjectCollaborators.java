@@ -60,8 +60,7 @@ public class ProjectCollaborators {
         this.project = project;
         this.status = status;
     }
-
-
+    
     public long getId() {
         return id;
     }
