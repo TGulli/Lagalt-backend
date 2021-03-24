@@ -1,6 +1,8 @@
 package com.noroff.lagalt.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.noroff.lagalt.chat.model.ChatMessage;
+import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 
@@ -14,7 +16,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "name")
     private String name;
@@ -31,12 +33,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<ProjectCollaborators> collaboratorIn;
 
+    @OneToMany(mappedBy = "user")
+    private List<Message> messages;
 
 
 
     public User() { }
 
-    public User(long id, String name, String secret, Boolean hidden) {
+    public User(Long id, String name, String secret, Boolean hidden) {
         this.id = id;
         this.name = name;
         this.secret = secret;
@@ -48,11 +52,11 @@ public class User {
         return ownedProjects;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -86,5 +90,21 @@ public class User {
 
     public void setCollaboratorIn(List<ProjectCollaborators> collaboratorIn) {
         this.collaboratorIn = collaboratorIn;
+    }
+
+    public Boolean getHidden() {
+        return hidden;
+    }
+
+    public void setOwnedProjects(List<Project> ownedProjects) {
+        this.ownedProjects = ownedProjects;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }
