@@ -61,7 +61,6 @@ public class ProjectCollaborators {
         this.status = status;
     }
 
-
     public long getId() {
         return id;
     }
