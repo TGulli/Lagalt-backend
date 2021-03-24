@@ -32,10 +32,10 @@ public class UserController {
         return userService.getById(id);
     }
 
-    @PostMapping("/users/name")//unique username?
-    public ResponseEntity<User> findByNameAndSecret(@RequestBody User user) {
-        return userService.findByNameAndSecret(user);
-    }
+//    @PostMapping("/users/name")//unique username?
+//    public ResponseEntity<User> findByNameAndSecret(@RequestBody User user) {
+//        return userService.findByNameAndSecret(user);
+//    }
 
     @DeleteMapping("/users/{id}")
     public HttpStatus deleteUser(@PathVariable(value = "id") long id) throws NoItemFoundException {

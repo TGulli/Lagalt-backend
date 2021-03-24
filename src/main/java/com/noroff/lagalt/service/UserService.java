@@ -2,6 +2,7 @@ package com.noroff.lagalt.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.exceptions.UserExistException;
+import com.noroff.lagalt.exceptions.UserNullException;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -27,7 +28,11 @@ public class UserService {
     public ProjectRepository projectRepository;
 
 
-    public ResponseEntity<User> create(User user) throws UserExistException {
+    public ResponseEntity<User> create(User user) throws UserExistException, UserNullException {
+        if (user == null || user.getEmail() == null || user.getUsername() == null){
+            throw new UserNullException("User, user.getEmail or user.username is null.");
+        }
+
         Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){
@@ -42,26 +47,26 @@ public class UserService {
     }
 
 
-    //Make me pretty!
-    public ResponseEntity<User> findByNameAndSecret(User user){
-        List<User> users = userRepository.findAll();
-
-        for (User retrievedUser : users){
-           if (retrievedUser.getUsername().equals(user.getUsername()) && retrievedUser.getSecret().equals(user.getSecret())){
-               return ResponseEntity.ok(retrievedUser);
-           }
-        }
-
-        return null;
-    }
+//    //Make me pretty!
+//    public ResponseEntity<User> findByNameAndSecret(User user){
+//        List<User> users = userRepository.findAll();
+//
+//        for (User retrievedUser : users){
+//           if (retrievedUser.getUsername().equals(user.getUsername()) && retrievedUser.getSecret().equals(user.getSecret())){
+//               return ResponseEntity.ok(retrievedUser);
+//           }
+//        }
+//
+//        return null;
+//    }
 
     public ResponseEntity<User> getById(long id) throws NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id + " found."));
         return ResponseEntity.ok(fetchedUser);
     }
 
     public HttpStatus deleteUser(long id) throws  NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id + " found."));
 
         List<Project> projects = projectRepository.findAll();
         for (Project p: projects) {
