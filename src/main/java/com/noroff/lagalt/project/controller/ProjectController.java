@@ -1,12 +1,10 @@
 package com.noroff.lagalt.project.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +23,12 @@ public class ProjectController {
         return projectService.getAll();
     }
 
+    //Kanskje slett?
+    @GetMapping("/projects/category/{category}")
+    public ResponseEntity<List<Project>> getAllFromCategory(@PathVariable(value="category") String category){
+        return projectService.getAllFromCategory(category);
+    }
+
     @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) throws NoItemFoundException {
         return projectService.getById(id);
@@ -41,7 +45,7 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project){
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project) throws NoItemFoundException{
         return projectService.editProject(id, project);
     }
 

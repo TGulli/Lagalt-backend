@@ -1,8 +1,10 @@
 package com.noroff.lagalt.project.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.projecttags.model.ProjectTag;
+import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
 import java.util.List;
@@ -34,8 +36,15 @@ public class Project {
     @Column(name = "image")
     private String image;
 
+    @Column(name = "category")
+    private String category;
+
+
+    @OneToMany(mappedBy = "project")
+    private List<ProjectTag> projectTags;
+
     //GITHUB REPO/EXTRA DETAILS
-    
+
     @ManyToMany()
     @JoinTable(
             name = "project_users",
@@ -49,12 +58,13 @@ public class Project {
     
     public Project(){}
 
-    public Project(long id, String name, String description, Progress progress, String image) {
+    public Project(long id, String name, String description, Progress progress, String image, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.progress = progress;
         this.image = image;
+        this.category = category;
     }
 
     /*
@@ -77,8 +87,16 @@ public class Project {
         return null;
     }
 
+    public List<ProjectTag> getProjectTags() {
+        return projectTags;
+    }
+
     public List<ProjectCollaborators> getCollaborators() {
         return collaborators;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public List<User> getOwners() {

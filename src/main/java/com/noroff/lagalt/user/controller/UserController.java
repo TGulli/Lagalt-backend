@@ -1,6 +1,8 @@
-package com.noroff.lagalt.controller;
+package com.noroff.lagalt.user.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.user.service.UserService;
 import com.noroff.lagalt.model.LoginMethod;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.service.UserService;
@@ -41,4 +43,10 @@ public class UserController {
     public HttpStatus deleteUser(@PathVariable(value = "id") long id) throws NoItemFoundException {
         return userService.deleteUser(id);
     }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") long id) throws NoItemFoundException{
+        return userService.editUser(user, id);
+    }
+
 }

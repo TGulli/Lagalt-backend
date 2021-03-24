@@ -1,8 +1,9 @@
-package com.noroff.lagalt.model;
+package com.noroff.lagalt.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
 import java.util.List;
@@ -33,6 +34,9 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "hidden")
     private Boolean hidden;
 
@@ -51,6 +55,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<ProjectCollaborators> collaboratorIn;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserTag> userTags;
 
     public User() { }
 
@@ -73,6 +79,23 @@ public class User {
 
     public String getLocale() {
         return locale;
+    }
+
+    public List<UserTag> getUserTags() {
+        return userTags;
+    }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public void setLocale(String locale) {

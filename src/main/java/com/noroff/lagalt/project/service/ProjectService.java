@@ -1,9 +1,12 @@
 package com.noroff.lagalt.project.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
+import com.noroff.lagalt.projecttags.model.ProjectTag;
+import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
+import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.usertags.model.UserTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,12 +16,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProjectTagRepository projectTagRepository;
 
     public ResponseEntity<Project> create (Project project){
         Project createdProject = projectRepository.save(project);
@@ -44,9 +51,38 @@ public class ProjectService {
     }
 
 
-    public ResponseEntity<Project> editProject(long id, Project project) {
-        project.setId(id);
-        Project savedProject = projectRepository.save(project);
+    public ResponseEntity<Project> editProject(long id, Project project) throws NoItemFoundException{
+
+        Project databaseProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No project by id: " + id));
+
+        if (!project.getName().equals("")) databaseProject.setName(project.getName());
+        if (!project.getDescription().equals("")) databaseProject.setDescription(project.getDescription());
+        if (!project.getImage().equals("")) databaseProject.setImage(project.getImage());
+        databaseProject.setProgress(project.getProgress());
+
+
+        //Create the tags!
+        if (project.getProjectTags() != null){
+            for (ProjectTag tag: project.getProjectTags()) {
+                if (!databaseProject.getProjectTags().contains(tag)) {
+                    tag.setProject(databaseProject);
+                    projectTagRepository.save(tag);
+                }
+            }
+        }
+
+        Project savedProject = projectRepository.save(databaseProject);
+
         return ResponseEntity.ok(savedProject);
+    }
+
+    // Trengs kanskje?
+    public ResponseEntity<List<Project>> getAllFromCategory(String category) {
+        List<Project> projects = projectRepository.findAll()
+                .stream()
+                .filter(p -> p.getCategory().equals(category))
+                .collect(Collectors.toList());
+        HttpStatus status = HttpStatus.OK;
+        return new ResponseEntity<>(projects, status);
     }
 }

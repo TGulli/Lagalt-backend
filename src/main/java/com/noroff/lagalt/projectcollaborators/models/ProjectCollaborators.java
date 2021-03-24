@@ -1,7 +1,7 @@
 package com.noroff.lagalt.projectcollaborators.models;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 
 import javax.persistence.*;
@@ -60,6 +60,7 @@ public class ProjectCollaborators {
         this.project = project;
         this.status = status;
     }
+
 
     public long getId() {
         return id;
