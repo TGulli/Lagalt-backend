@@ -1,7 +1,7 @@
 package com.noroff.lagalt.message.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 
 import javax.persistence.*;

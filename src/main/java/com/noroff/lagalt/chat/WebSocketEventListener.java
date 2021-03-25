@@ -4,7 +4,6 @@ import com.noroff.lagalt.chat.model.ChatMessage;
 import com.noroff.lagalt.chat.model.ChatMessageType;
 import com.noroff.lagalt.chat.repository.ChatMessageRepository;
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;

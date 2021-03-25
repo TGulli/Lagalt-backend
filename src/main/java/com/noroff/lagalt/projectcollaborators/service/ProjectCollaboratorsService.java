@@ -33,7 +33,7 @@ public class ProjectCollaboratorsService {
         List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
 
         for (User owner : owners){
-            if (owner.getId() == userId){
+            if (owner.getId().equals(userId)){
                 status = HttpStatus.BAD_REQUEST;
                 return new ResponseEntity<>(null, status);
             }
@@ -41,7 +41,7 @@ public class ProjectCollaboratorsService {
         if (collaboratorsList != null){
             for (ProjectCollaborators projectCollaborators : collaboratorsList){
                 User user = projectCollaborators.getUser();
-                if (user.getId() == userId){
+                if (user.getId().equals(userId)){
                     status = HttpStatus.BAD_REQUEST;
                     return new ResponseEntity<>(null, status);
                 }
@@ -58,13 +58,13 @@ public class ProjectCollaboratorsService {
         return new ResponseEntity<>(collaborators, status);
     }
 
-    public ResponseEntity<Optional<ProjectCollaborators>> getById(long id) {
+    public ResponseEntity<Optional<ProjectCollaborators>> getById(Long id) {
         Optional<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findById(id);
         HttpStatus status = HttpStatus.OK;
         return new ResponseEntity<>(collaborators, status);
     }
 
-    public ResponseEntity<ProjectCollaborators> updateStatus (long id, ProjectCollaborators collaborators, Long userId) throws NoItemFoundException{
+    public ResponseEntity<ProjectCollaborators> updateStatus (Long id, ProjectCollaborators collaborators, Long userId) throws NoItemFoundException{
         ProjectCollaborators updatedCollaborators = new ProjectCollaborators();
         HttpStatus status;
 
@@ -77,7 +77,7 @@ public class ProjectCollaboratorsService {
         Project existingProject = projectRepository.findById(projectId).orElseThrow(() -> new NoItemFoundException("No Project by id: " + id));
         List<User> owners = existingProject.getOwners();
         for (User owner : owners){
-            if (owner.getId() == userId){
+            if (owner.getId().equals(userId)){
                 updatedCollaborators = projectCollaboratorsRepository.save(collaborators);
                 status = HttpStatus.OK;
                 return new ResponseEntity<>(updatedCollaborators, status);

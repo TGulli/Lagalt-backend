@@ -3,11 +3,7 @@ package com.noroff.lagalt.chat.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
-import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
-import com.noroff.lagalt.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

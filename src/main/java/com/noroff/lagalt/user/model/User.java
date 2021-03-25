@@ -1,6 +1,7 @@
 package com.noroff.lagalt.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
@@ -21,7 +22,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "username")
     private String username;
@@ -59,6 +60,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserTag> userTags;
 
+    @OneToMany(mappedBy = "user")
+    private List<Message> messages;
+
     public User() { }
 
     public User(long id, String username, String name, String secret, String email, Boolean hidden, String locale, String bio) {
@@ -77,6 +81,13 @@ public class User {
         return ownedProjects;
     }
 
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
 
     public String getLocale() {
         return locale;
@@ -131,11 +142,11 @@ public class User {
         this.email = email;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

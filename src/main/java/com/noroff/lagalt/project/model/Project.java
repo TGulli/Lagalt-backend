@@ -91,18 +91,6 @@ public class Project {
         this.category = category;
     }
 
-    /*
-    public List<String> getOwnerNames(){
-        if(owners != null) {
-            return owners.stream()
-                    .map(User::getName)
-                    .collect(Collectors.toList());
-        }
-        return null;
-    }
-
-     */
-
     @JsonGetter("owners")
     public List<ReturnUser> getOwnerNames(){
         if(owners != null) {

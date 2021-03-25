@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.message.service.MessageService;
-import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
