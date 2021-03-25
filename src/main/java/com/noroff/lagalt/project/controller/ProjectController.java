@@ -50,9 +50,11 @@ public class ProjectController {
         return projectService.create(project);
     }
 
-    //public
+    // kun for users
     @GetMapping("/public/projects/show/{page}")
     public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
+        // Gjør new content magi
+
         return projectService.showDisplayProjects(page);
     }
 

@@ -44,6 +44,9 @@ public class ProjectService {
     }
 
     public ResponseEntity<Project> getById(long id) throws NoItemFoundException {
+
+        //Ikkje logga inn, logga inn,
+
         Project fetchedProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No project by id: " + id));
         return ResponseEntity.ok(fetchedProject);
     }
