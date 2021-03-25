@@ -1,6 +1,7 @@
 package com.noroff.lagalt.chat.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -29,7 +32,7 @@ public class ChatMessage {
     private String sender;
 
     @Column
-    private LocalDateTime timestamp = LocalDateTime.now();
+    @JsonFormat(pattern="dd.MM.yyyy HH:mm") private String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
 
     @Column
     private ChatMessageType type;
@@ -82,11 +85,11 @@ public class ChatMessage {
         this.sender = sender;
     }
 
-    public LocalDateTime getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
