@@ -48,13 +48,18 @@ public class ProjectCollaborators {
 
 
     @JsonGetter("project")
-    public String project() {
-        if(project != null){
+    public ProjectCollaborators.ReturnProject project() {
+
+        if(project != null) {
+            return  new ProjectCollaborators.ReturnProject(project.getId());
+        }
+        return null;
+        /*if(project != null){
             //return project;
             return "/api/v1/projects/" + project.getId();
         }else{
             return null;
-        }
+        }*/
     }
 
     @Column
@@ -121,6 +126,18 @@ public class ProjectCollaborators {
 
 
         public ReturnCollaborator(Long id) {
+            this.id = id;
+
+        }
+
+    }
+
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    class ReturnProject{
+        private Long id;
+
+
+        public ReturnProject(Long id) {
             this.id = id;
 
         }
