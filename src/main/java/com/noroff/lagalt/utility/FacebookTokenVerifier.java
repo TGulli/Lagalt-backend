@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.user.model.User;
+import com.google.common.base.VerifyException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,29 +13,27 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class FacebookTokenVerifier {
-    public static User verify(String accessToken) throws IOException, InterruptedException {
+    public static User verify(String accessToken) {
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://graph.facebook.com/me?fields=id,name,email,picture,locale&access_token=" + accessToken))
-                .build();
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        try{
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://graph.facebook.com/me?fields=id,name,email,picture,locale&access_token=" + accessToken))
+                    .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200){
-            System.out.println(response.statusCode());
-            System.out.println(response.body());
-            return null;
+            // TODO add more data to user?
+            JsonNode userData = new ObjectMapper().readTree(response.body());
+            User facebookUser = new User();
+
+            facebookUser.setUsername(userData.get("name").toString().replace("\"", ""));
+            facebookUser.setEmail(userData.get("email").toString().replace("\"", ""));
+            facebookUser.setLoginMethod(LoginMethod.facebook);
+            facebookUser.setHidden(false);
+
+            return facebookUser;
+        } catch (IOException | InterruptedException e){
+            throw new VerifyException("Could not verify the accesstoken.");
         }
-        User facebookUser = new User();
-
-        // TODO add more data to user?
-        JsonNode userData = new ObjectMapper().readTree(response.body());
-        facebookUser.setUsername(userData.get("name").toString().replace("\"", ""));
-        facebookUser.setEmail(userData.get("email").toString().replace("\"", ""));
-        facebookUser.setLoginMethod(LoginMethod.facebook);
-        facebookUser.setHidden(false);
-
-
-        return facebookUser;
     }
 
 }
