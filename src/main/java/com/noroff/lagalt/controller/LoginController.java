@@ -70,6 +70,7 @@ public class LoginController {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
         } catch (NullPointerException | DisabledException | BadCredentialsException e) {
+            System.out.println(e);
             throw new AuthenticateException("Authenticate failed.");
         }
     }

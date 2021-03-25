@@ -30,7 +30,7 @@ public class ProjectCollaborators {
     public String user() {
         if(user != null){
             //return user;
-            return "/api/v1/users/" + user.getId();
+            return "/api/v1/public/users/" + user.getId();
         }else{
             return null;
         }

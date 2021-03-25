@@ -1,7 +1,7 @@
 package com.noroff.lagalt.projectcollaborators.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
@@ -9,9 +9,7 @@ import com.noroff.lagalt.projectcollaborators.repository.ProjectCollaboratorsRep
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +34,7 @@ public class ProjectCollaboratorsService {
 
         for (User owner : owners){
             if (owner.getId() == userId){
-                status = HttpStatus.OK;
+                status = HttpStatus.BAD_REQUEST;
                 return new ResponseEntity<>(null, status);
             }
         }
@@ -44,7 +42,7 @@ public class ProjectCollaboratorsService {
             for (ProjectCollaborators projectCollaborators : collaboratorsList){
                 User user = projectCollaborators.getUser();
                 if (user.getId() == userId){
-                    status = HttpStatus.OK;
+                    status = HttpStatus.BAD_REQUEST;
                     return new ResponseEntity<>(null, status);
                 }
             }

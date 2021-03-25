@@ -33,7 +33,7 @@ public class UserService {
 
 
     public ResponseEntity<User> create(User user) throws UserExistException, UserNullException {
-        if (user == null || user.getEmail() == null || user.getUsername() == null){
+        if (user == null || user.getUsername() == null || user.getEmail() == null){
             throw new UserNullException("User, user.getEmail or user.username is null.");
         }
 
