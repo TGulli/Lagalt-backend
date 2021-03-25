@@ -1,6 +1,6 @@
 package com.noroff.lagalt.controller;
 
-import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.exceptions.*;
 import com.google.common.base.VerifyException;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.repository.UserRepository;
@@ -44,7 +44,7 @@ public class LoginController {
 
 
     @PostMapping("/login/internal")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception{
         // Todo new data for register, and new Exception based on email
         // Validate username & password
         try {
@@ -76,7 +76,7 @@ public class LoginController {
 
 
     @PostMapping("/login/facebook/{accessToken}")
-    public ResponseEntity<?> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) throws FacebookLoginException{
+    public ResponseEntity<?> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) throws FacebookLoginException {
         try {
             User createdUser = FacebookTokenVerifier.verify(accessToken);
             Optional<User> fetchedUser = userRepository.findByEmail(createdUser.getEmail());

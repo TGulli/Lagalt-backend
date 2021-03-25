@@ -1,6 +1,8 @@
 package com.noroff.lagalt.user.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.exceptions.UserExistException;
+import com.noroff.lagalt.exceptions.UserNullException;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -29,7 +32,16 @@ public class UserService {
     public UserTagRepository userTagRepository;
 
 
-    public ResponseEntity<User> create(User user) {
+    public ResponseEntity<User> create(User user) throws UserExistException, UserNullException {
+        if (user == null || user.getEmail() == null || user.getUsername() == null){
+            throw new UserNullException("User, user.getEmail or user.username is null.");
+        }
+
+        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+
+        if (existingUser.isPresent()){
+            throw new UserExistException("User already exists");
+        }
         User x = userRepository.save(user);
         return ResponseEntity.ok(x);
     }

@@ -18,7 +18,8 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @GetMapping("/projects")
+    //public
+    @GetMapping("/public/projects")
     public ResponseEntity<List<Project>> getAllProjects(){
         return projectService.getAll();
     }
@@ -39,6 +40,7 @@ public class ProjectController {
         return projectService.create(project);
     }
 
+    //public
     @GetMapping("/public/projects/show/{page}")
     public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
         return projectService.showDisplayProjects(page);
