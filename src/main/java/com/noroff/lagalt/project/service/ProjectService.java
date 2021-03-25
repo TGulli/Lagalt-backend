@@ -7,6 +7,7 @@ import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.usertags.model.UserTag;
+import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ProjectTagRepository projectTagRepository;
@@ -51,30 +55,53 @@ public class ProjectService {
     }
 
 
-    public ResponseEntity<Project> editProject(long id, Project project) throws NoItemFoundException{
+    public ResponseEntity<Project> editProject(long id, Project project, Long userId) throws NoItemFoundException{
+        HttpStatus status;
 
-        Project databaseProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No project by id: " + id));
-
-        if (!project.getName().equals("")) databaseProject.setName(project.getName());
-        if (!project.getDescription().equals("")) databaseProject.setDescription(project.getDescription());
-        if (!project.getImage().equals("")) databaseProject.setImage(project.getImage());
-        databaseProject.setProgress(project.getProgress());
-
-
-        //Create the tags!
-        if (project.getProjectTags() != null){
-            for (ProjectTag tag: project.getProjectTags()) {
-                if (!databaseProject.getProjectTags().contains(tag)) {
-                    tag.setProject(databaseProject);
-                    projectTagRepository.save(tag);
-                }
-            }
+        if(id != project.getId()){
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>(null, status);
         }
 
-        Project savedProject = projectRepository.save(databaseProject);
+        Project existingProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No Project by id: " + id));
+        List<User> owners = existingProject.getOwners();
+        for (User owner : owners){
+            System.out.println("Userid: " + userId );
+            System.out.println("Ownerid: " + owner.getId());
+            if (owner.getId() == userId){
 
-        return ResponseEntity.ok(savedProject);
+                //Create the tags!
+                if (project.getProjectTags() != null){
+                    for (ProjectTag tag: project.getProjectTags()) {
+                        if (!existingProject.getProjectTags().contains(tag)) {
+                            tag.setProject(existingProject);
+                            projectTagRepository.save(tag);
+                        }
+                    }
+                }
+
+
+                Project savedProject = projectRepository.save(project);
+                status = HttpStatus.OK;
+                return new ResponseEntity<>(savedProject, status);
+            }
+        }
+        status = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(null, status);
     }
+
+    public HttpStatus deleteProject(long id) throws  NoItemFoundException{
+        Project fetchedProject = projectRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No project by id: " + id));
+
+        List<User> users = userRepository.findAll();
+        for (User u: users) {
+            u.getOwnedProjects().remove(fetchedProject);
+        }
+        projectRepository.delete(fetchedProject);
+        HttpStatus status = HttpStatus.OK;
+        return status;
+    }
+
 
     // Trengs kanskje?
     public ResponseEntity<List<Project>> getAllFromCategory(String category) {

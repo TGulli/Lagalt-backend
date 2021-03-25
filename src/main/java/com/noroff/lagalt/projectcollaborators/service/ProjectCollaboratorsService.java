@@ -1,7 +1,9 @@
 package com.noroff.lagalt.projectcollaborators.service;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
+import com.noroff.lagalt.model.User;
 import com.noroff.lagalt.project.model.Project;
+import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.repository.ProjectCollaboratorsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,36 @@ public class ProjectCollaboratorsService {
 
     @Autowired
     ProjectCollaboratorsRepository projectCollaboratorsRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
-    public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborators){
-        ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborators);
-        HttpStatus status = HttpStatus.CREATED;
+    //Vi må hente ut prosjektet sin liste med owners og collaborators, og sjekke om brukeren finnes i de listene.
+    public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators collaborators) throws NoItemFoundException{
+        HttpStatus status;
+        Long userId = collaborators.getUser().getId();
+        Long projectId = collaborators.getProject().getId();
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NoItemFoundException("No Project by id: " + projectId));
+
+        List<User> owners = project.getOwners();
+        List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
+
+        for (User owner : owners){
+            if (owner.getId() == userId){
+                status = HttpStatus.OK;
+                return new ResponseEntity<>(null, status);
+            }
+        }
+        if (collaboratorsList != null){
+            for (ProjectCollaborators projectCollaborators : collaboratorsList){
+                User user = projectCollaborators.getUser();
+                if (user.getId() == userId){
+                    status = HttpStatus.OK;
+                    return new ResponseEntity<>(null, status);
+                }
+            }
+        }
+        ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(collaborators);
+        status = HttpStatus.CREATED;
         return new ResponseEntity<>(newCollaborator, status);
     }
 
@@ -38,18 +66,33 @@ public class ProjectCollaboratorsService {
         return new ResponseEntity<>(collaborators, status);
     }
 
-    public ResponseEntity<ProjectCollaborators> updateStatus (long id, ProjectCollaborators collaborators){
+    public ResponseEntity<ProjectCollaborators> updateStatus (long id, ProjectCollaborators collaborators, Long userId) throws NoItemFoundException{
         ProjectCollaborators updatedCollaborators = new ProjectCollaborators();
         HttpStatus status;
+
         if(id != collaborators.getId()){
             status = HttpStatus.BAD_REQUEST;
             return new ResponseEntity<>(updatedCollaborators, status);
         }
-        updatedCollaborators = projectCollaboratorsRepository.save(collaborators);
-        status = HttpStatus.OK;
-        return new ResponseEntity<>(updatedCollaborators, status);
+
+        Long projectId = collaborators.getProject().getId();
+        Project existingProject = projectRepository.findById(projectId).orElseThrow(() -> new NoItemFoundException("No Project by id: " + id));
+        List<User> owners = existingProject.getOwners();
+        for (User owner : owners){
+            if (owner.getId() == userId){
+                updatedCollaborators = projectCollaboratorsRepository.save(collaborators);
+                status = HttpStatus.OK;
+                return new ResponseEntity<>(updatedCollaborators, status);
+            }
+        }
+        status = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(null, status);
+
+
 
     }
+
+
 
 
 }

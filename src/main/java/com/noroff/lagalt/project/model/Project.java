@@ -155,5 +155,11 @@ public class Project {
 
     }
 
+    public void setOwners(List<User> owners) {
+        this.owners = owners;
+    }
 
+    public void setCollaborators(List<ProjectCollaborators> collaborators) {
+        this.collaborators = collaborators;
+    }
 }
