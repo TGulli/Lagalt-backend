@@ -44,7 +44,7 @@ public class LoginController {
 
 
     @PostMapping("/login/internal")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception{
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest){
         // Todo new data for register, and new Exception based on email
         // Validate username & password
         try {
@@ -60,11 +60,11 @@ public class LoginController {
             return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
 
         } catch (NullPointerException | UsernameNotFoundException | AuthenticateException | NoItemFoundException e){
-            throw new CreateAuthenticationTokenException("Failed to create authenticate token.");
+            return CreateAuthenticationTokenException.catchException("Failed to create authenticate token.");
         }
     }
 
-    // Todo email and username instead?
+    // Todo add email?
     private void authenticate(String username, String password) throws AuthenticateException {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -76,10 +76,10 @@ public class LoginController {
 
 
     @PostMapping("/login/facebook/{accessToken}")
-    public ResponseEntity<?> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) throws FacebookLoginException {
+    public ResponseEntity<?> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
         try {
             User createdUser = FacebookTokenVerifier.verify(accessToken);
-            Optional<User> fetchedUser = userRepository.findByEmail(createdUser.getEmail());
+            Optional<User> fetchedUser = userRepository.findByUsernameOrEmail(createdUser.getUsername(), createdUser.getEmail());
             User addUser;
 
             if (fetchedUser.isPresent()) {
@@ -97,13 +97,13 @@ public class LoginController {
             return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
 
         } catch (NullPointerException | VerifyException e){
-            throw new FacebookLoginException("Could not login with Facebook.");
+            return FacebookLoginException.catchException("Could not login with Facebook.");
         }
     }
 
     //Gewgle lawgin
     @PostMapping("/login/google/{token}")
-    public ResponseEntity<?> oauthLogin(@PathVariable(value = "token") String token) throws GoogleLoginException {
+    public ResponseEntity<?> oauthLogin(@PathVariable(value = "token") String token) {
 
         try {
             User created = GoogleTokenVerifier.verifiyGoogleToken(token);
@@ -123,7 +123,7 @@ public class LoginController {
             return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
 
         } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e){
-            throw new GoogleLoginException("Could not login with Google.");
+            return GoogleLoginException.catchException("Could not login with Google.");
         }
     }
 }

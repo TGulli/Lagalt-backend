@@ -21,12 +21,12 @@ public class FacebookTokenVerifier {
                     .build();
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
-            // TODO add more data to user?
             JsonNode userData = new ObjectMapper().readTree(response.body());
             User facebookUser = new User();
 
-            facebookUser.setUsername(userData.get("name").toString().replace("\"", ""));
+            facebookUser.setName(userData.get("name").toString().replace("\"", ""));
             facebookUser.setEmail(userData.get("email").toString().replace("\"", ""));
+            facebookUser.setUsername(facebookUser.getEmail());
             facebookUser.setLoginMethod(LoginMethod.facebook);
             facebookUser.setHidden(false);
 

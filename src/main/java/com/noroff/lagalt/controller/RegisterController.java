@@ -21,11 +21,19 @@ public class RegisterController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody User user) throws UserExistException, UserNullException {
-        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
-        user.setLoginMethod(LoginMethod.internal);
-        user.setSecret(encodedPassword);
-        user.setHidden(false);
-        return userService.create(user);
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        try {
+            String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
+            user.setLoginMethod(LoginMethod.internal);
+            user.setSecret(encodedPassword);
+            user.setHidden(false);
+            user.setEmail(user.getUsername()); // Todo add email
+            user.setName(user.getUsername()); // Todo add name
+            return userService.create(user);
+        } catch (UserExistException e){
+            return UserExistException.catchException(e.getMessage());
+        } catch (UserNullException e){
+            return UserNullException.catchException(e.getMessage());
+        }
     }
 }

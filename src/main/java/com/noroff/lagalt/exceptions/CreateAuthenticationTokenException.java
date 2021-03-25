@@ -1,12 +1,15 @@
 package com.noroff.lagalt.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
+import java.util.Date;
+
 public class CreateAuthenticationTokenException extends Exception{
 
-    public CreateAuthenticationTokenException(String msg) {
-        super(msg);
+    @ExceptionHandler(CreateAuthenticationTokenException.class)
+    public static ResponseEntity<?> catchException(String msg) {
+        return new ResponseEntity<>(new ExceptionDetails(new Date(), msg), HttpStatus.NOT_ACCEPTABLE);
     }
 }
