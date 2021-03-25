@@ -34,10 +34,9 @@ public class UserService {
 
     public ResponseEntity<User> create(User user) throws UserExistException, UserNullException {
         if (user == null || user.getEmail() == null || user.getUsername() == null){
-            throw new UserNullException("User, user.getEmail or user.username is null.");
+            throw new UserNullException("User, user.getEmail, or user.username is null.");
         }
-
-        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+       Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){
             throw new UserExistException("User already exists");
@@ -51,58 +50,69 @@ public class UserService {
     }
 
 
-    public ResponseEntity<User> getById(long id) throws NoItemFoundException{
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+    public ResponseEntity<?> getById(long id) {
+        Optional<User> fetchedUser = userRepository.findById(id);
+
+        if (fetchedUser.isEmpty()){
+            return NoItemFoundException.catchException("No user found by id: " + id);
+        }
         //TODO:
         // Fetch by anyone but project owner. Find way to differentiate between project owner and everyone else
         // 3 state: ikkje logga, logga inn, owner
-        if (fetchedUser.isHidden()){
+        if (fetchedUser.get().isHidden()){
             User hiddenUser = new User();
-            hiddenUser.setUsername(fetchedUser.getUsername());
+            hiddenUser.setUsername(fetchedUser.get().getUsername());
             return ResponseEntity.ok(hiddenUser);
         }
 
-        return ResponseEntity.ok(fetchedUser);
+        return ResponseEntity.ok(fetchedUser.get());
     }
 
-    public HttpStatus deleteUser(long id) throws NoItemFoundException {
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
+    public HttpStatus deleteUser(long id) {
+        Optional<User> fetchedUser = userRepository.findById(id);
+
+        if (fetchedUser.isEmpty()){
+            return HttpStatus.BAD_REQUEST;
+        }
 
         List<Project> projects = projectRepository.findAll();
         for (Project p : projects) {
-            p.getOwners().remove(fetchedUser);
+            p.getOwners().remove(fetchedUser.get());
         }
-        userRepository.delete(fetchedUser);
+        userRepository.delete(fetchedUser.get());
         HttpStatus status = HttpStatus.OK;
         return status;
     }
 
     // Edit -> Add skills with mEeEeEeeEeEee.
-    public ResponseEntity<User> editUser(User user, long id) throws NoItemFoundException {
+    public ResponseEntity<?> editUser(User user, long id){
+        Optional<User> currentUserState = userRepository.findById(id);
 
-        User currentUserState = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id"));
+        if (currentUserState.isEmpty()){
+            return NoItemFoundException.catchException("No user found by id: " + id);
+        }
 
-        if (!user.getName().equals("")) currentUserState.setName(user.getName());
-        if (!user.getDescription().equals("")) currentUserState.setDescription(user.getDescription());
+        if (!user.getName().equals("")) currentUserState.get().setName(user.getName());
+        if (user.getDescription() != null && !user.getDescription().equals("")) currentUserState.get().setDescription(user.getDescription());
 
         //Create the tags!
         if (user.getUserTags() != null) {
 
             List<String> currentTags = new ArrayList<>();
-            for (UserTag t : currentUserState.getUserTags()) {
+            for (UserTag t : currentUserState.get().getUserTags()) {
                 currentTags.add(t.getTag());
             }
             for (UserTag tag : user.getUserTags()) {
                 String userTag = tag.getTag();
                 if (!currentTags.contains(userTag)) {
-                    tag.setUser(currentUserState);
+                    tag.setUser(currentUserState.get());
                     userTagRepository.save(tag);
                 }
 
             }
         }
 
-        User editUser = userRepository.save(currentUserState);
+        User editUser = userRepository.save(currentUserState.get());
         return ResponseEntity.ok(editUser);
     }
 }

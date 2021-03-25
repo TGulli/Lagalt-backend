@@ -31,12 +31,12 @@ public class ProjectController {
     }
 
     @GetMapping("/projects/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) throws NoItemFoundException {
+    public ResponseEntity<?> getProjectById(@PathVariable (value="id") long id) {
         return projectService.getById(id);
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<Project> addProject(@RequestBody Project project){
+    public ResponseEntity<?> addProject(@RequestBody Project project){
         return projectService.create(project);
     }
 
@@ -46,8 +46,9 @@ public class ProjectController {
         return projectService.showDisplayProjects(page);
     }
 
+    // todo should not bee possible to edit f. ex owners...
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project) throws NoItemFoundException{
+    public ResponseEntity<?> editProject(@PathVariable(value="id") Long id, @RequestBody Project project) {
         return projectService.editProject(id, project);
     }
 

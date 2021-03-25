@@ -23,18 +23,18 @@ public class UserController {
         return userService.getAll();
     }
 
-    @GetMapping("public/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") long id) throws NoItemFoundException {
+    @GetMapping("public/users/{id}") // Why public?
+    public ResponseEntity<?> getUserById(@PathVariable(value = "id") long id) {
         return userService.getById(id);
     }
 
     @DeleteMapping("/users/{id}")
-    public HttpStatus deleteUser(@PathVariable(value = "id") long id) throws NoItemFoundException {
+    public HttpStatus deleteUser(@PathVariable(value = "id") long id) {
         return userService.deleteUser(id);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") long id) throws NoItemFoundException{
+    public ResponseEntity<?> edit(@RequestBody User user, @PathVariable(value = "id") long id) {
         return userService.editUser(user, id);
     }
 

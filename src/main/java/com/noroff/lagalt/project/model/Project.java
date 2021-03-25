@@ -18,7 +18,8 @@ enum Progress{
 }
 
 @Entity
-@Table(name = "Projects")
+@Table(name = "Projects", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")})
 public class Project {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)

@@ -22,6 +22,9 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody User user) {
+        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getSecret() == null){
+            return UserNullException.catchException("User, user.getEmail, user.secret or user.username is null.");
+        }
         try {
             String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
             user.setLoginMethod(LoginMethod.internal);
