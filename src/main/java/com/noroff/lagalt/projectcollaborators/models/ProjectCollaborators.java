@@ -1,18 +1,16 @@
 package com.noroff.lagalt.projectcollaborators.models;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
+import com.noroff.lagalt.projectcollaborators.models.Status;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 //
-enum Status {
-    PENDING,
-    APPROVED,
-    DECLINED
-}
 
 @Entity
 @Table(name = "Project_collaborators")
@@ -20,13 +18,13 @@ public class ProjectCollaborators {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;
 
-    @JsonGetter("user")
+    /*@JsonGetter("user")
     public String user() {
         if(user != null){
             //return user;
@@ -34,8 +32,15 @@ public class ProjectCollaborators {
         }else{
             return null;
         }
-    }
+    }*/
 
+    @JsonGetter("user")
+    public ProjectCollaborators.ReturnCollaborator user(){
+        if(user != null) {
+            return  new ProjectCollaborators.ReturnCollaborator(user.getId());
+        }
+        return null;
+    }
 
     @ManyToOne()
     @JoinColumn(name = "project_id")
@@ -61,7 +66,7 @@ public class ProjectCollaborators {
     public ProjectCollaborators() {
     }
 
-    public ProjectCollaborators(long id, User user, Project project, Status status, String motivation) {
+    public ProjectCollaborators(Long id, User user, Project project, Status status, String motivation) {
         this.id = id;
         this.user = user;
         this.project = project;
@@ -77,11 +82,11 @@ public class ProjectCollaborators {
         this.motivation = motivation;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -108,4 +113,19 @@ public class ProjectCollaborators {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    class ReturnCollaborator {
+        private Long id;
+
+
+        public ReturnCollaborator(Long id) {
+            this.id = id;
+
+        }
+
+    }
 }
+
+
