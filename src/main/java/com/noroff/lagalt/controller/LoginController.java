@@ -1,8 +1,8 @@
 package com.noroff.lagalt.controller;
 
 import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.model.User;
-import com.noroff.lagalt.repository.UserRepository;
+import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.user.repository.UserRepository;
 import com.noroff.lagalt.security.JwtTokenUtil;
 import com.noroff.lagalt.security.UserDetailsServiceImpl;
 import com.noroff.lagalt.security.dto.JwtResponse;

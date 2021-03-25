@@ -1,7 +1,7 @@
 package com.noroff.lagalt.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

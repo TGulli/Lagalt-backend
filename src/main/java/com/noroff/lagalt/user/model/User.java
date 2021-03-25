@@ -2,6 +2,7 @@ package com.noroff.lagalt.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.project.model.Project;
+import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.usertags.model.UserTag;
 
@@ -92,10 +93,6 @@ public class User {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public long getId() {
-        return id;
     }
 
     public void setLocale(String locale) {

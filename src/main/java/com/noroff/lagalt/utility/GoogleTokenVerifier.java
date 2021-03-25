@@ -4,8 +4,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.noroff.lagalt.model.LoginMethod;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.LoginMethod;
+import com.noroff.lagalt.user.model.User;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

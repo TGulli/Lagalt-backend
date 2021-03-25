@@ -39,21 +39,17 @@ public class UserService {
     }
 
 
-    //Make me pretty!
-    public ResponseEntity<User> findByNameAndSecret(User user) {
-        List<User> users = userRepository.findAll();
-
-        for (User retrievedUser : users) {
-            if (retrievedUser.getName().equals(user.getName()) && retrievedUser.getSecret().equals(user.getSecret())) {
-                return ResponseEntity.ok(retrievedUser);
-            }
+    public ResponseEntity<User> getById(long id) throws NoItemFoundException{
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No character by id: " + id));
+        //TODO:
+        // Fetch by anyone but project owner. Find way to differentiate between project owner and everyone else
+        // 3 state: ikkje logga, logga inn, owner
+        if (fetchedUser.isHidden()){
+            User hiddenUser = new User();
+            hiddenUser.setUsername(fetchedUser.getUsername());
+            return ResponseEntity.ok(hiddenUser);
         }
 
-        return null;
-    }
-
-    public ResponseEntity<User> getById(long id) throws NoItemFoundException {
-        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new NoItemFoundException("No user by id: " + id));
         return ResponseEntity.ok(fetchedUser);
     }
 

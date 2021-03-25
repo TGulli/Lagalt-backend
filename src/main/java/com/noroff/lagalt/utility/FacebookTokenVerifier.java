@@ -2,8 +2,8 @@ package com.noroff.lagalt.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.noroff.lagalt.model.LoginMethod;
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.LoginMethod;
+import com.noroff.lagalt.user.model.User;
 
 import java.io.IOException;
 import java.net.URI;

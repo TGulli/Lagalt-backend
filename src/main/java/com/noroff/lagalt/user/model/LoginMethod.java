@@ -1,4 +1,4 @@
-package com.noroff.lagalt.model;
+package com.noroff.lagalt.user.model;
 
 public enum LoginMethod {
     internal,

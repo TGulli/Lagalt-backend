@@ -1,7 +1,7 @@
 package com.noroff.lagalt.security;
 
-import com.noroff.lagalt.model.User;
-import com.noroff.lagalt.repository.UserRepository;
+import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

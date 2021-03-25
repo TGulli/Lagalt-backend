@@ -1,6 +1,6 @@
 package com.noroff.lagalt.security.dto;
 
-import com.noroff.lagalt.model.User;
+import com.noroff.lagalt.user.model.User;
 
 public class LoginGranted {
 

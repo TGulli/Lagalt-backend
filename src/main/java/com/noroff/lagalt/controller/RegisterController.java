@@ -1,8 +1,8 @@
 package com.noroff.lagalt.controller;
 
-import com.noroff.lagalt.model.LoginMethod;
-import com.noroff.lagalt.model.User;
-import com.noroff.lagalt.service.UserService;
+import com.noroff.lagalt.user.model.LoginMethod;
+import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
