@@ -29,59 +29,33 @@ public class ProjectCollaboratorsService {
     ProjectRepository projectRepository;
 
     public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborator){
+        HttpStatus status;
+        Long userId = projectCollaborator.getUser().getId();
+        Long projectId = projectCollaborator.getProject().getId();
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"No Project by id: " ));
 
-        try {
+        List<User> owners = project.getOwners();
+        List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
 
-            if (projectCollaboratorsRepository.existsById(projectCollaborator.getId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "The projectCollaborator table with id: " + projectCollaborator.getId() + " already exists.");
-            } else if (!userRepository.existsById(projectCollaborator.getUser().getId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "A user with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
-            } else if (!projectRepository.existsById(projectCollaborator.getProject().getId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "A project with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
+        for (User owner : owners){
+            if (owner.getId().equals(userId)){
+                status = HttpStatus.BAD_REQUEST;
+                return new ResponseEntity<>(null, status);
             }
-
-            Long userId = projectCollaborator.getUser().getId();
-            Long projectId = projectCollaborator.getProject().getId();
-
-            for (ProjectCollaborators pc : projectCollaboratorsRepository.findAll()) {
-                if(pc.getUser().getId() == projectCollaborator.getUser().getId() &&
-                        pc.getProject().getId() == projectCollaborator.getProject().getId()){
-                    throw new ResponseStatusException(
-                            HttpStatus.CONFLICT, "The projectcallaborator already exists in the project.");
-                }
-            }
-
-            Project project = projectRepository.findById(projectId).get();
-
-            List<User> owners = project.getOwners();
-            List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
-
-            for (User owner : owners) {
-                if (owner.getId().equals(userId)) {
-                    throw new ResponseStatusException(
-                            HttpStatus.BAD_REQUEST, "CAn't apply to a project you alreay own");
-                }
-            }
-            if (collaboratorsList != null) {
-                for (ProjectCollaborators projectCollaborators : collaboratorsList) {
-                    User user = projectCollaborators.getUser();
-                    if (user.getId().equals(userId)) {
-                        throw new ResponseStatusException(
-                                HttpStatus.BAD_REQUEST, "Can't apply to same project twice or something");
-                    }
-                }
-            }
-
-
-            ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
-            return new ResponseEntity<>(newCollaborator, HttpStatus.CREATED);
-        } catch (NullPointerException e){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Some data in projectcollaborator when creating is null.");
         }
+        if (collaboratorsList != null){
+            for (ProjectCollaborators projectCollaborators : collaboratorsList){
+                User user = projectCollaborators.getUser();
+                if (user.getId().equals(userId)){
+                    status = HttpStatus.BAD_REQUEST;
+                    return new ResponseEntity<>(null, status);
+                }
+            }
+        }
+        ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
+        status = HttpStatus.CREATED;
+        return new ResponseEntity<>(newCollaborator, status);
+
     }
 
     public ResponseEntity<List<ProjectCollaborators>> getAll() {

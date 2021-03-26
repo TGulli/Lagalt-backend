@@ -29,8 +29,6 @@ public class RegisterController {
         user.setLoginMethod(LoginMethod.internal);
         user.setSecret(encodedPassword);
         user.setHidden(false);
-        user.setEmail(user.getUsername()); // Todo add email
-        user.setName(user.getUsername()); // Todo add name
         return userService.create(user);
     }
 }
