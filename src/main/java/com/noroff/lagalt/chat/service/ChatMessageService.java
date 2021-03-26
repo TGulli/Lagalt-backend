@@ -6,17 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.chat.model.ChatMessage;
 import com.noroff.lagalt.chat.repository.ChatMessageRepository;
-import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.models.Status;
 import com.noroff.lagalt.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class ChatMessageService {
     ProjectRepository projectRepository;
 
     public ChatMessage addUser(ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException, NoItemFoundException {
+                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
 
         JsonNode jsonUserId = json.get("user");
         Long userId = jsonUserId.get("id").asLong();
@@ -41,7 +41,7 @@ public class ChatMessageService {
         ChatMessage chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
 
         Long projectId = chatMessage.getProject().getId();
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NoItemFoundException("No project"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
 

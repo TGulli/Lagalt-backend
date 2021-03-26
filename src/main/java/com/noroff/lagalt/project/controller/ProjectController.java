@@ -57,7 +57,7 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException, NoItemFoundException {
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
         JsonNode JsonUserId = json.get("user");
         Long userId = JsonUserId.get("id").asLong();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -68,7 +68,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/projects/{id}")
-    public HttpStatus deleteProject(@PathVariable(value="id") long id) throws NoItemFoundException{
+    public HttpStatus deleteProject(@PathVariable(value="id") long id){
         return projectService.deleteProject(id);
     }
 

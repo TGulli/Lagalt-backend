@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.chat.model.ChatMessage;
 import com.noroff.lagalt.chat.repository.ChatMessageRepository;
 import com.noroff.lagalt.chat.service.ChatMessageService;
-import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -23,6 +22,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,16 +58,16 @@ public class ChatMessageController {
     @MessageMapping("/chat.addUser")
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException, NoItemFoundException {
+                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
         return  chatMessageService.addUser(json, headerAccessor);
 
 
     }
 
     @GetMapping("/chatmessages/project/{id}/user/{userId}")
-    public ResponseEntity<List<ChatMessage>> getChatByProject(@PathVariable(name = "id") Long projectId, @PathVariable(name = "userId" ) Long userId) throws NoItemFoundException {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NoItemFoundException("Found no project with id: " + projectId));
-        User user = userRepository.findById(userId).orElseThrow(() -> new NoItemFoundException("Found no user with id: " + userId));
+    public ResponseEntity<List<ChatMessage>> getChatByProject(@PathVariable(name = "id") Long projectId, @PathVariable(name = "userId" ) Long userId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No User"));
 
         List<ChatMessage> chatMessages = chatMessageRepository.findAll();
         List<ChatMessage> projectMessages = chatMessages.stream().filter(message ->

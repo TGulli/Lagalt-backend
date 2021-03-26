@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.message.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +21,12 @@ public class MessageController {
     private MessageService messageService;
 
     @PostMapping("/messages")
-    public ResponseEntity<Message> addMessage(@RequestBody Message message) throws NoItemFoundException {
+    public ResponseEntity<Message> addMessage(@RequestBody Message message) {
         return messageService.create(message);
     }
 
     @PutMapping("/message/{id}")
-    public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException, NoItemFoundException {
+    public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
         JsonNode JsonUserId = json.get("user");
         Long userId = JsonUserId.get("id").asLong();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -37,7 +36,7 @@ public class MessageController {
     }
 
     @GetMapping("/messages/project/{id}/user/{userid}")
-    public ResponseEntity<List<Message>> getMessagesByProjectId(@PathVariable(value ="id") Long id, @PathVariable(value = "userid") Long userid) throws NoItemFoundException{
+    public ResponseEntity<List<Message>> getMessagesByProjectId(@PathVariable(value ="id") Long id, @PathVariable(value = "userid") Long userid){
         return messageService.getAllByProject(id, userid);
     }
 

@@ -1,6 +1,5 @@
 package com.noroff.lagalt.message.service;
 
-import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.message.repository.MessageRepository;
 import com.noroff.lagalt.user.model.User;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,13 +37,13 @@ public class MessageService {
 
 
 
-    public ResponseEntity<Message> create (Message message) throws NoItemFoundException{
+    public ResponseEntity<Message> create (Message message){
         Long projectId = message.getProject().getId();
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NoItemFoundException("No project with id: " + projectId ));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
         Long userId = message.getUser().getId();
-        User user = userRepository.findById(userId).orElseThrow(() -> new NoItemFoundException("No user with id: " + userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
 
         for(User owner : owners){
             if(owner.getId().equals(userId)){
@@ -66,13 +66,13 @@ public class MessageService {
         return new ResponseEntity<>(null, status);
     }
 
-    public ResponseEntity<Message> editMessage(Long id, Message message, Long userId) throws NoItemFoundException{
+    public ResponseEntity<Message> editMessage(Long id, Message message, Long userId){
         HttpStatus status;
         if(!id.equals(message.getId())){
             status = HttpStatus.BAD_REQUEST;
             return  new ResponseEntity<>(null, status);
         }
-        Message checkMessage = messageRepository.findById(id).orElseThrow(()-> new NoItemFoundException("No message with id: " + id));
+        Message checkMessage = messageRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
 
         if(!userId.equals(message.getUser().getId())){
             status = HttpStatus.BAD_REQUEST;
@@ -83,16 +83,16 @@ public class MessageService {
         return new ResponseEntity<>(message, status);
     }
 
-    public ResponseEntity<List<Message>> getAllByProject(Long projectId, Long userId) throws NoItemFoundException{
+    public ResponseEntity<List<Message>> getAllByProject(Long projectId, Long userId) {
         List<Message> allMessages = messageRepository.findAll();
 
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new  NoItemFoundException("No project with id: " + projectId));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
 
         List<Message> projectMessages = allMessages.stream().filter(message ->
                 (message.getProject().getId().equals(projectId))).collect(Collectors.toList());
 
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new NoItemFoundException("No user with id: " + userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
 
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
