@@ -22,21 +22,16 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody User user) {
-        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getSecret() == null){
-            return UserNullException.catchException("User, user.getEmail, user.secret or user.username is null.");
+        if (user == null || user.getUsername() == null || user.getSecret() == null){
+//        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
+            return UserNullException.catchException("User, user.email, user.name, user.secret or user.username is null.");
         }
-        try {
-            String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
-            user.setLoginMethod(LoginMethod.internal);
-            user.setSecret(encodedPassword);
-            user.setHidden(false);
-            user.setEmail(user.getUsername()); // Todo add email
-            user.setName(user.getUsername()); // Todo add name
-            return userService.create(user);
-        } catch (UserExistException e){
-            return UserExistException.catchException(e.getMessage());
-        } catch (UserNullException e){
-            return UserNullException.catchException(e.getMessage());
-        }
+        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
+        user.setLoginMethod(LoginMethod.internal);
+        user.setSecret(encodedPassword);
+        user.setHidden(false);
+        user.setEmail(user.getUsername()); // Todo add email
+        user.setName(user.getUsername()); // Todo add name
+        return userService.create(user);
     }
 }

@@ -46,9 +46,8 @@ public class LoginController {
     @PostMapping("/login/internal")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest){
         // Todo new data for register, and new Exception based on email
-        // Validate username & password
         try {
-
+            // Validate username & password
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
             // Generates user

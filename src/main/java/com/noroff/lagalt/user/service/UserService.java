@@ -32,14 +32,15 @@ public class UserService {
     public UserTagRepository userTagRepository;
 
 
-    public ResponseEntity<User> create(User user) throws UserExistException, UserNullException {
-        if (user == null || user.getEmail() == null || user.getUsername() == null){
-            throw new UserNullException("User, user.getEmail, or user.username is null.");
+    public ResponseEntity<?> create(User user) {
+        if (user == null || user.getUsername() == null || user.getSecret() == null){
+//        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
+            return UserNullException.catchException("User, user.email, user.name, user.secret or user.username is null.");
         }
        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){
-            throw new UserExistException("User already exists");
+            return UserExistException.catchException("User already exists");
         }
         User x = userRepository.save(user);
         return ResponseEntity.ok(x);
