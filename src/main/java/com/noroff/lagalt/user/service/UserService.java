@@ -1,8 +1,5 @@
 package com.noroff.lagalt.user.service;
 
-import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.exceptions.UserExistException;
-import com.noroff.lagalt.exceptions.UserNullException;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -13,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,15 +30,16 @@ public class UserService {
     public UserTagRepository userTagRepository;
 
 
-    public ResponseEntity<?> create(User user) {
+    public ResponseEntity<User> create(User user) {
         if (user == null || user.getUsername() == null || user.getSecret() == null){
 //        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
-            return UserNullException.catchException("User, user.email, user.name, user.secret or user.username is null.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "User, user.email, user.name, user.secret or user.username is null.");
         }
        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){
-            return UserExistException.catchException("User already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
         }
         User x = userRepository.save(user);
         return ResponseEntity.ok(x);
@@ -51,11 +50,11 @@ public class UserService {
     }
 
 
-    public ResponseEntity<?> getById(long id) {
+    public ResponseEntity<User> getById(long id) {
         Optional<User> fetchedUser = userRepository.findById(id);
 
         if (fetchedUser.isEmpty()){
-            return NoItemFoundException.catchException("No user found by id: " + id);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
         }
         //TODO:
         // Fetch by anyone but project owner. Find way to differentiate between project owner and everyone else
@@ -86,15 +85,22 @@ public class UserService {
     }
 
     // Edit -> Add skills with mEeEeEeeEeEee.
-    public ResponseEntity<?> editUser(User user, long id){
+    public ResponseEntity<User> editUser(User user, long id){
         Optional<User> currentUserState = userRepository.findById(id);
 
         if (currentUserState.isEmpty()){
-            return NoItemFoundException.catchException("No user found by id: " + id);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
+        }
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is null");
         }
 
-        if (!user.getName().equals("")) currentUserState.get().setName(user.getName());
-        if (user.getDescription() != null && !user.getDescription().equals("")) currentUserState.get().setDescription(user.getDescription());
+        if (user.getName() != null && (!user.getName().equals(""))){
+            currentUserState.get().setName(user.getName());
+        }
+        if (user.getDescription() != null && !user.getDescription().equals("")){
+            currentUserState.get().setDescription(user.getDescription());
+        }
 
         //Create the tags!
         if (user.getUserTags() != null) {

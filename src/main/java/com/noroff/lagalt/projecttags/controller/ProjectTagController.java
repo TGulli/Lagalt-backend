@@ -26,6 +26,4 @@ public class ProjectTagController {
     public ResponseEntity<ProjectTag> create(@RequestBody ProjectTag projectTag){
         return projectTagService.create(projectTag);
     }
-
-
 }

@@ -1,6 +1,5 @@
 package com.noroff.lagalt.project.controller;
 
-import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +30,12 @@ public class ProjectController {
     }
 
     @GetMapping("/projects/{id}")
-    public ResponseEntity<?> getProjectById(@PathVariable (value="id") long id) {
+    public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) {
         return projectService.getById(id);
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<?> addProject(@RequestBody Project project){
+    public ResponseEntity<Project> addProject(@RequestBody Project project){
         return projectService.create(project);
     }
 
@@ -48,7 +47,7 @@ public class ProjectController {
 
     // todo should not bee possible to edit f. ex owners...
     @PutMapping("/projects/{id}")
-    public ResponseEntity<?> editProject(@PathVariable(value="id") Long id, @RequestBody Project project) {
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project) {
         return projectService.editProject(id, project);
     }
 

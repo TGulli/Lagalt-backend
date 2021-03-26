@@ -22,17 +22,17 @@ public class ProjectCollaboratorsController {
     }
 
     @GetMapping("/project/collaborators/{id}")
-    public ResponseEntity<?> getProjectCollaboratorsById(@PathVariable (value="id") long id) {
+    public ResponseEntity<ProjectCollaborators> getProjectCollaboratorsById(@PathVariable (value="id") long id) {
         return projectCollaboratorsService.getById(id);
     }
 
     @PostMapping("/project/collaborators")
-    public ResponseEntity<?> addProjectCollaborator(@RequestBody ProjectCollaborators projectCollaborators){
+    public ResponseEntity<ProjectCollaborators> addProjectCollaborator(@RequestBody ProjectCollaborators projectCollaborators){
         return projectCollaboratorsService.create(projectCollaborators);
     }
 
     @PutMapping("/project/collaborators/{id}")
-    public ResponseEntity<?> update(@PathVariable long id, @RequestBody ProjectCollaborators collaborators){
+    public ResponseEntity<ProjectCollaborators> update(@PathVariable long id, @RequestBody ProjectCollaborators collaborators){
         return projectCollaboratorsService.update(id, collaborators);
     }
 

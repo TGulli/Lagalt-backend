@@ -1,12 +1,7 @@
 package com.noroff.lagalt.projectcollaborators.service;
 
-import com.noroff.lagalt.exceptions.NoItemFoundException;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
-import com.noroff.lagalt.projectcollaborators.exceptions.DontExistsException;
-import com.noroff.lagalt.projectcollaborators.exceptions.MissingDataException;
-import com.noroff.lagalt.projectcollaborators.exceptions.ProjectCollaboratorAlreadyExists;
-import com.noroff.lagalt.projectcollaborators.exceptions.UpdateProjectCollaboratorFailedException;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.repository.ProjectCollaboratorsRepository;
 import com.noroff.lagalt.user.repository.UserRepository;
@@ -16,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,27 +28,32 @@ public class ProjectCollaboratorsService {
     @Autowired
     ProjectRepository projectRepository;
 
-    public ResponseEntity<?> create(ProjectCollaborators projectCollaborator){
+    public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborator){
         try{
             if (projectCollaboratorsRepository.existsById(projectCollaborator.getId())){
-                return ProjectCollaboratorAlreadyExists.catchException("The projectCollaborator table with id: " + projectCollaborator.getId() + " already exists.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "The projectCollaborator table with id: " + projectCollaborator.getId() + " already exists.");
             } else if (!userRepository.existsById(projectCollaborator.getUser().getId())){
-                return DontExistsException.catchException("A user with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "A user with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
             } else if (!projectRepository.existsById(projectCollaborator.getProject().getId())){
-                return DontExistsException.catchException("A project with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "A project with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
             }
 
             for (ProjectCollaborators pc : projectCollaboratorsRepository.findAll()) {
                 if(pc.getUser().getId() == projectCollaborator.getUser().getId() &&
                         pc.getProject().getId() == projectCollaborator.getProject().getId()){
-                    return ProjectCollaboratorAlreadyExists.catchException("The projectcallaborator already exists in the project.");
+                    throw new ResponseStatusException(
+                            HttpStatus.CONFLICT, "The projectcallaborator already exists in the project.");
                 }
             }
             ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
             HttpStatus status = HttpStatus.CREATED;
             return new ResponseEntity<>(newCollaborator, status);
         } catch (NullPointerException e){
-            return MissingDataException.catchException("Some data in projectcollaborator when creating is null.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Some data in projectcollaborator when creating is null.");
         }
 
     }
@@ -63,21 +64,22 @@ public class ProjectCollaboratorsService {
         return new ResponseEntity<>(collaborators, status);
     }
 
-    public ResponseEntity<?> getById(long id) {
+    public ResponseEntity<ProjectCollaborators> getById(long id) {
         Optional<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findById(id);
         if (collaborators.isPresent()){
             return ResponseEntity.ok(collaborators.get());
         }
-        return NoItemFoundException.catchException("No projectcollaborator with id: " + id);
+        throw new ResponseStatusException(
+                HttpStatus.CONFLICT, "No projectcollaborator with id: " + id);
     }
 
-    public ResponseEntity<?> update(long id, ProjectCollaborators collaborator){
+    public ResponseEntity<ProjectCollaborators> update(long id, ProjectCollaborators collaborator){
         if(id != collaborator.getId()){
-            return UpdateProjectCollaboratorFailedException.catchException("Id does not match the id in projectcollaborator.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Id does not match the id in projectcollaborator.");
         } else if (!userRepository.existsById(collaborator.getUser().getId())){
-            return DontExistsException.catchException("A user with id: " + collaborator.getUser().getId() + " does not exist in the database.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with id: " + collaborator.getUser().getId() + " does not exist in the database.");
         } else if (!projectRepository.existsById(collaborator.getProject().getId())){
-            return DontExistsException.catchException("A project with id: " + collaborator.getUser().getId() + " does not exist in the database.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A project with id: " + collaborator.getUser().getId() + " does not exist in the database.");
         }
 
         return ResponseEntity.ok(projectCollaboratorsRepository.save(collaborator));

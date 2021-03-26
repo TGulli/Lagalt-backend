@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.user.model.User;
-import com.google.common.base.VerifyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,7 +33,7 @@ public class FacebookTokenVerifier {
 
             return facebookUser;
         } catch (IOException | InterruptedException e){
-            throw new VerifyException("Could not verify the accesstoken.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not verify the accesstoken.");
         }
     }
 

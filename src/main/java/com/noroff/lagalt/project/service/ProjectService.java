@@ -1,9 +1,5 @@
 package com.noroff.lagalt.project.service;
 
-import com.noroff.lagalt.exceptions.NoItemFoundException;
-import com.noroff.lagalt.project.exceptions.EditProjectException;
-import com.noroff.lagalt.project.exceptions.ProjectAlreadyExists;
-import com.noroff.lagalt.project.exceptions.MissingDataException;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
@@ -15,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,13 +26,13 @@ public class ProjectService {
     @Autowired
     private ProjectTagRepository projectTagRepository;
 
-    public ResponseEntity<?> create (Project project){
+    public ResponseEntity<Project> create (Project project){
         if (project == null || project.getName() == null){
-            return MissingDataException.catchException("project or project.name or project.owner is null.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "project or project.name or project.owner is null.");
         }
         Optional<Project> oldProject = projectRepository.findByName(project.getName());
         if (oldProject.isPresent()){
-            return ProjectAlreadyExists.catchException("A project already exist with the given name.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A project already exist with the given name.");
         }
         Project createdProject = projectRepository.save(project);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
@@ -45,13 +42,13 @@ public class ProjectService {
         return new ResponseEntity<>(projectRepository.findAll(), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getById(long id) {
+    public ResponseEntity<Project> getById(long id) {
 
         Optional<Project> fetchedProject = projectRepository.findById(id);
         if (fetchedProject.isPresent()){
-            return ResponseEntity.ok(fetchedProject);
+            return ResponseEntity.ok(fetchedProject.get());
         } else{
-            return NoItemFoundException.catchException("No project found with id: " + id);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project found with id: " + id);
         }
     }
 
@@ -62,23 +59,23 @@ public class ProjectService {
     }
 
 
-    public ResponseEntity<?> editProject(long id, Project project) {
+    public ResponseEntity<Project> editProject(long id, Project project) {
 
         if (id < 0 ){ // Todo replace with null when using Long instead of long
-            return MissingDataException.catchException("Could not edit project with " + id + ", because the given id is not allowed.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not edit project with " + id + ", because the given id is not allowed.");
         } else if (project == null || project.getName() == null){
-            return MissingDataException.catchException("Could not edit project with " + id + ", because project or project.name is null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not edit project with " + id + ", because project or project.name is null");
         }
         Optional<Project> existingProject = projectRepository.findById(id);
 
         if (existingProject.isEmpty()){
-            return EditProjectException.catchException("Can not edit project with id: " + id);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Can not edit project with id: " + id);
         }
         Project databaseProject = existingProject.get();
 
         if ((!project.getName().equals(databaseProject.getName())) &&
                 projectRepository.existsByName(project.getName())){
-            return ProjectAlreadyExists.catchException("A project with the new name already exists in the database.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A project with the new name already exists in the database.");
         }
 
         if (!project.getName().equals("")) databaseProject.setName(project.getName());
@@ -108,7 +105,6 @@ public class ProjectService {
                 .stream()
                 .filter(p -> p.getCategory().equals(category))
                 .collect(Collectors.toList());
-        HttpStatus status = HttpStatus.OK;
-        return new ResponseEntity<>(projects, status);
+        return ResponseEntity.ok(projects);
     }
 }

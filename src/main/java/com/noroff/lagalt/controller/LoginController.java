@@ -1,6 +1,5 @@
 package com.noroff.lagalt.controller;
 
-import com.noroff.lagalt.exceptions.*;
 import com.google.common.base.VerifyException;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.repository.UserRepository;
@@ -12,6 +11,7 @@ import com.noroff.lagalt.security.dto.LoginRequest;
 import com.noroff.lagalt.utility.FacebookTokenVerifier;
 import com.noroff.lagalt.utility.GoogleTokenVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -55,27 +56,32 @@ public class LoginController {
             String token = jwtTokenUtil.generateToken(userDetails);
 
             // Gets the correct User Object
-            User returnedUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
-            return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
+            Optional<User> returnedUser = userRepository.findByUsername(userDetails.getUsername()); //.orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
+            if (returnedUser.isEmpty()){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
+            }
+            return ResponseEntity.ok(new LoginGranted(returnedUser.get(), new JwtResponse(token)));
 
-        } catch (NullPointerException | UsernameNotFoundException | AuthenticateException | NoItemFoundException e){
-            return CreateAuthenticationTokenException.catchException("Failed to create authenticate token.");
+        } catch (UsernameNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
+        } catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data in LoginRequest object is null.");
         }
     }
 
     // Todo add email?
-    private void authenticate(String username, String password) throws AuthenticateException {
+    private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        } catch (NullPointerException | DisabledException | BadCredentialsException e) {
-            throw new AuthenticateException("Authenticate failed.");
+        } catch (DisabledException | BadCredentialsException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Authenticate failed.");
         }
     }
 
 
     @PostMapping("/login/facebook/{accessToken}")
-    public ResponseEntity<?> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
+    public ResponseEntity<LoginGranted> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
         try {
             User createdUser = FacebookTokenVerifier.verify(accessToken);
             Optional<User> fetchedUser = userRepository.findByUsernameOrEmail(createdUser.getUsername(), createdUser.getEmail());
@@ -95,8 +101,9 @@ public class LoginController {
             //Return actual user
             return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
 
-        } catch (NullPointerException | VerifyException e){
-            return FacebookLoginException.catchException("Could not login with Facebook.");
+
+        } catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not login with Facebook.");
         }
     }
 
@@ -122,7 +129,7 @@ public class LoginController {
             return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
 
         } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e){
-            return GoogleLoginException.catchException("Could not login with Google.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not login with Google.");
         }
     }
 }
