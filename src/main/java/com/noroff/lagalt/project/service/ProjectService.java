@@ -78,7 +78,7 @@ public class ProjectService {
 
 
 
-        Project existingProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No project found by that id"))
+        Project existingProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No project found by that id"));
 
         if ((!project.getName().equals(existingProject.getName())) &&
                 projectRepository.existsByName(project.getName())){
