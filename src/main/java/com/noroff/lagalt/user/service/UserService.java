@@ -50,7 +50,7 @@ public class UserService {
     }
 
 
-    public ResponseEntity<User> getById(long id) {
+    public ResponseEntity<User> getById(Long id) {
         Optional<User> fetchedUser = userRepository.findById(id);
 
         if (fetchedUser.isEmpty()){
@@ -68,7 +68,7 @@ public class UserService {
         return ResponseEntity.ok(fetchedUser.get());
     }
 
-    public HttpStatus deleteUser(long id) {
+    public HttpStatus deleteUser(Long id) {
         Optional<User> fetchedUser = userRepository.findById(id);
 
         if (fetchedUser.isEmpty()){
@@ -85,7 +85,7 @@ public class UserService {
     }
 
     // Edit -> Add skills with mEeEeEeeEeEee.
-    public ResponseEntity<User> editUser(User user, long id){
+    public ResponseEntity<User> editUser(User user, Long id){
         Optional<User> currentUserState = userRepository.findById(id);
 
         if (currentUserState.isEmpty()){

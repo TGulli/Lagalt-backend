@@ -1,8 +1,11 @@
 package com.noroff.lagalt.project.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.noroff.lagalt.projectcollaborators.models.Status;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.chat.model.ChatMessage;
+import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.usertags.model.UserTag;
 
@@ -23,7 +26,7 @@ enum Progress{
 public class Project {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "name")
     private String name;
@@ -56,10 +59,33 @@ public class Project {
 
     @OneToMany(mappedBy = "project")
     List<ProjectCollaborators> collaborators;
-    
+
+    @JsonGetter("collaborators")
+    public List<ReturnCollaborator> getCollaboratorId(){
+        if(collaborators != null) {
+            return collaborators.stream().map(temp -> new ReturnCollaborator(temp.getId(), temp.getUser(), temp.getProject().getId(), temp.getStatus())).collect(Collectors.toList());
+
+        }
+        return null;
+    }
+
+    @OneToMany(mappedBy = "project")
+    List<Message> messages;
+
+    @JsonGetter("messages")
+    public List<ReturnMessage> getMessagesId(){
+        if(messages != null) {
+            return messages.stream().map(temp -> new ReturnMessage(temp.getId())).collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @OneToMany(mappedBy = "project")
+    List<ChatMessage> chatMessages;
+
     public Project(){}
 
-    public Project(long id, String name, String description, Progress progress, String image, String category) {
+    public Project(Long id, String name, String description, Progress progress, String image, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -67,18 +93,6 @@ public class Project {
         this.image = image;
         this.category = category;
     }
-
-    /*
-    public List<String> getOwnerNames(){
-        if(owners != null) {
-            return owners.stream()
-                    .map(User::getName)
-                    .collect(Collectors.toList());
-        }
-        return null;
-    }
-
-     */
 
     @JsonGetter("owners")
     public List<ReturnUser> getOwnerNames(){
@@ -104,11 +118,11 @@ public class Project {
         return owners;
     }
 
-    public long getId(){
+    public Long getId(){
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -144,17 +158,72 @@ public class Project {
         this.image = image;
     }
 
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
+
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
+    }
+
+    public void setChatMessages(List<ChatMessage> chatMessages) {
+        this.chatMessages = chatMessages;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     class ReturnUser {
-        private long id;
+        private Long id;
         private String name;
 
-        public ReturnUser(long id, String name) {
+        public ReturnUser(Long id, String name) {
             this.id = id;
             this.name = name;
         }
 
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    class ReturnMessage {
+        private Long id;
 
+
+        public ReturnMessage(Long id) {
+            this.id = id;
+
+        }
+
+    }
+
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    class ReturnCollaborator {;
+        private Long id;
+        private User user;
+        private Long project;
+        private Status status;
+
+
+
+        public ReturnCollaborator(Long id, User user, Long project, Status status) {
+            this.id = id;
+            this.user = user;
+            this.project = project;
+            this.status = status;
+
+
+
+        }
+
+    }
+
+    public void setOwners(List<User> owners) {
+        this.owners = owners;
+    }
+
+    public void setCollaborators(List<ProjectCollaborators> collaborators) {
+        this.collaborators = collaborators;
+    }
 }

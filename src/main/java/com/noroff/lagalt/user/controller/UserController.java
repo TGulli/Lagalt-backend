@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,18 +22,18 @@ public class UserController {
         return userService.getAll();
     }
 
-    @GetMapping("public/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") long id) {
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long id) {
         return userService.getById(id);
     }
 
     @DeleteMapping("/users/{id}")
-    public HttpStatus deleteUser(@PathVariable(value = "id") long id) {
+    public HttpStatus deleteUser(@PathVariable(value = "id") Long id) {
         return userService.deleteUser(id);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") long id) {
+    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") Long id) {
         return userService.editUser(user, id);
     }
 
