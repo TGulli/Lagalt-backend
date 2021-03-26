@@ -64,7 +64,7 @@ public class ChatMessageService {
                 }
             }
         }
-
+        System.out.println("Add user returning null");
         //headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
         //headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
         return null;
