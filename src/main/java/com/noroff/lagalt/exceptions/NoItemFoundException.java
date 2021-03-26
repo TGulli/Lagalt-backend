@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Date;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
+@ResponseStatus(value = HttpStatus.CONFLICT)
 public class NoItemFoundException extends Exception{
     public NoItemFoundException() {
     }
@@ -18,6 +18,6 @@ public class NoItemFoundException extends Exception{
 
     @ExceptionHandler(NoItemFoundException.class)
     public static ResponseEntity<?> catchException(String msg) {
-        return new ResponseEntity<>(new ExceptionDetails(new Date(), msg), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ExceptionDetails(new Date(), msg), HttpStatus.CONFLICT);
     }
 }

@@ -10,6 +10,6 @@ import java.util.Date;
 public class MissingDataException extends Exception{
     @ExceptionHandler(MissingDataException.class)
     public static ResponseEntity<?> catchException(String msg) {
-        return new ResponseEntity<>(new ExceptionDetails(new Date(), msg), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new ExceptionDetails(new Date(), msg), HttpStatus.CONFLICT);
     }
 }
