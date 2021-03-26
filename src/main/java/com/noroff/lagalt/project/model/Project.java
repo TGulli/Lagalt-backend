@@ -62,7 +62,7 @@ public class Project {
     @JsonGetter("collaborators")
     public List<ReturnCollaborator> getCollaboratorId(){
         if(collaborators != null) {
-            return collaborators.stream().map(temp -> new ReturnCollaborator(temp.getId()/*, temp.getUser().getId(), temp.getProject().getId()*/, temp.getStatus())).collect(Collectors.toList());
+            return collaborators.stream().map(temp -> new ReturnCollaborator(temp.getId(), temp.getUser(), temp.getProject().getId(), temp.getStatus())).collect(Collectors.toList());
 
         }
         return null;
@@ -200,16 +200,16 @@ public class Project {
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     class ReturnCollaborator {;
         private Long id;
-        private Long user;
-        /*private Long project;*/
+        private User user;
+        private Long project;
         private Status status;
 
 
 
-        public ReturnCollaborator(Long id/*, Long user, Long project*/, Status status) {
+        public ReturnCollaborator(Long id, User user, Long project, Status status) {
             this.id = id;
-            /*this.user = user;
-            this.project = project;*/
+            this.user = user;
+            this.project = project;
             this.status = status;
 
 

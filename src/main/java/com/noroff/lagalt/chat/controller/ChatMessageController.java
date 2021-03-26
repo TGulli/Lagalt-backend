@@ -53,10 +53,10 @@ public class ChatMessageController {
 
     @MessageMapping("/chat.addUser")
     @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ObjectNode json,
+    public ChatMessage addUser(@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
 
-        JsonNode jsonUserId = json.get("user");
+        /*JsonNode jsonUserId = json.get("user");
         Long userId = jsonUserId.get("id").asLong();
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -85,9 +85,13 @@ public class ChatMessageController {
                     return chatMessage;
                 }
             }
-        }
+        }*/
 
-        return null;
+        headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
+        headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+        return chatMessage;
+
+
     }
 
     @GetMapping("/chatmessages/project/{id}/user/{userId}")

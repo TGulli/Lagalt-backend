@@ -77,6 +77,7 @@ public class User {
     }
 
     //JsonGetter
+    //@JsonIgnore
     public List<Project> getOwnedProjects() {
         return ownedProjects;
     }
@@ -174,6 +175,7 @@ public class User {
         this.hidden = hidden;
     }
 
+    //@JsonIgnore
     public List<ProjectCollaborators> getCollaboratorIn() {
         return collaboratorIn;
     }
