@@ -29,33 +29,56 @@ public class ProjectCollaboratorsService {
     ProjectRepository projectRepository;
 
     public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborator){
-        HttpStatus status;
-        Long userId = projectCollaborator.getUser().getId();
-        Long projectId = projectCollaborator.getProject().getId();
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"No Project by id: " ));
+        try {
+            if (!userRepository.existsById(projectCollaborator.getUser().getId())) {
 
-        List<User> owners = project.getOwners();
-        List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
-
-        for (User owner : owners){
-            if (owner.getId().equals(userId)){
-                status = HttpStatus.BAD_REQUEST;
-                return new ResponseEntity<>(null, status);
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "A user with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
+            } else if (!projectRepository.existsById(projectCollaborator.getProject().getId())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "A project with id: " + projectCollaborator.getUser().getId() + " does not exist in the database.");
             }
-        }
-        if (collaboratorsList != null){
-            for (ProjectCollaborators projectCollaborators : collaboratorsList){
-                User user = projectCollaborators.getUser();
-                if (user.getId().equals(userId)){
-                    status = HttpStatus.BAD_REQUEST;
-                    return new ResponseEntity<>(null, status);
+
+            Long userId = projectCollaborator.getUser().getId();
+            Long projectId = projectCollaborator.getProject().getId();
+
+
+            for (ProjectCollaborators pc : projectCollaboratorsRepository.findAll()) {
+                if(pc.getUser().getId().equals(projectCollaborator.getUser().getId()) &&
+                        pc.getProject().getId().equals(projectCollaborator.getProject().getId())){
+                    throw new ResponseStatusException(
+                            HttpStatus.CONFLICT, "The projectcallaborator already exists in the project.");
                 }
             }
-        }
-        ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
-        status = HttpStatus.CREATED;
-        return new ResponseEntity<>(newCollaborator, status);
 
+            Project project = projectRepository.findById(projectId).get();
+
+            List<User> owners = project.getOwners();
+            List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
+
+            for (User owner : owners) {
+                if (owner.getId().equals(userId)) {
+                    throw new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST, "CAn't apply to a project you alreay own");
+                }
+            }
+            if (collaboratorsList != null) {
+                for (ProjectCollaborators projectCollaborators : collaboratorsList) {
+                    User user = projectCollaborators.getUser();
+                    if (user.getId().equals(userId)) {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST, "Can't apply to same project twice or something");
+                    }
+                }
+            }
+
+
+            ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
+            return new ResponseEntity<>(newCollaborator, HttpStatus.CREATED);
+        } catch (NullPointerException e){
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Some data in projectcollaborator when creating is null.");
+        }
     }
 
     public ResponseEntity<List<ProjectCollaborators>> getAll() {
