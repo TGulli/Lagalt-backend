@@ -31,42 +31,52 @@ public class ChatMessageService {
     ProjectRepository projectRepository;
 
     public ChatMessage addUser(ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
+                               SimpMessageHeaderAccessor headerAccessor) {
+        try{
+            JsonNode jsonUserId = json.get("user");
+            Long userId = jsonUserId.get("id").asLong();
 
-        JsonNode jsonUserId = json.get("user");
-        Long userId = jsonUserId.get("id").asLong();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonChatMessage = json.get("message");
-        ChatMessage chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
-
-        Long projectId = chatMessage.getProject().getId();
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
-        List<User> owners = project.getOwners();
-        List<ProjectCollaborators> collaborators = project.getCollaborators();
-
-        for (User owner : owners) {
-            if (owner.getId().equals(userId)) {
-                //chatMessageRepository.save(chatMessage);
-                headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
-                headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
-                return chatMessage;
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonChatMessage = json.get("message");
+            ChatMessage chatMessage;
+            try{
+                chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
+            } catch (JsonProcessingException e){
+                throw new ResponseStatusException(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE, "Failed to add new user in chat.");
             }
-        }
 
-        for (ProjectCollaborators collaborator : collaborators) {
-            if (collaborator.getStatus().equals(Status.APPROVED)) {
-                if (collaborator.getUser().getId().equals(userId)) {
+            Long projectId = chatMessage.getProject().getId();
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
+            List<User> owners = project.getOwners();
+            List<ProjectCollaborators> collaborators = project.getCollaborators();
+
+            for (User owner : owners) {
+                if (owner.getId().equals(userId)) {
                     //chatMessageRepository.save(chatMessage);
                     headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
                     headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
                     return chatMessage;
                 }
             }
+
+            for (ProjectCollaborators collaborator : collaborators) {
+                if (collaborator.getStatus().equals(Status.APPROVED)) {
+                    if (collaborator.getUser().getId().equals(userId)) {
+                        //chatMessageRepository.save(chatMessage);
+                        headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
+                        headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+                        return chatMessage;
+                    }
+                }
+            }
+            System.out.println("Add user returning null");
+            //headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
+            //headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+        } catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Null data in addUser");
         }
-        System.out.println("Add user returning null");
-        //headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
-        //headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+
+
         return null;
     }
 }

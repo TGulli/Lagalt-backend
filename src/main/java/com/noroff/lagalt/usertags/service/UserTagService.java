@@ -4,8 +4,10 @@ import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.noroff.lagalt.usertags.repository.UserTagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +22,13 @@ public class UserTagService {
     private ProjectTagRepository projectTagRepository;
 
     public ResponseEntity<UserTag> create(UserTag userTag) {
-        UserTag createdTag = userTagRepository.save(userTag);
-        return ResponseEntity.ok(createdTag);
+        try{
+            UserTag createdTag = userTagRepository.save(userTag);
+            return ResponseEntity.ok(createdTag);
+        } catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usertag is not set.");
+        }
+
     }
 
 

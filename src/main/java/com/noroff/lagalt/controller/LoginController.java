@@ -46,7 +46,6 @@ public class LoginController {
 
     @PostMapping("/login/internal")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest){
-        // Todo new data for register, and new Exception based on email
         try {
             // Validate username & password
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
@@ -56,11 +55,10 @@ public class LoginController {
             String token = jwtTokenUtil.generateToken(userDetails);
 
             // Gets the correct User Object
-            Optional<User> returnedUser = userRepository.findByUsername(userDetails.getUsername()); //.orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
-            if (returnedUser.isEmpty()){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
-            }
-            return ResponseEntity.ok(new LoginGranted(returnedUser.get(), new JwtResponse(token)));
+            User returnedUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(()
+                    -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token."));
+
+            return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
 
         } catch (UsernameNotFoundException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
@@ -74,7 +72,7 @@ public class LoginController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        } catch (DisabledException | BadCredentialsException e) {
+        } catch (DisabledException | BadCredentialsException | NullPointerException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Authenticate failed.");
         }
     }

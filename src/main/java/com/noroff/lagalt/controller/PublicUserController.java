@@ -22,11 +22,7 @@ public class PublicUserController {
     private UserRepository userRepository;
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") long id){
-        //PartialProjection x = userRepository.findPartialById(id);
-        //System.out.println(x);
-        //System.out.println(x.getUsername());
-
+    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long id){
         User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No User"));
 
         if (user != null){

@@ -21,13 +21,14 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User, user.email, user.name, user.secret or user.username is null.");
+        try {
+            String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
+            user.setLoginMethod(LoginMethod.internal);
+            user.setSecret(encodedPassword);
+            user.setHidden(false);
+            return userService.create(user);
+        }catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some required data in user is null, and can not register.");
         }
-        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
-        user.setLoginMethod(LoginMethod.internal);
-        user.setSecret(encodedPassword);
-        user.setHidden(false);
-        return userService.create(user);
     }
 }

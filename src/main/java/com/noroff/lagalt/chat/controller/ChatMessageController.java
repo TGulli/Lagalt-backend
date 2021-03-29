@@ -50,7 +50,6 @@ public class ChatMessageController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage){
-
         chatMessageRepository.save(chatMessage);
         return chatMessage;
     }
@@ -58,7 +57,7 @@ public class ChatMessageController {
     @MessageMapping("/chat.addUser")
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
+                               SimpMessageHeaderAccessor headerAccessor) {
         return  chatMessageService.addUser(json, headerAccessor);
 
 
