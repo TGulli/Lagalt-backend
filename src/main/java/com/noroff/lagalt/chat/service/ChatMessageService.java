@@ -47,7 +47,7 @@ public class ChatMessageService {
 
         for (User owner : owners) {
             if (owner.getId().equals(userId)) {
-                chatMessageRepository.save(chatMessage);
+                //chatMessageRepository.save(chatMessage);
                 headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
                 headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
                 return chatMessage;
@@ -57,7 +57,7 @@ public class ChatMessageService {
         for (ProjectCollaborators collaborator : collaborators) {
             if (collaborator.getStatus().equals(Status.APPROVED)) {
                 if (collaborator.getUser().getId().equals(userId)) {
-                    chatMessageRepository.save(chatMessage);
+                    //chatMessageRepository.save(chatMessage);
                     headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
                     headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
                     return chatMessage;

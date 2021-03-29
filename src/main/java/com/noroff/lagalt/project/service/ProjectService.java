@@ -41,6 +41,13 @@ public class ProjectService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A project already exist with the given name.");
         }
         Project createdProject = projectRepository.save(project);
+        //Create the tags!
+        if (project.getProjectTags() != null){
+            for (ProjectTag tag: project.getProjectTags()) {
+                tag.setProject(createdProject);
+                projectTagRepository.save(tag);
+            }
+        }
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
@@ -91,7 +98,7 @@ public class ProjectService {
             System.out.println("Userid: " + userId );
             System.out.println("Ownerid: " + owner.getId());
 
-            if (owner.getId() == userId){
+            if (owner.getId().equals(userId)){
                 //Create the tags!
                 if (project.getProjectTags() != null){
                     for (ProjectTag tag: project.getProjectTags()) {

@@ -50,11 +50,7 @@ public class WebSocketEventListener {
             chatMessage.setType(ChatMessageType.LEAVE);
             chatMessage.setSender(user);
             chatMessage.setProject(project);
-            chatMessageRepository.save(chatMessage);
-
-
-
-
+            //chatMessageRepository.save(chatMessage);
 
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
         }
