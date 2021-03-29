@@ -98,9 +98,18 @@ public class UserService {
         if (user.getName() != null && (!user.getName().equals(""))){
             currentUserState.get().setName(user.getName());
         }
-        if (user.getDescription() != null && !user.getDescription().equals("")){
-            currentUserState.get().setDescription(user.getDescription());
+        if (user.getBio() != null && !user.getBio().equals("")){
+            currentUserState.get().setBio(user.getBio());
         }
+        if (user.getUsername() != null && !user.getUsername().equals("")){
+            currentUserState.get().setUsername(user.getUsername());
+        }
+        if (user.getLocale() != null && !user.getLocale().equals("")){
+            currentUserState.get().setLocale(user.getLocale());
+        }
+
+        currentUserState.get().setHidden(user.isHidden());
+
 
         //Create the tags!
         if (user.getUserTags() != null) {

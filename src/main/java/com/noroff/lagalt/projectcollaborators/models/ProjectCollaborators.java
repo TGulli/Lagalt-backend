@@ -51,7 +51,7 @@ public class ProjectCollaborators {
     public ProjectCollaborators.ReturnProject project() {
 
         if(project != null) {
-            return  new ProjectCollaborators.ReturnProject(project.getId());
+            return  new ProjectCollaborators.ReturnProject(project.getId(), project.getName());
         }
         return null;
         /*if(project != null){
@@ -125,6 +125,7 @@ public class ProjectCollaborators {
         private Long id;
 
 
+
         public ReturnCollaborator(Long id) {
             this.id = id;
 
@@ -135,10 +136,12 @@ public class ProjectCollaborators {
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     class ReturnProject{
         private Long id;
+        private String name;
 
 
-        public ReturnProject(Long id) {
+        public ReturnProject(Long id, String name) {
             this.id = id;
+            this.name = name;
 
         }
 
