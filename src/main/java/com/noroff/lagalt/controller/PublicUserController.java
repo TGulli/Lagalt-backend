@@ -37,4 +37,14 @@ public class PublicUserController {
         return null;
     }
 
+    @GetMapping("/users/email/{email}")
+    public ResponseEntity<Boolean> existingEmail(@PathVariable(value = "email") String email) {
+        return ResponseEntity.ok(userRepository.existsByEmail(email));
+    }
+
+    @GetMapping("/users/username/{username}")
+    public ResponseEntity<Boolean> existingUsername(@PathVariable(value = "username") String username) {
+        return ResponseEntity.ok(userRepository.existsByUsername(username));
+    }
+
 }
