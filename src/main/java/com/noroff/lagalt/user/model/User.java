@@ -51,6 +51,9 @@ public class User {
     @Column(name = "loginMethod")
     private LoginMethod loginMethod;
 
+    @Column(name = "verified")
+    private Boolean verified;
+
     @ManyToMany(mappedBy = "owners")
     private List<Project> ownedProjects;
 
@@ -173,6 +176,14 @@ public class User {
 
     public void setHidden(Boolean hidden) {
         this.hidden = hidden;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
     }
 
     //@JsonIgnore

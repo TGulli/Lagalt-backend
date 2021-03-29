@@ -1,5 +1,6 @@
 package com.noroff.lagalt.user.controller;
 
+
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+
 
     @GetMapping("/users")
     public List<User> getAllUsers() {
@@ -36,5 +39,6 @@ public class UserController {
     public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") Long id) {
         return userService.editUser(user, id);
     }
+
 
 }
