@@ -1,17 +1,10 @@
 package com.noroff.lagalt.controller;
 
-import com.noroff.lagalt.user.model.PartialProjection;
 import com.noroff.lagalt.user.model.PartialUser;
-import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/public")
@@ -22,19 +15,12 @@ public class PublicUserController {
     private UserRepository userRepository;
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") long id){
-        //PartialProjection x = userRepository.findPartialById(id);
-        //System.out.println(x);
-        //System.out.println(x.getUsername());
+    public ResponseEntity<PartialUser> getUserById(@PathVariable(value = "id") long id){
+        PartialUser p = userRepository.findPartialById(id);
 
-        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No User"));
+        // Validate user
 
-        if (user != null){
-            return ResponseEntity.ok(user);
-        }
-
-
-        return null;
+        return ResponseEntity.ok(p);
     }
 
     @GetMapping("/users/email/{email}")
