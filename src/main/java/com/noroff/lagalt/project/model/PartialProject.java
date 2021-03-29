@@ -39,5 +39,4 @@ public class PartialProject {
         this.progress = progress;
     }
 
-
 }

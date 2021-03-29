@@ -57,6 +57,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
         }
 
+        //REWORK ME
         if (fetchedUser.get().isHidden()){
             User hiddenUser = new User();
             hiddenUser.setId(fetchedUser.get().getId());

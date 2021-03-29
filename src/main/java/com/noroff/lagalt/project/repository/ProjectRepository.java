@@ -7,8 +7,10 @@ import com.noroff.lagalt.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+
 import java.util.List;
 import java.util.Optional;
+
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByName(String name);
@@ -16,10 +18,15 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 
     //String name, String description, Progress progress List<ProjectTag> projectTags
-    /*
-    @Query("SELECT new com.noroff.lagalt.project.model.PartialProject(p.name, p.description, p.progress, p.projectTags) " +
-            "from Project p where p.id = ?1 AND p.projectTags = (SELECT pt.tag FROM ProjectTag pt WHERE pt.id = ?1)"
-    PartialProject findPartialById(long id);
 
+    /*
+    "SELECT a FROM Table1 a RIGHT JOIN a.table2Obj b " +
+                                              "WHERE b.column = :id" +
+                                              "AND a.id NOT IN (SELECT c.columnFromA from a.table3Obj c where state = :state)"
      */
+
+    @Query("SELECT new com.noroff.lagalt.project.model.PartialProject(p.name, p.description, p.progress) FROM Project p WHERE p.id = ?1")
+    PartialProject getPublicProjectById(long id);
+
+
 }

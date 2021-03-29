@@ -44,7 +44,7 @@ public class Project {
     private String category;
 
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<ProjectTag> projectTags;
 
     //GITHUB REPO/EXTRA DETAILS
