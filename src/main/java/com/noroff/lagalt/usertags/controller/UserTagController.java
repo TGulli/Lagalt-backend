@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/v1")
@@ -22,7 +23,7 @@ public class UserTagController {
     }
 
     @GetMapping("/alltags")
-    public ResponseEntity<List<String>> getAllTags() {
+    public ResponseEntity<Set<String>> getAllTags() {
         return userTagService.getAllTags();
     }
 

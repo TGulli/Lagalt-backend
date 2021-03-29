@@ -58,7 +58,7 @@ public class ProjectService {
     }
 
     public ResponseEntity<Page<Project>> showDisplayProjects(int page) {
-        Pageable p = PageRequest.of(page, 3);
+        Pageable p = PageRequest.of(page, 5);
         Page<Project> givenPage = projectRepository.findAll(p);
         return ResponseEntity.ok(givenPage);
     }

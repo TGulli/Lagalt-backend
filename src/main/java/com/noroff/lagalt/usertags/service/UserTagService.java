@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserTagService {
@@ -31,8 +33,8 @@ public class UserTagService {
     }
 
     //Gets all!
-    public ResponseEntity<List<String>> getAllTags() {
-        List<String> allTags = new ArrayList<>();
+    public ResponseEntity<Set<String>> getAllTags() {
+        Set<String> allTags = new HashSet<>();
         allTags.addAll(userTagRepository.findUniqueTags());
         allTags.addAll(projectTagRepository.findUniqueTags());
         return ResponseEntity.ok(allTags);
