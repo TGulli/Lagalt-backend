@@ -56,12 +56,12 @@ public class UserService {
         if (fetchedUser.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
         }
-        //TODO:
-        // Fetch by anyone but project owner. Find way to differentiate between project owner and everyone else
-        // 3 state: ikkje logga, logga inn, owner
+
         if (fetchedUser.get().isHidden()){
             User hiddenUser = new User();
+            hiddenUser.setId(fetchedUser.get().getId());
             hiddenUser.setUsername(fetchedUser.get().getUsername());
+            hiddenUser.setHidden(true);
             return ResponseEntity.ok(hiddenUser);
         }
 
