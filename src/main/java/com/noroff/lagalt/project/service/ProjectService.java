@@ -1,5 +1,6 @@
 package com.noroff.lagalt.project.service;
 
+import com.noroff.lagalt.project.model.PartialProject;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
@@ -64,9 +65,18 @@ public class ProjectService {
         }
     }
 
-    public ResponseEntity<Page<Project>> showDisplayProjects(int page) {
+    public ResponseEntity<Page<Project>> showDisplayProjects(int page, Long id) {
+
+
         Pageable p = PageRequest.of(page, 5);
         Page<Project> givenPage = projectRepository.findAll(p);
+
+        for (Project project : givenPage){
+            System.out.println("Project shown: " + project);
+        }
+
+        System.out.println("User ID: " + id);
+
         return ResponseEntity.ok(givenPage);
     }
 
@@ -137,5 +147,9 @@ public class ProjectService {
                 .filter(p -> p.getCategory().equals(category))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(projects);
+    }
+
+    public PartialProject getPartialProjectById(Long id){
+        return projectRepository.getPublicProjectById(id);
     }
 }

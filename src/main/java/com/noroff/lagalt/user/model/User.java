@@ -5,6 +5,7 @@ import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.userhistory.model.UserHistory;
 import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
@@ -59,6 +60,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserTag> userTags;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserHistory> records;
 
     @OneToMany(mappedBy = "user")
     private List<Message> messages;

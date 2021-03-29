@@ -51,9 +51,9 @@ public class ProjectController {
     }
 
     //public
-    @GetMapping("/public/projects/show/{page}")
-    public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
-        return projectService.showDisplayProjects(page);
+    @GetMapping("/projects/show/{page}/user/{id}")
+    public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page, @PathVariable(value = "id") Long id){
+        return projectService.showDisplayProjects(page, id);
     }
 
     @PutMapping("/projects/{id}")

@@ -7,6 +7,7 @@ import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.chat.model.ChatMessage;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.userhistory.model.UserHistory;
 import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
@@ -43,8 +44,7 @@ public class Project {
     @Column(name = "category")
     private String category;
 
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project")
     private List<ProjectTag> projectTags;
 
     //GITHUB REPO/EXTRA DETAILS
