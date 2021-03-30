@@ -27,6 +27,11 @@ public class UserController {
         return userService.getById(id);
     }
 
+    @GetMapping("/users/update/{id}")
+    public ResponseEntity<User> getUpdateUser(@PathVariable(value = "id") Long id) {
+        return userService.getUpdateUserById(id);
+    }
+
     @DeleteMapping("/users/{id}")
     public HttpStatus deleteUser(@PathVariable(value = "id") Long id) {
         return userService.deleteUser(id);

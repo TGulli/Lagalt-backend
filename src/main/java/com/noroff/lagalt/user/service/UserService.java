@@ -62,8 +62,20 @@ public class UserService {
             User hiddenUser = new User();
             hiddenUser.setId(fetchedUser.get().getId());
             hiddenUser.setUsername(fetchedUser.get().getUsername());
+            hiddenUser.setName(fetchedUser.get().getName());
             hiddenUser.setHidden(true);
             return ResponseEntity.ok(hiddenUser);
+        }
+
+        return ResponseEntity.ok(fetchedUser.get());
+    }
+
+    public ResponseEntity<User> getUpdateUserById(Long id) {
+
+        Optional<User> fetchedUser = userRepository.findById(id);
+
+        if (fetchedUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
         }
 
         return ResponseEntity.ok(fetchedUser.get());
