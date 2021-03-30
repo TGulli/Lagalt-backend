@@ -60,6 +60,9 @@ public class LoginController {
             if (returnedUser.isEmpty()){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
             }
+            if(!returnedUser.get().getVerified()){
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not verified.");
+            }
             return ResponseEntity.ok(new LoginGranted(returnedUser.get(), new JwtResponse(token)));
 
         } catch (UsernameNotFoundException e){

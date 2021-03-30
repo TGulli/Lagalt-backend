@@ -1,5 +1,8 @@
 package com.noroff.lagalt.user.service;
 
+import com.noroff.lagalt.security.twofa.model.ConfirmationToken;
+import com.noroff.lagalt.security.twofa.repository.ConfirmationTokenRepository;
+import com.noroff.lagalt.security.twofa.service.EmailSenderService;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -9,6 +12,7 @@ import com.noroff.lagalt.usertags.repository.UserTagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,6 +33,12 @@ public class UserService {
     @Autowired
     public UserTagRepository userTagRepository;
 
+    @Autowired
+    public ConfirmationTokenRepository confirmationTokenRepository;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
+
 
     public ResponseEntity<User> create(User user) {
         if (user == null || user.getUsername() == null || user.getSecret() == null){
@@ -41,8 +51,22 @@ public class UserService {
         if (existingUser.isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
         }
-        User x = userRepository.save(user);
-        return ResponseEntity.ok(x);
+        User returnUser = userRepository.save(user);
+
+        ConfirmationToken confirmationToken = new ConfirmationToken(user);
+
+        confirmationTokenRepository.save(confirmationToken);
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setSubject("Fullfør registreringen!");
+        mailMessage.setFrom("lagalt.noreply@gmail.com");
+        mailMessage.setText("For å bekrefte din bruker, klikk her: "
+                +"http://localhost:8080/api/v1/public/confirm-account?token="+confirmationToken.getConfirmationToken());
+
+        emailSenderService.sendEmail(mailMessage);
+
+        return ResponseEntity.ok(returnUser);
     }
 
     public List<User> getAll() {
