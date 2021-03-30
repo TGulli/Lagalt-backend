@@ -102,9 +102,6 @@ public class UserService {
         if (user.getBio() != null && !user.getBio().equals("")){
             currentUserState.get().setBio(user.getBio());
         }
-        if (user.getUsername() != null && !user.getUsername().equals("")){
-            currentUserState.get().setUsername(user.getUsername());
-        }
         if (user.getLocale() != null && !user.getLocale().equals("")){
             currentUserState.get().setLocale(user.getLocale());
         }
