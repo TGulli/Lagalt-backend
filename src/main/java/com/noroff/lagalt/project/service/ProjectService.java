@@ -6,6 +6,9 @@ import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
 import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.userhistory.model.ActionType;
+import com.noroff.lagalt.userhistory.model.UserHistory;
+import com.noroff.lagalt.userhistory.repository.UserHistoryRepository;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +36,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectTagRepository projectTagRepository;
+
+    @Autowired
+    private UserHistoryRepository userHistoryRepository;
 
     public ResponseEntity<Project> create (Project project){
         if (project == null || project.getName() == null){
@@ -59,6 +66,11 @@ public class ProjectService {
     public ResponseEntity<Project> getById(Long id) {
         Optional<Project> fetchedProject = projectRepository.findById(id);
         if (fetchedProject.isPresent()){
+
+            UserHistory uh = storeUserHistory(id, ActionType.CLICKED);
+            uh.setProject_id(fetchedProject.get().getId());
+            userHistoryRepository.save(uh);
+
             return ResponseEntity.ok(fetchedProject.get());
         } else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project found with id: " + id);
@@ -71,13 +83,28 @@ public class ProjectService {
         Pageable p = PageRequest.of(page, 5);
         Page<Project> givenPage = projectRepository.findAll(p);
 
+        UserHistory uh = storeUserHistory(id, ActionType.SEEN);
+
         for (Project project : givenPage){
-            System.out.println("Project shown: " + project);
+            // FIX ME, SAVE ALL PROJECTS NOT JUST THE LAST.....
+            uh.setProject_id(project.getId());
+            userHistoryRepository.save(uh);
         }
 
         System.out.println("User ID: " + id);
 
         return ResponseEntity.ok(givenPage);
+    }
+
+    // Store
+    private UserHistory storeUserHistory(Long id, ActionType type) {
+        User u = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by that ID"));
+        LocalDate localDate = LocalDate.now();
+        UserHistory uh = new UserHistory();
+        uh.setUser(u);
+        uh.setActionType(type);
+        uh.setTimestamp(localDate.toString());
+        return uh;
     }
 
 

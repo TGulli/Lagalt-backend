@@ -1,6 +1,8 @@
 package com.noroff.lagalt.userhistory.model;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.user.model.User;
@@ -9,12 +11,7 @@ import javax.persistence.*;
 
 
 
-enum ActionType {
-    SEEN,
-    CLICKED,
-    APPLIED,
-    COLLABORATED
-}
+
 
 //tableId, userId, ActionType (enum), projectId, timeStamp
 
@@ -50,6 +47,14 @@ public class UserHistory {
         this.timestamp = timestamp;
     }
 
+    @JsonGetter(value = "user")
+    public Long getUserName(){
+        if (user != null){
+            return user.getId();
+        }
+        return null;
+    }
+
     public Long getId() {
         return id;
     }
@@ -58,6 +63,7 @@ public class UserHistory {
         this.id = id;
     }
 
+    @JsonIgnore
     public User getUser() {
         return user;
     }
