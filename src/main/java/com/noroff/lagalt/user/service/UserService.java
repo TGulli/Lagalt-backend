@@ -108,9 +108,17 @@ public class UserService {
     public HttpStatus deleteUser(Long id) {
         Optional<User> fetchedUser = userRepository.findById(id);
 
+
+
         if (fetchedUser.isEmpty()){
             return HttpStatus.BAD_REQUEST;
         }
+
+
+        Long userId = fetchedUser.get().getId();
+        ConfirmationToken cfttoken = confirmationTokenRepository.findByUser_Id(userId);
+        confirmationTokenRepository.delete(cfttoken);
+
 
         List<Project> projects = projectRepository.findAll();
         for (Project p : projects) {
