@@ -28,6 +28,7 @@ public class UserService {
     private final static int MAXEMAILLENGTH = 350;
     private final static int MAXEBIOLENGTH = 1000;
     private final static int MAXEGENERALLENGTH = 50;
+    private final static int LIMITADDTAGS = 1000;
 
     @Autowired
     public UserRepository userRepository;
@@ -107,94 +108,82 @@ public class UserService {
 
 
     public ResponseEntity<User> getById(Long id) {
-        Optional<User> fetchedUser = userRepository.findById(id);
-
-        if (fetchedUser.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
-        }
+        User fetchedUser = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker funnet med id: " + id));
 
         //REWORK ME
-        if (fetchedUser.get().isHidden()){
+        if (fetchedUser.isHidden()){
             User hiddenUser = new User();
-            hiddenUser.setId(fetchedUser.get().getId());
-            hiddenUser.setUsername(fetchedUser.get().getUsername());
-            hiddenUser.setName(fetchedUser.get().getName());
+            hiddenUser.setId(fetchedUser.getId());
+            hiddenUser.setUsername(fetchedUser.getUsername());
+            hiddenUser.setName(fetchedUser.getName());
             hiddenUser.setHidden(true);
             return ResponseEntity.ok(hiddenUser);
         }
 
-        return ResponseEntity.ok(fetchedUser.get());
+        return ResponseEntity.ok(fetchedUser);
     }
 
     public ResponseEntity<User> getUpdateUserById(Long id) {
-
-        Optional<User> fetchedUser = userRepository.findById(id);
-
-        if (fetchedUser.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
-        }
-
-        return ResponseEntity.ok(fetchedUser.get());
+        return ResponseEntity.ok(userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker funnet med id: " + id)));
     }
 
     public HttpStatus deleteUser(Long id) {
-        Optional<User> fetchedUser = userRepository.findById(id);
-
-        if (fetchedUser.isEmpty()){
-            return HttpStatus.BAD_REQUEST;
-        }
+        User fetchedUser = userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker funnet med id: " + id));
 
         List<Project> projects = projectRepository.findAll();
         for (Project p : projects) {
-            p.getOwners().remove(fetchedUser.get());
+            p.getOwners().remove(fetchedUser);
         }
-        userRepository.delete(fetchedUser.get());
-        HttpStatus status = HttpStatus.OK;
-        return status;
+        userRepository.delete(fetchedUser);
+        return HttpStatus.OK;
     }
 
     // Edit -> Add skills with mEeEeEeeEeEee.
     public ResponseEntity<User> editUser(User user, Long id){
-        Optional<User> currentUserState = userRepository.findById(id);
+        User currentUserState = userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker funnet med id: " + id));
 
-        if (currentUserState.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
-        }
-        if (user == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is null");
-        }
-
-        if (user.getName() != null && (!user.getName().equals(""))){
-            currentUserState.get().setName(user.getName());
-        }
-        if (user.getBio() != null && !user.getBio().equals("")){
-            currentUserState.get().setBio(user.getBio());
-        }
-        if (user.getLocale() != null && !user.getLocale().equals("")){
-            currentUserState.get().setLocale(user.getLocale());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bruker objektet er ikke satt.");
+        } else if (user.getName() != null && user.getName() == ""){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn kan ikke settes til en tom String.");
+        } else if (user.getName().length() > MAXEGENERALLENGTH){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getLocale() != null && user.getLocale().length() > MAXEGENERALLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sted må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getBio() != null && user.getBio().length() > MAXEBIOLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Biografi må være kortere enn " + MAXEBIOLENGTH + " tegn.");
+        } else if (user.getUserTags() != null && user.getUserTags().size() > LIMITADDTAGS){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kan ikke legge til mer enn " + LIMITADDTAGS + " per redigering av profil.");
         }
 
-        currentUserState.get().setHidden(user.isHidden());
+        currentUserState.setName(user.getName());
+        currentUserState.setBio(user.getBio());
+        currentUserState.setLocale(user.getLocale());
+        currentUserState.setHidden(user.isHidden());
 
 
-        //Create the tags!
+        //Adds the tags!
         if (user.getUserTags() != null) {
 
             List<String> currentTags = new ArrayList<>();
-            for (UserTag t : currentUserState.get().getUserTags()) {
+            for (UserTag t : currentUserState.getUserTags()) {
+                if (t.getTag().length() > MAXEGENERALLENGTH){
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lengden på kvalifikasjoner kan ikke være lengre enn " + MAXEGENERALLENGTH);
+                }
                 currentTags.add(t.getTag());
             }
             for (UserTag tag : user.getUserTags()) {
                 String userTag = tag.getTag();
                 if (!currentTags.contains(userTag)) {
-                    tag.setUser(currentUserState.get());
+                    tag.setUser(currentUserState);
                     userTagRepository.save(tag);
                 }
-
             }
         }
 
-        User editUser = userRepository.save(currentUserState.get());
-        return ResponseEntity.ok(editUser);
+        return ResponseEntity.ok(userRepository.save(currentUserState));
     }
 }

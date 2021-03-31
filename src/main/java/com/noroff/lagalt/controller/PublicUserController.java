@@ -16,11 +16,7 @@ public class PublicUserController {
 
     @GetMapping("/users/{id}")
     public ResponseEntity<PartialUser> getUserById(@PathVariable(value = "id") long id){
-        PartialUser p = userRepository.findPartialById(id);
-
-        // Validate user
-
-        return ResponseEntity.ok(p);
+        return ResponseEntity.ok(userRepository.findPartialById(id));
     }
 
     @GetMapping("/users/email/{email}")
