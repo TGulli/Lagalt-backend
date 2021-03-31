@@ -71,6 +71,4 @@ public class ProjectController {
     public HttpStatus deleteProject(@PathVariable(value="id") long id){
         return projectService.deleteProject(id);
     }
-
-
 }

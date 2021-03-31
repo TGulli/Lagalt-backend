@@ -18,10 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -173,11 +170,11 @@ public class UserService {
                 if (t.getTag().length() > MAXEGENERALLENGTH){
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lengden på kvalifikasjoner kan ikke være lengre enn " + MAXEGENERALLENGTH);
                 }
-                currentTags.add(t.getTag());
+                currentTags.add(t.getTag().toLowerCase(Locale.ROOT));
             }
             for (UserTag tag : user.getUserTags()) {
                 String userTag = tag.getTag();
-                if (!currentTags.contains(userTag)) {
+                if (!currentTags.contains(userTag.toLowerCase(Locale.ROOT))) {
                     tag.setUser(currentUserState);
                     userTagRepository.save(tag);
                 }

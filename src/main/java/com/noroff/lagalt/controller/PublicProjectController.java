@@ -6,6 +6,7 @@ import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
 import com.noroff.lagalt.user.model.PartialUser;
+import com.noroff.lagalt.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

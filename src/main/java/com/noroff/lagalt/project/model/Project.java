@@ -102,6 +102,14 @@ public class Project {
         return null;
     }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setProjectTags(List<ProjectTag> projectTags) {
+        this.projectTags = projectTags;
+    }
+
     public List<ProjectTag> getProjectTags() {
         return projectTags;
     }
