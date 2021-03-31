@@ -33,7 +33,7 @@ public class FacebookTokenVerifier {
 
             return facebookUser;
         } catch (IOException | InterruptedException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not verify the accesstoken.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil ved å verifisere akksesstoken Facebook login.");
         }
     }
 

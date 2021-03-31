@@ -47,25 +47,25 @@ public class UserService {
 
     public ResponseEntity<User> create(User user) {
         if (user == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is null.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bruker objektet er ikke satt.");
         } else if (user.getUsername() == null || user.getUsername() == ""){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is not set.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn er ikke satt.");
         } else if (user.getName() == null || user.getName() == ""){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is not set.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn er ikke satt.");
         } else if (user.getSecret() == null || user.getSecret() == "") {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is not set.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord er ikke satt.");
         } else if (user.getUsername().length() > MAXEGENERALLENGTH){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username must be shorter than " + MAXEGENERALLENGTH + " characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
         } else if (user.getName().length() > MAXEGENERALLENGTH){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name must be shorter than " + MAXEGENERALLENGTH + " characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
         } else if (user.getSecret().length() > MAXEGENERALLENGTH) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Secret must be shorter than " + MAXEGENERALLENGTH + " characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord må være kortere enn  " + MAXEGENERALLENGTH + " tegn.");
         } else if (user.getEmail().length() > MAXEMAILLENGTH) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email must be shorter than " + MAXEMAILLENGTH + " characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Epost addresse må være kortere enn " + MAXEMAILLENGTH + " tegn.");
         } else if (user.getLocale() != null && user.getLocale().length() > MAXEGENERALLENGTH) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Local must be shorter than " + MAXEGENERALLENGTH + " characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sted må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
         } else if (user.getBio() != null && user.getBio().length() > MAXEBIOLENGTH) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio must be shorter than " + MAXEBIOLENGTH + " characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Biografi må være kortere enn " + MAXEBIOLENGTH + " tegn.");
         }
 
         String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
@@ -73,15 +73,15 @@ public class UserService {
         user.setSecret(encodedPassword);
         user.setHidden(false);
         user.setVerified(false);
-        user.setOwnedProjects(null);
-        user.setCollaboratorIn(null);
-        user.setUserTags(null);
-        user.setMessages(null);
+        user.setOwnedProjects(new ArrayList<>());
+        user.setCollaboratorIn(new ArrayList<>());
+        user.setUserTags(new ArrayList<>());
+        user.setMessages(new ArrayList<>());
 
        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bruker eksisterer allerede");
         }
         User returnUser = userRepository.save(user);
 

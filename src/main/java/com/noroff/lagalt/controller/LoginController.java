@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -43,42 +44,40 @@ public class LoginController {
     @Autowired
     private UserRepository userRepository;
 
+    private final static int MAXEGENERALLENGTH = 50;
+
 
     @PostMapping("/login/internal")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest){
-        // Todo new data for register, and new Exception based on email
+    public ResponseEntity<LoginGranted> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest){
         try {
-            // Validate username & password
+            if (authenticationRequest.getUsername().length() > MAXEGENERALLENGTH || authenticationRequest.getPassword().length() > MAXEGENERALLENGTH){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn eller passord stemmer ikke.");
+            }
+            // Validates username & password
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-
             // Generates user
             UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
             String token = jwtTokenUtil.generateToken(userDetails);
 
             // Gets the correct User Object
-            Optional<User> returnedUser = userRepository.findByUsername(userDetails.getUsername()); //.orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
-            if (returnedUser.isEmpty()){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
+            User returnedUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Bruker matcher ikke token."));
+            if(!returnedUser.getVerified()){
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bruker er ikke verifisert.");
             }
-            if(!returnedUser.get().getVerified()){
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not verified.");
-            }
-            return ResponseEntity.ok(new LoginGranted(returnedUser.get(), new JwtResponse(token)));
+            return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
 
         } catch (UsernameNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bruker matcher ikke token.");
         } catch (NullPointerException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data in LoginRequest object is null.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data i LoginRequest objektet er ikke satt.");
         }
     }
 
-    // Todo add email?
     private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-        } catch (DisabledException | BadCredentialsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Authenticate failed.");
+        } catch (AuthenticationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil brukernavn eller passord.");
         }
     }
 
@@ -106,7 +105,7 @@ public class LoginController {
 
 
         } catch (NullPointerException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not login with Facebook.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke logge inn med Facebook.");
         }
     }
 
@@ -132,7 +131,7 @@ public class LoginController {
             return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
 
         } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not login with Google.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke logge inn med Google.");
         }
     }
 }

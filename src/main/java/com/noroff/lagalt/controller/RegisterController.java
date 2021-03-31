@@ -47,19 +47,16 @@ public class RegisterController {
 
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         Optional<User> userOptional = userRepository.findByEmail(token.getUser().getEmail());
-        String returnMessage;
 
         if(token != null && userOptional.isPresent()) {
 
             User user = userOptional.get();
             user.setVerified(true);
             userRepository.save(user);
-            returnMessage = "Brukeren er opprettet. Du kan nå logge inn\n <a href=\"http://localhost:3000/login\">Trykk her</a>";
-            return new ResponseEntity<>(returnMessage, HttpStatus.OK);
+            return new ResponseEntity<>("Brukeren er opprettet. Du kan nå logge inn\n <a href=\"http://localhost:3000/login\">Trykk her</a>", HttpStatus.OK);
         }
         else {
-            returnMessage = "Ugyldig lenke";
-            return new ResponseEntity<>(returnMessage, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Ugyldig lenke", HttpStatus.UNAUTHORIZED);
         }
 
     }

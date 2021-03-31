@@ -6,6 +6,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.user.model.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -35,8 +37,7 @@ public class GoogleTokenVerifier {
 
             return gUser;
         } else {
-            System.out.println("Invalid ID token.");
-            return null;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil ved å verifisere akksesstoken Google login.");
         }
     }
 
