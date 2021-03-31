@@ -117,7 +117,9 @@ public class UserService {
 
         Long userId = fetchedUser.get().getId();
         ConfirmationToken cfttoken = confirmationTokenRepository.findByUser_Id(userId);
-        confirmationTokenRepository.delete(cfttoken);
+        if(cfttoken != null) {
+            confirmationTokenRepository.delete(cfttoken);
+        }
 
 
         List<Project> projects = projectRepository.findAll();
