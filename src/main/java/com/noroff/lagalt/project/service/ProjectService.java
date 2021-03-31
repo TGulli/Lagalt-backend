@@ -32,18 +32,18 @@ public class ProjectService {
     @Autowired
     private ProjectTagRepository projectTagRepository;
 
-    public ResponseEntity<Project> create (Project project){
-        if (project == null || project.getName() == null){
+    public ResponseEntity<Project> create(Project project) {
+        if (project == null || project.getName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "project or project.name or project.owner is null.");
         }
         Optional<Project> oldProject = projectRepository.findByName(project.getName());
-        if (oldProject.isPresent()){
+        if (oldProject.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A project already exist with the given name.");
         }
         Project createdProject = projectRepository.save(project);
         //Create the tags!
-        if (project.getProjectTags() != null){
-            for (ProjectTag tag: project.getProjectTags()) {
+        if (project.getProjectTags() != null) {
+            for (ProjectTag tag : project.getProjectTags()) {
                 tag.setProject(createdProject);
                 projectTagRepository.save(tag);
             }
@@ -51,15 +51,15 @@ public class ProjectService {
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<List<Project>> getAll (){
+    public ResponseEntity<List<Project>> getAll() {
         return new ResponseEntity<>(projectRepository.findAll(), HttpStatus.OK);
     }
 
     public ResponseEntity<Project> getById(Long id) {
         Optional<Project> fetchedProject = projectRepository.findById(id);
-        if (fetchedProject.isPresent()){
+        if (fetchedProject.isPresent()) {
             return ResponseEntity.ok(fetchedProject.get());
-        } else{
+        } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project found with id: " + id);
         }
     }
@@ -71,59 +71,55 @@ public class ProjectService {
     }
 
 
-    public ResponseEntity<Project> editProject(Long id, Project project, Long userId){
+    public ResponseEntity<Project> editProject(Long id, Project project, Long userId) {
 
-        if ( id == null || userId == null ||project == null || project.getName() == null){
+        if (id == null || userId == null || project == null || project.getName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not edit project with " + id + ", because project, project.name or user is null");
         }
 
         HttpStatus status;
 
-        if(!id.equals(project.getId())){
+        if (!id.equals(project.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You're trying to edit the wrong project");
         }
-
 
 
         Project existingProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No project found by that id"));
 
         if ((!project.getName().equals(existingProject.getName())) &&
-                projectRepository.existsByName(project.getName())){
+                projectRepository.existsByName(project.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A project with the new name already exists in the database.");
         }
 
 
-        List<User> owners = existingProject.getOwners();
-        for (User owner : owners){
-            System.out.println("Userid: " + userId );
-            System.out.println("Ownerid: " + owner.getId());
-
-            if (owner.getId().equals(userId)){
-                //Create the tags!
-                if (project.getProjectTags() != null){
-                    for (ProjectTag tag: project.getProjectTags()) {
-                        if (!existingProject.getProjectTags().contains(tag)) {
-                            tag.setProject(existingProject);
-                            projectTagRepository.save(tag);
-                        }
+        User owner = existingProject.getOwner();
+        if (owner.getId().equals(userId)) {
+            //Create the tags!
+            if (project.getProjectTags() != null) {
+                for (ProjectTag tag : project.getProjectTags()) {
+                    if (!existingProject.getProjectTags().contains(tag)) {
+                        tag.setProject(existingProject);
+                        projectTagRepository.save(tag);
                     }
                 }
-                Project savedProject = projectRepository.save(project);
-                status = HttpStatus.OK;
-                return new ResponseEntity<>(savedProject, status);
             }
+            Project savedProject = projectRepository.save(project);
+            status = HttpStatus.OK;
+            return new ResponseEntity<>(savedProject, status);
         }
-        status = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<>(null, status);
+
+
+        status =HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(null,status);
     }
 
     public HttpStatus deleteProject(long id){
         Project fetchedProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Project not found"));
 
-        List<User> users = userRepository.findAll();
+        /*List<User> users = userRepository.findAll();
         for (User u: users) {
             u.getOwnedProjects().remove(fetchedProject);
-        }
+        }*/
         projectRepository.delete(fetchedProject);
         HttpStatus status = HttpStatus.OK;
         return status;

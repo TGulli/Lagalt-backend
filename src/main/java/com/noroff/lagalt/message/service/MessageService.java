@@ -40,18 +40,18 @@ public class MessageService {
     public ResponseEntity<Message> create (Message message){
         Long projectId = message.getProject().getId();
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
-        List<User> owners = project.getOwners();
+        User owner = project.getOwner();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
         Long userId = message.getUser().getId();
         User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
 
-        for(User owner : owners){
-            if(owner.getId().equals(userId)){
-                Message createdMessage = messageRepository.save(message);
-                HttpStatus status = HttpStatus.CREATED;
-                return new ResponseEntity<>(createdMessage, status);
-            }
+
+        if(owner.getId().equals(userId)){
+            Message createdMessage = messageRepository.save(message);
+            HttpStatus status = HttpStatus.CREATED;
+            return new ResponseEntity<>(createdMessage, status);
         }
+
         for(ProjectCollaborators collaborator : collaborators){
             if(collaborator.getStatus().equals(Status.APPROVED)){
                 if(collaborator.getUser().getId().equals(userId)){
@@ -92,16 +92,16 @@ public class MessageService {
                 (message.getProject().getId().equals(projectId))).collect(Collectors.toList());
 
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
+        userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
 
-        List<User> owners = project.getOwners();
+        User owner = project.getOwner();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
 
-        for(User owner : owners){
-            if(owner.getId().equals(userId)){
-                return ResponseEntity.ok(projectMessages);
-            }
+
+        if(owner.getId().equals(userId)){
+            return ResponseEntity.ok(projectMessages);
         }
+
         for(ProjectCollaborators collaborator : collaborators){
             if(collaborator.getStatus().equals(Status.APPROVED)){
                 if(collaborator.getUser().getId().equals(userId)){

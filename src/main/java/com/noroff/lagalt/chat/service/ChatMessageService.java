@@ -42,17 +42,17 @@ public class ChatMessageService {
 
         Long projectId = chatMessage.getProject().getId();
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
-        List<User> owners = project.getOwners();
+        User owner = project.getOwner();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
 
-        for (User owner : owners) {
-            if (owner.getId().equals(userId)) {
-                //chatMessageRepository.save(chatMessage);
-                headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
-                headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
-                return chatMessage;
-            }
+
+        if (owner.getId().equals(userId)) {
+            //chatMessageRepository.save(chatMessage);
+            headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
+            headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+            return chatMessage;
         }
+
 
         for (ProjectCollaborators collaborator : collaborators) {
             if (collaborator.getStatus().equals(Status.APPROVED)) {

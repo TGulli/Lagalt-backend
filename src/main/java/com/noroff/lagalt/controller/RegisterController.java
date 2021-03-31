@@ -46,7 +46,7 @@ public class RegisterController {
         user.setLoginMethod(LoginMethod.internal);
         user.setSecret(encodedPassword);
         user.setHidden(false);
-        user.setVerified(false);
+        user.setVerified(true);
         return userService.create(user);
     }
 

@@ -73,14 +73,14 @@ public class ChatMessageController {
         List<ChatMessage> projectMessages = chatMessages.stream().filter(message ->
                 (message.getProject().getId().equals(projectId))).collect(Collectors.toList());
 
-        List<User> owners = project.getOwners();
+        User owner = project.getOwner();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
 
-        for(User owner : owners){
-            if(owner.getId().equals(userId)){
-                return new ResponseEntity<>(projectMessages, HttpStatus.OK);
-            }
+
+        if(owner.getId().equals(userId)){
+            return new ResponseEntity<>(projectMessages, HttpStatus.OK);
         }
+
 
         for(ProjectCollaborators collaborator : collaborators){
             if(collaborator.getStatus().equals(Status.APPROVED)){

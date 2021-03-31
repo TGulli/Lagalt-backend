@@ -44,20 +44,17 @@ public class Project {
     private String category;
 
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ProjectTag> projectTags;
 
     //GITHUB REPO/EXTRA DETAILS
 
-    @ManyToMany()
-    @JoinTable(
-            name = "project_users",
-            joinColumns = {@JoinColumn(name = "projects_id")},
-            inverseJoinColumns = {@JoinColumn(name = "users_id")}
-    )
-    private List<User> owners;
 
-    @OneToMany(mappedBy = "project")
+    @ManyToOne()
+    @JoinColumn(name = "project_id")
+    private User owner;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<ProjectCollaborators> collaborators;
 
     @JsonGetter("collaborators")
@@ -69,7 +66,7 @@ public class Project {
         return null;
     }
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Message> messages;
 
     @JsonGetter("messages")
@@ -80,7 +77,7 @@ public class Project {
         return null;
     }
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<ChatMessage> chatMessages;
 
     public Project(){}
@@ -94,12 +91,20 @@ public class Project {
         this.category = category;
     }
 
-    @JsonGetter("owners")
-    public List<ReturnUser> getOwnerNames(){
-        if(owners != null) {
-            return owners.stream().map(temp -> new ReturnUser(temp.getId(), temp.getUsername())).collect(Collectors.toList());
+    @JsonGetter("owner")
+    public ReturnUser getOwnerName(){
+        if(owner != null) {
+            return  new ReturnUser(owner.getId(), owner.getUsername());
         }
         return null;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public List<ProjectTag> getProjectTags() {
@@ -114,9 +119,6 @@ public class Project {
         return category;
     }
 
-    public List<User> getOwners() {
-        return owners;
-    }
 
     public Long getId(){
         return id;
@@ -227,9 +229,6 @@ public class Project {
 
     }
 
-    public void setOwners(List<User> owners) {
-        this.owners = owners;
-    }
 
     public void setCollaborators(List<ProjectCollaborators> collaborators) {
         this.collaborators = collaborators;

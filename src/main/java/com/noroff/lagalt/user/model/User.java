@@ -54,16 +54,17 @@ public class User {
     @Column(name = "verified")
     private Boolean verified;
 
-    @ManyToMany(mappedBy = "owners")
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Project> ownedProjects;
 
     @OneToMany(mappedBy = "user")
     private List<ProjectCollaborators> collaboratorIn;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<UserTag> userTags;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Message> messages;
 
     public User() { }

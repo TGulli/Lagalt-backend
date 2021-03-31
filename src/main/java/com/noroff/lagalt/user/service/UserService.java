@@ -122,10 +122,13 @@ public class UserService {
         }
 
 
-        List<Project> projects = projectRepository.findAll();
+        /*List<Project> projects = projectRepository.findAll();
+
         for (Project p : projects) {
-            p.getOwners().remove(fetchedUser.get());
-        }
+            if(p.getOwner().getId().equals(fetchedUser.get().getId())) {
+                p.setOwner(null);
+            }
+        }*/
         userRepository.delete(fetchedUser.get());
         HttpStatus status = HttpStatus.OK;
         return status;

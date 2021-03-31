@@ -53,15 +53,15 @@ public class ProjectCollaboratorsService {
 
             Project project = projectRepository.findById(projectId).get();
 
-            List<User> owners = project.getOwners();
+            User owner = project.getOwner();
             List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
 
-            for (User owner : owners) {
-                if (owner.getId().equals(userId)) {
-                    throw new ResponseStatusException(
-                            HttpStatus.BAD_REQUEST, "CAn't apply to a project you alreay own");
-                }
+
+            if (owner.getId().equals(userId)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "CAn't apply to a project you alreay own");
             }
+
             if (collaboratorsList != null) {
                 for (ProjectCollaborators projectCollaborators : collaboratorsList) {
                     User user = projectCollaborators.getUser();
@@ -108,13 +108,13 @@ public class ProjectCollaboratorsService {
 
         Long projectId = collaborator.getProject().getId();
         Project existingProject = projectRepository.findById(projectId).get();
-        List<User> owners = existingProject.getOwners();
-        for (User owner : owners){
-            if (owner.getId().equals(userId)){
-                ProjectCollaborators updatedCollaborators = projectCollaboratorsRepository.save(collaborator);
-                return new ResponseEntity<>(updatedCollaborators, HttpStatus.OK);
-            }
+        User owner = existingProject.getOwner();
+
+        if (owner.getId().equals(userId)){
+            ProjectCollaborators updatedCollaborators = projectCollaboratorsRepository.save(collaborator);
+            return new ResponseEntity<>(updatedCollaborators, HttpStatus.OK);
         }
+
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't update a project you don't own");
 
     }
