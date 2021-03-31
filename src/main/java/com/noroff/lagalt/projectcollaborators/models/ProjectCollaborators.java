@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.Status;
+import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
 import java.util.List;
@@ -37,7 +38,9 @@ public class ProjectCollaborators {
     @JsonGetter("user")
     public ProjectCollaborators.ReturnCollaborator user(){
         if(user != null) {
-            return  new ProjectCollaborators.ReturnCollaborator(user.getId());
+            return new ProjectCollaborators.ReturnCollaborator(
+                    user.getId(), user.getUsername(), user.getName(), user.getEmail(), user.getLocale(), user.getBio(), user.getOwnedProjects(), user.getCollaboratorIn(), user.getUserTags()
+            );
         }
         return null;
     }
@@ -123,13 +126,47 @@ public class ProjectCollaborators {
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     class ReturnCollaborator {
         private Long id;
+        private String username;
+        private String name;
+        private String email;
+        private String locale;
+        private String bio;
+        private List<Project> owner;
+        private List<ProjectCollaborators> collaborated;
+        private List<UserTag> userTags;
 
-
-
-        public ReturnCollaborator(Long id) {
+        public ReturnCollaborator(Long id, String username, String name, String email, String locale, String bio, List<Project> owner, List<ProjectCollaborators> collaborated, List<UserTag> userTags) {
             this.id = id;
-
+            this.username = username;
+            this.name = name;
+            this.email = email;
+            this.locale = locale;
+            this.bio = bio;
+            this.owner = owner;
+            this.collaborated = collaborated;
+            this.userTags = userTags;
         }
+
+        @JsonGetter(value = "owner")
+        public List<String> getProjectName(){
+            if(owner != null) {
+                return owner.stream().map(Project::getName).collect(Collectors.toList());
+            }
+            return null;
+        }
+
+        @JsonGetter(value = "collaborated")
+        public List<String> getCollaboratedOwner(){
+            if(collaborated != null) {
+                return collaborated.stream()
+                        .filter(x -> x.status.equals(Status.APPROVED))
+                        .map(temp -> temp.getProject().getName())
+                        .collect(Collectors.toList());
+            }
+            return null;
+        }
+
+
 
     }
 

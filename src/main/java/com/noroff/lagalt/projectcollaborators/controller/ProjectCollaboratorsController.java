@@ -30,13 +30,20 @@ public class ProjectCollaboratorsController {
         return projectCollaboratorsService.getById(id);
     }
 
+    @GetMapping("project/{id}/collaborators/")
+    public ResponseEntity<List<ProjectCollaborators>> getProjectCollaboratorsByProjectId(@PathVariable(value = "id") long id ){
+        return projectCollaboratorsService.getAllByProjectId(id);
+    }
+
+
+
     @PostMapping("/project/collaborators")
     public ResponseEntity<ProjectCollaborators> addProjectCollaborator(@RequestBody ProjectCollaborators projectCollaborators){
         return projectCollaboratorsService.create(projectCollaborators);
     }
 
     @PutMapping("/project/collaborators/{id}")
-    public ResponseEntity<ProjectCollaborators> update(@PathVariable long id, @RequestBody ObjectNode json) throws JsonProcessingException {
+    public ResponseEntity<ProjectCollaborators> update(@PathVariable Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
         JsonNode JsonUserId = json.get("user");
         Long userId = JsonUserId.get("id").asLong();
         ObjectMapper objectMapper = new ObjectMapper();

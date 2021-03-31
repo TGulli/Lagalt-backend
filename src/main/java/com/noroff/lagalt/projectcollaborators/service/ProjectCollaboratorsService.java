@@ -1,5 +1,6 @@
 package com.noroff.lagalt.projectcollaborators.service;
 
+import com.noroff.lagalt.projectcollaborators.models.Status;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectCollaboratorsService {
@@ -83,6 +85,12 @@ public class ProjectCollaboratorsService {
 
     public ResponseEntity<List<ProjectCollaborators>> getAll() {
         List<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findAll();
+        HttpStatus status = HttpStatus.OK;
+        return new ResponseEntity<>(collaborators, status);
+    }
+
+    public ResponseEntity<List<ProjectCollaborators>> getAllByProjectId(Long id) {
+        List<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findAllByProject_Id(id).stream().filter(x -> x.getStatus().equals(Status.PENDING)).collect(Collectors.toList());
         HttpStatus status = HttpStatus.OK;
         return new ResponseEntity<>(collaborators, status);
     }
