@@ -3,6 +3,7 @@ package com.noroff.lagalt.user.service;
 import com.noroff.lagalt.security.twofa.model.ConfirmationToken;
 import com.noroff.lagalt.security.twofa.repository.ConfirmationTokenRepository;
 import com.noroff.lagalt.security.twofa.service.EmailSenderService;
+import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,6 +25,9 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+    private final static int MAXEMAILLENGTH = 350;
+    private final static int MAXEBIOLENGTH = 1000;
+    private final static int MAXEGENERALLENGTH = 50;
 
     @Autowired
     public UserRepository userRepository;
@@ -41,11 +46,38 @@ public class UserService {
 
 
     public ResponseEntity<User> create(User user) {
-        if (user == null || user.getUsername() == null || user.getSecret() == null){
-//        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "User, user.email, user.name, user.secret or user.username is null.");
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is null.");
+        } else if (user.getUsername() == null || user.getUsername() == ""){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is not set.");
+        } else if (user.getName() == null || user.getName() == ""){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is not set.");
+        } else if (user.getSecret() == null || user.getSecret() == "") {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is not set.");
+        } else if (user.getUsername().length() > MAXEGENERALLENGTH){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username must be shorter than " + MAXEGENERALLENGTH + " characters.");
+        } else if (user.getName().length() > MAXEGENERALLENGTH){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name must be shorter than " + MAXEGENERALLENGTH + " characters.");
+        } else if (user.getSecret().length() > MAXEGENERALLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Secret must be shorter than " + MAXEGENERALLENGTH + " characters.");
+        } else if (user.getEmail().length() > MAXEMAILLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email must be shorter than " + MAXEMAILLENGTH + " characters.");
+        } else if (user.getLocale() != null && user.getLocale().length() > MAXEGENERALLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Local must be shorter than " + MAXEGENERALLENGTH + " characters.");
+        } else if (user.getBio() != null && user.getBio().length() > MAXEBIOLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio must be shorter than " + MAXEBIOLENGTH + " characters.");
         }
+
+        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
+        user.setLoginMethod(LoginMethod.internal);
+        user.setSecret(encodedPassword);
+        user.setHidden(false);
+        user.setVerified(false);
+        user.setOwnedProjects(null);
+        user.setCollaboratorIn(null);
+        user.setUserTags(null);
+        user.setMessages(null);
+
        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){

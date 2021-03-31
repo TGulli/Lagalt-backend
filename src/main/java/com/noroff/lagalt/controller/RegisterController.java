@@ -39,14 +39,6 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User, user.email, user.name, user.secret or user.username is null.");
-        }
-        String encodedPassword = new BCryptPasswordEncoder().encode(user.getSecret());
-        user.setLoginMethod(LoginMethod.internal);
-        user.setSecret(encodedPassword);
-        user.setHidden(false);
-        user.setVerified(false);
         return userService.create(user);
     }
 
