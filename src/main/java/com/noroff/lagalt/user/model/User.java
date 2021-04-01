@@ -8,7 +8,6 @@ import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.sun.istack.NotNull;
-import javax.validation.constraints.Size;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -59,7 +58,7 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Project> ownedProjects;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ProjectCollaborators> collaboratorIn;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)

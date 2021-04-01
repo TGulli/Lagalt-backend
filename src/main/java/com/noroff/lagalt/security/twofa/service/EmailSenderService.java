@@ -1,5 +1,6 @@
 package com.noroff.lagalt.security.twofa.service;
 
+import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.mail.SendFailedException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class EmailSenderService {
@@ -27,11 +29,16 @@ public class EmailSenderService {
         try{
             javaMailSender.send(email);
         } catch (MailException e){
-            // todo: must delete the user when the email is not accepted.
-//            System.out.println(Objects.requireNonNull(email.getTo())[0]);
-//            userRepository.delete(userRepository.findByEmail(Objects.requireNonNull(email.getTo())[0])
-//                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-//                            "Could not send email for validation, because the email is not a valid RFC-5321 address.")));
+
+            try {
+                Optional<User> deleteMe = userRepository.findByEmail(email.getTo()[0]);
+                deleteMe.ifPresent(user -> userRepository.delete(user));
+            }
+            catch (NullPointerException nullPointerException){
+                System.out.println(nullPointerException);
+            }
+
+
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Could not send email for validation, because the email is not a valid RFC-5321 address.");
         }

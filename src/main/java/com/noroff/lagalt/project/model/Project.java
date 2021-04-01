@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 enum Progress{
-    FOUNDING,
-    IN_PROGRESS,
-    STALLED,
-    COMPLETED
+    OPPSTART,
+    UNDER_ARBEID,
+    STOPPET,
+    FERDIG
 }
 
 @Entity

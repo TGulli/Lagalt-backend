@@ -31,7 +31,7 @@ public class ProjectCollaboratorsController {
     }
 
     @GetMapping("project/{id}/collaborators/")
-    public ResponseEntity<List<ProjectCollaborators>> getProjectCollaboratorsByProjectId(@PathVariable(value = "id") long id, @RequestHeader(value = "Authorization") String authHeader){
+    public ResponseEntity<List<ProjectCollaborators>> getProjectCollaboratorsByProjectId(@PathVariable(value = "id") Long id, @RequestHeader(value = "Authorization") String authHeader){
         return projectCollaboratorsService.getAllByProjectId(id, authHeader);
     }
 

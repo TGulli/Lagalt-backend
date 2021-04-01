@@ -46,55 +46,51 @@ public class ProjectService {
     public ResponseEntity<Project> create(Project project) {
         if (project == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjekt objektet er ikke satt");
-        } else if (project.getName() == null || project.getName().equals("")){
+        } else if (project.getName() == null || project.getName().equals("")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektnavn er ikke satt.");
-        } else if (project.getCategory() == null || project.getCategory().equals("")){
+        } else if (project.getCategory() == null || project.getCategory().equals("")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektkategori er ikke satt."); // todo Må den være satt?
-        } else if (project.getProgress() == null){
+        } else if (project.getProgress() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektprogresjon er ikke satt."); // todo Må den være satt?
-        } else if (project.getName().length() > MAXEGENERALLENGTH){
+        } else if (project.getName().length() > MAXEGENERALLENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektnavn kan ikke være lengre enn " + MAXEGENERALLENGTH + " tegn.");
-        } else if (project.getDescription() != null && project.getDescription().length() > MAXEDESCRIPTIONLENGTH){
+        } else if (project.getDescription() != null && project.getDescription().length() > MAXEDESCRIPTIONLENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektbeskrivelse kan ikke være lengre enn " + MAXEDESCRIPTIONLENGTH + " tegn.");
-        } else if (project.getImage() != null && project.getImage().length() > MAXIMAGELENGTH){
+        } else if (project.getImage() != null && project.getImage().length() > MAXIMAGELENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image kan ikke ha lenge path enn bestående av " + MAXIMAGELENGTH + " tegn.");
-        } else if (project.getCategory() != null && project.getCategory().length() > MAXEGENERALLENGTH){
+        } else if (project.getCategory() != null && project.getCategory().length() > MAXEGENERALLENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kategori kan ikke bestå av mer enn " + MAXEGENERALLENGTH + " tegn.");
-        } else if (project.getProjectTags() != null && project.getProjectTags().size() > LIMITADDTAGS){
+        } else if (project.getProjectTags() != null && project.getProjectTags().size() > LIMITADDTAGS) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kan ikke legge til mer enn " + MAXEGENERALLENGTH + " kvalifikasjoner.");
-        } else if (project.getOwner() == null){
+        } else if (project.getOwner() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det må eksistere minst en eier av prosjektet.");
-        } else if (project.getCollaborators() != null && project.getCollaborators().size() > 0){
+        } else if (project.getCollaborators() != null && project.getCollaborators().size() > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det kan ikke eksistere noen medlemmer av prosjektet " +
                     "ved opprettelse. De brukerne som ønsker å bli medlem av prosjektet, må sende inn en forespørsel om " +
                     "å bli medlem, og en eier av prosjektet må godta vedkommende.");
-        } else if (project.getMessages() != null && project.getMessages().size() > 0){
+        } else if (project.getMessages() != null && project.getMessages().size() > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke mulig å opprette et prosjekt med messages.");
-        } else if (project.getChatMessages() != null && project.getChatMessages().size() > 0){
+        } else if (project.getChatMessages() != null && project.getChatMessages().size() > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke mulig å opprette et prosjekt med chatMessages.");
-        } else if (projectRepository.existsByName(project.getName())){
+        } else if (projectRepository.existsByName(project.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer allerede et prosjekt med navn: " + project.getName());
         }
-
-
 
 
         Project createdProject = projectRepository.save(project);
 
         if (project.getProjectTags() != null) {
 
-            List<String> uniqueTags = new ArrayList<>();
             for (ProjectTag tag : project.getProjectTags()) {
-                if (tag.getTag().length() > MAXEGENERALLENGTH){
+                if (tag.getTag().length() > MAXEGENERALLENGTH) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lengden på kvalifikasjoner kan ikke være lengre enn " + MAXEGENERALLENGTH);
                 }
-                uniqueTags.add(tag.getTag().toLowerCase(Locale.ROOT));
-                if (!uniqueTags.contains(tag.getTag().toLowerCase(Locale.ROOT))) {
-                    tag.setProject(createdProject);
-                    projectTagRepository.save(tag);
-                }
+                tag.setProject(createdProject);
+                projectTagRepository.save(tag);
+
             }
         }
+
 
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
@@ -120,30 +116,30 @@ public class ProjectService {
 
         if (project == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjekt objektet er ikke satt");
-        } else if (project.getDescription() != null && project.getDescription().length() > MAXEDESCRIPTIONLENGTH){
+        } else if (project.getDescription() != null && project.getDescription().length() > MAXEDESCRIPTIONLENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektbeskrivelse kan ikke være lengre enn " + MAXEDESCRIPTIONLENGTH + " tegn.");
-        } else if (project.getImage() != null && project.getImage().length() > MAXIMAGELENGTH){
+        } else if (project.getImage() != null && project.getImage().length() > MAXIMAGELENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image kan ikke ha lenge path enn bestående av " + MAXIMAGELENGTH + " tegn.");
-        } else if (project.getCategory() != null && project.getCategory().length() > MAXEGENERALLENGTH){
+        } else if (project.getCategory() != null && project.getCategory().length() > MAXEGENERALLENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kategori kan ikke bestå av mer enn " + MAXEGENERALLENGTH + " tegn.");
-        } else if (project.getProjectTags() != null && project.getProjectTags().size() > LIMITADDTAGS){
+        } else if (project.getProjectTags() != null && project.getProjectTags().size() > LIMITADDTAGS) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kan ikke legge til mer enn " + MAXEGENERALLENGTH + " kvalifikasjoner.");
-        } else if (project.getCollaborators() != null && project.getCollaborators().size() > 0){
+        } else if (project.getCollaborators() != null && project.getCollaborators().size() > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det kan ikke eksistere noen medlemmer av prosjektet " +
                     "ved å endre prosjektet. De brukerne som ønsker å bli medlem av prosjektet, må sende inn en forespørsel om " +
                     "å bli medlem, og en eier av prosjektet må godta vedkommende.");
-        } else if (project.getMessages() != null && project.getMessages().size() > 0){
+        } else if (project.getMessages() != null && project.getMessages().size() > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke mulig å endre på messages.");
-        } else if (project.getChatMessages() != null && project.getChatMessages().size() > 0){
+        } else if (project.getChatMessages() != null && project.getChatMessages().size() > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det er ikke mulig å endre på chatMessages.");
-        } else if (!projectRepository.existsById(id)){
+        } else if (!projectRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer ikke et prosjekt med angitt id: " + id.toString());
         }
 
 
         Project existingProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No project found by that id"));
 
-        if (!existingProject.getOwner().getId().equals(requestUser.get().getId())){
+        if (!existingProject.getOwner().getId().equals(requestUser.get().getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not yours to edit");
         }
 
@@ -156,7 +152,7 @@ public class ProjectService {
             existingProject.setProgress(project.getProgress());
         }
 
-        if (!project.getCategory().equals("")){
+        if (!project.getCategory().equals("")) {
             existingProject.setCategory(project.getCategory());
         }
 
@@ -170,7 +166,7 @@ public class ProjectService {
 
             List<String> currentTags = new ArrayList<>();
             for (ProjectTag t : existingProject.getProjectTags()) {
-                if (t.getTag().length() > MAXEGENERALLENGTH){
+                if (t.getTag().length() > MAXEGENERALLENGTH) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lengden på kvalifikasjoner kan ikke være lengre enn " + MAXEGENERALLENGTH);
                 }
                 currentTags.add(t.getTag().toLowerCase(Locale.ROOT));

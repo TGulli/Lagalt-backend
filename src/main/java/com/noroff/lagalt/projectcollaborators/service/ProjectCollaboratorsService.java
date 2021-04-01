@@ -103,11 +103,12 @@ public class ProjectCollaboratorsService {
     public ResponseEntity<List<ProjectCollaborators>> getAllByProjectId(Long id, String authHeader) {
 
         String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
-
         Optional<User> user = userRepository.findByUsername(username);
 
+        Project p = projectRepository.findById(id).orElseThrow( () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user tried to read"));
+
         if (user.isPresent()){
-            if (!user.get().getId().equals(id)){
+            if (!p.getOwner().getId().equals(user.get().getId())){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user tried to read");
             }
             List<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findAllByProject_Id(id).stream().filter(x -> x.getStatus().equals(Status.PENDING)).collect(Collectors.toList());

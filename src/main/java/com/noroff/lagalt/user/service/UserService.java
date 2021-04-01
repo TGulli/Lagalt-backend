@@ -54,14 +54,10 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn er ikke satt.");
         } else if (user.getName() == null || user.getName() == ""){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn er ikke satt.");
-        } else if (user.getSecret() == null || user.getSecret() == "") {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord er ikke satt.");
         } else if (user.getUsername().length() > MAXEGENERALLENGTH){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
         } else if (user.getName().length() > MAXEGENERALLENGTH){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
-        } else if (user.getSecret().length() > MAXEGENERALLENGTH) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord må være kortere enn  " + MAXEGENERALLENGTH + " tegn.");
         } else if (user.getEmail().length() > MAXEMAILLENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Epost addresse må være kortere enn " + MAXEMAILLENGTH + " tegn.");
         } else if (user.getLocale() != null && user.getLocale().length() > MAXEGENERALLENGTH) {

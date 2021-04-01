@@ -68,6 +68,8 @@ public class LoginController {
     public ResponseEntity<LoginGranted> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
         if (internalBucket.tryConsume(1)) {
             try {
+                System.out.println(authenticationRequest);
+
                 if (authenticationRequest.getUsername().length() > MAXEGENERALLENGTH || authenticationRequest.getPassword().length() > MAXEGENERALLENGTH) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn eller passord stemmer ikke.");
                 }
@@ -96,10 +98,10 @@ public class LoginController {
     private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (AuthenticationException e) {
+        } catch (DisabledException | BadCredentialsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil brukernavn eller passord.");
-        } catch (RuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User blocked.");
+        } catch (RuntimeException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bruker er blokkert.");
         }
     }
 
@@ -133,31 +135,30 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-        //Gewgle lawgin
-        @PostMapping("/login/google/{token}")
-        public ResponseEntity<?> oauthLogin (@PathVariable(value = "token") String token){
-            if (googleBucket.tryConsume(1)) {
-                try {
-                    User created = GoogleTokenVerifier.verifiyGoogleToken(token);
-                    Optional<User> fetchedUser = userRepository.findByEmail(created.getEmail());
-                    User addUser;
+    //Gewgle lawgin
+    @PostMapping("/login/google/{token}")
+    public ResponseEntity<?> oauthLogin(@PathVariable(value = "token") String token) {
+        if (googleBucket.tryConsume(1)) {
+            try {
+                User created = GoogleTokenVerifier.verifiyGoogleToken(token);
+                Optional<User> fetchedUser = userRepository.findByEmail(created.getEmail());
+                User addUser;
 
-                    if (fetchedUser.isPresent()) {
-                        addUser = fetchedUser.get();
-                    } else {
-                        addUser = userRepository.save(created);
-                    }
-
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(addUser.getUsername());
-                    String generatedToken = jwtTokenUtil.generateToken(userDetails);
-
-                    return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
-
-                } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke logge inn med Google.");
+                if (fetchedUser.isPresent()) {
+                    addUser = fetchedUser.get();
+                } else {
+                    addUser = userRepository.save(created);
                 }
+
+                UserDetails userDetails = userDetailsService.loadUserByUsername(addUser.getUsername());
+                String generatedToken = jwtTokenUtil.generateToken(userDetails);
+
+                return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
+
+            } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke logge inn med Google.");
             }
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 }

@@ -17,8 +17,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Boolean existsByName(String name);
 
 
-    @Query("SELECT new com.noroff.lagalt.project.model.PartialProject(p.name, p.description, p.progress, p.category, p.owner.username) FROM Project p WHERE p.id = ?1")
+    @Query("SELECT new com.noroff.lagalt.project.model.PartialProject(p.name, p.description, p.category,p.progress, p.owner.username) FROM Project p WHERE p.id = ?1")
     PartialProject getPublicProjectById(long id);
-
 
 }

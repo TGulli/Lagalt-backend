@@ -85,6 +85,5 @@ public class ChatMessageService {
             }
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke legge til bruker i chat.");
-        return null;
     }
 }
