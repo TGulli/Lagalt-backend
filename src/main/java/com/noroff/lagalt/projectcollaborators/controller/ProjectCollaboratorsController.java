@@ -41,13 +41,8 @@ public class ProjectCollaboratorsController {
     }
 
     @PutMapping("/project/collaborators/{id}")
-    public ResponseEntity<ProjectCollaborators> update(@PathVariable Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
-        JsonNode JsonUserId = json.get("user");
-        Long userId = JsonUserId.get("id").asLong();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonProjectCollaborators = json.get("projectCollaborators");
-        ProjectCollaborators collaborators = objectMapper.treeToValue(jsonProjectCollaborators, ProjectCollaborators.class);
-        return projectCollaboratorsService.update(id, collaborators, userId);
+    public ResponseEntity<ProjectCollaborators> update(@PathVariable Long id, @RequestBody ProjectCollaborators projectCollaborator, @RequestHeader(value = "Authorization") String authHeader)  {
+        return projectCollaboratorsService.update(id, projectCollaborator, authHeader);
     }
 
 

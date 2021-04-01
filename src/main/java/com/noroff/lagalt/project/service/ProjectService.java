@@ -4,6 +4,7 @@ import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
+import com.noroff.lagalt.security.JwtTokenUtil;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.noroff.lagalt.user.repository.UserRepository;
@@ -31,6 +32,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectTagRepository projectTagRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     public ResponseEntity<Project> create(Project project) {
         if (project == null || project.getName() == null) {
@@ -71,58 +75,75 @@ public class ProjectService {
     }
 
 
-    public ResponseEntity<Project> editProject(Long id, Project project, Long userId) {
+    public ResponseEntity<Project> editProject(Long id, Project project, String authHeader) {
 
-        if (id == null || userId == null || project == null || project.getName() == null) {
+        String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        Optional<User> requestUser = userRepository.findByUsername(username);
+
+        if (id == null || project == null || requestUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not edit project with " + id + ", because project, project.name or user is null");
         }
 
         HttpStatus status;
 
-        if (!id.equals(project.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You're trying to edit the wrong project");
-        }
-
-
         Project existingProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No project found by that id"));
 
-        if ((!project.getName().equals(existingProject.getName())) &&
-                projectRepository.existsByName(project.getName())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A project with the new name already exists in the database.");
+        if (!existingProject.getOwner().getId().equals(requestUser.get().getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not yours to edit");
         }
 
 
-        User owner = existingProject.getOwner();
-        if (owner.getId().equals(userId)) {
-            //Create the tags!
-            if (project.getProjectTags() != null) {
-                for (ProjectTag tag : project.getProjectTags()) {
-                    if (!existingProject.getProjectTags().contains(tag)) {
-                        tag.setProject(existingProject);
-                        projectTagRepository.save(tag);
-                    }
+        if (!project.getDescription().equals("")) {
+            existingProject.setDescription(project.getDescription());
+        }
+
+        if (project.getProgress() != existingProject.getProgress()) {
+            existingProject.setProgress(project.getProgress());
+        }
+
+        if (!project.getCategory().equals("")){
+            existingProject.setCategory(project.getCategory());
+        }
+
+        if (!project.getImage().equals("")) {
+            existingProject.setImage(project.getImage());
+        }
+
+
+        //Create the tags!
+        if (project.getProjectTags() != null) {
+            for (ProjectTag tag : project.getProjectTags()) {
+                if (!existingProject.getProjectTags().contains(tag)) {
+                    tag.setProject(existingProject);
+                    projectTagRepository.save(tag);
                 }
             }
-            Project savedProject = projectRepository.save(project);
-            status = HttpStatus.OK;
-            return new ResponseEntity<>(savedProject, status);
         }
 
-
-        status =HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<>(null,status);
+        Project savedProject = projectRepository.save(existingProject);
+        status = HttpStatus.OK;
+        return new ResponseEntity<>(savedProject, status);
     }
 
-    public HttpStatus deleteProject(long id){
+    public HttpStatus deleteProject(Long id, String authHeader) {
+
+        String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        Optional<User> requestUser = userRepository.findByUsername(username);
+
+        if (requestUser.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user");
+        }
+
         Project fetchedProject = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Project not found"));
 
-        /*List<User> users = userRepository.findAll();
-        for (User u: users) {
-            u.getOwnedProjects().remove(fetchedProject);
-        }*/
+        if (!fetchedProject.getOwner().getId().equals(requestUser.get().getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user tried to delete project");
+        }
+
         projectRepository.delete(fetchedProject);
         HttpStatus status = HttpStatus.OK;
         return status;
+
     }
 
 

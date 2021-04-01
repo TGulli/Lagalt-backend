@@ -71,11 +71,6 @@ public class UserService {
     }
 
     public List<User> getAll() {
-
-
-
-
-
         return userRepository.findAll();
     }
 
@@ -109,26 +104,24 @@ public class UserService {
         return ResponseEntity.ok(fetchedUser.get());
     }
 
-    public ResponseEntity<User> getUpdateUserById(Long id) {
 
+    public ResponseEntity<User> deleteUser(Long id, String authHeader) {
+
+        String requestingUser = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        Optional<User> requestUser = userRepository.findByUsername(requestingUser);
         Optional<User> fetchedUser = userRepository.findById(id);
 
-        if (fetchedUser.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
+        if (requestUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No real user sent the request");
         }
 
-        return ResponseEntity.ok(fetchedUser.get());
-    }
-
-    public HttpStatus deleteUser(Long id) {
-        Optional<User> fetchedUser = userRepository.findById(id);
-
-
-
         if (fetchedUser.isEmpty()){
-            return HttpStatus.BAD_REQUEST;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found to delete");
         }
 
+        if (!requestUser.get().getId().equals(fetchedUser.get().getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not your user to delete");
+        }
 
         Long userId = fetchedUser.get().getId();
         ConfirmationToken cfttoken = confirmationTokenRepository.findByUser_Id(userId);
@@ -136,21 +129,16 @@ public class UserService {
             confirmationTokenRepository.delete(cfttoken);
         }
 
-
-        /*List<Project> projects = projectRepository.findAll();
-
-        for (Project p : projects) {
-            if(p.getOwner().getId().equals(fetchedUser.get().getId())) {
-                p.setOwner(null);
-            }
-        }*/
         userRepository.delete(fetchedUser.get());
-        HttpStatus status = HttpStatus.OK;
-        return status;
+        return ResponseEntity.ok(fetchedUser.get());
     }
 
     // Edit -> Add skills with mEeEeEeeEeEee.
-    public ResponseEntity<User> editUser(User user, Long id){
+    public ResponseEntity<User> editUser(User user, Long id, String authHeader){
+
+        String requestingUser = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        Optional<User> requestUser = userRepository.findByUsername(requestingUser);
+
         Optional<User> currentUserState = userRepository.findById(id);
 
         if (currentUserState.isEmpty()){
@@ -158,6 +146,14 @@ public class UserService {
         }
         if (user == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is null");
+        }
+
+        if (requestUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user tried to edit");
+        }
+
+        if (!requestUser.get().getId().equals(id)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user tried to edit");
         }
 
         if (user.getName() != null && (!user.getName().equals(""))){

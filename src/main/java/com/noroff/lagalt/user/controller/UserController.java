@@ -34,19 +34,15 @@ public class UserController {
         return userService.getById(id, authHeader);
     }
 
-    @GetMapping("/users/update/{id}")
-    public ResponseEntity<User> getUpdateUser(@PathVariable(value = "id") Long id) {
-        return userService.getUpdateUserById(id);
-    }
 
     @DeleteMapping("/users/{id}")
-    public HttpStatus deleteUser(@PathVariable(value = "id") Long id) {
-        return userService.deleteUser(id);
+    public ResponseEntity<User> deleteUser(@PathVariable(value = "id") Long id, @RequestHeader(value = "Authorization") String authHeader) {
+        return userService.deleteUser(id, authHeader);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") Long id) {
-        return userService.editUser(user, id);
+    public ResponseEntity<User> edit(@RequestBody User user, @PathVariable(value = "id") Long id, @RequestHeader(value = "Authorization") String authHeader) {
+        return userService.editUser(user, id, authHeader);
     }
 
 

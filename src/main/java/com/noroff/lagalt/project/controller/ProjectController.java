@@ -57,19 +57,14 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
-        JsonNode JsonUserId = json.get("user");
-        Long userId = JsonUserId.get("id").asLong();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonProject = json.get("project");
-        Project project = objectMapper.treeToValue(jsonProject, Project.class);
-
-        return projectService.editProject(id, project, userId);
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project, @RequestHeader(value = "Authorization") String authHeader) {
+        return projectService.editProject(id, project, authHeader);
     }
 
     @DeleteMapping("/projects/{id}")
-    public HttpStatus deleteProject(@PathVariable(value="id") long id){
-        return projectService.deleteProject(id);
+    public HttpStatus deleteProject(@PathVariable(value="id") Long id, @RequestHeader(value = "Authorization") String authHeader){
+
+        return projectService.deleteProject(id, authHeader);
     }
 
 

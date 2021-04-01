@@ -120,7 +120,15 @@ public class ProjectCollaboratorsService {
                 HttpStatus.CONFLICT, "No projectcollaborator with id: " + id);
     }
 
-    public ResponseEntity<ProjectCollaborators> update (Long id, ProjectCollaborators collaborator, Long userId){
+    public ResponseEntity<ProjectCollaborators> update (Long id, ProjectCollaborators collaborator, String authHeader){
+
+
+        String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        Optional<User> requestUser = userRepository.findByUsername(username);
+
+        if (requestUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Token user is not a legal user");
+        }
 
         if(!id.equals(collaborator.getId())){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Id does not match the id in projectcollaborator.");
@@ -134,7 +142,7 @@ public class ProjectCollaboratorsService {
         Project existingProject = projectRepository.findById(projectId).get();
         User owner = existingProject.getOwner();
 
-        if (owner.getId().equals(userId)){
+        if (owner.getId().equals(requestUser.get().getId())){
             ProjectCollaborators updatedCollaborators = projectCollaboratorsRepository.save(collaborator);
             return new ResponseEntity<>(updatedCollaborators, HttpStatus.OK);
         }

@@ -49,7 +49,6 @@ public class Project {
 
     //GITHUB REPO/EXTRA DETAILS
 
-
     @ManyToOne()
     @JoinColumn(name = "project_id")
     private User owner;
@@ -119,6 +118,9 @@ public class Project {
         return category;
     }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public Long getId(){
         return id;
