@@ -49,15 +49,21 @@ public class LoginController {
         // Todo new data for register, and new Exception based on email
         try {
             // Validate username & password
+            System.out.println("Loginrequest " + authenticationRequest);
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+
+            System.out.println("Kom gjennom authenticate");
 
             // Generates user
             UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
             String token = jwtTokenUtil.generateToken(userDetails);
 
+            System.out.println("Token laget " + token);
+
             // Gets the correct User Object
             Optional<User> returnedUser = userRepository.findByUsername(userDetails.getUsername()); //.orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
             if (returnedUser.isEmpty()){
+                System.out.println("returnuser is empty (findby username fungerte ikke)");
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
             }
             if(!returnedUser.get().getVerified()){
@@ -66,19 +72,24 @@ public class LoginController {
             return ResponseEntity.ok(new LoginGranted(returnedUser.get(), new JwtResponse(token)));
 
         } catch (UsernameNotFoundException e){
+            System.out.println("Username not found exeption " + e);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
         } catch (NullPointerException e){
+            System.out.println("nullpointer exeption: " + e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data in LoginRequest object is null.");
         }
     }
 
     // Todo add email?
     private void authenticate(String username, String password) {
+        System.out.println("kom inn i authenticate");
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
         } catch (DisabledException | BadCredentialsException e) {
+            System.out.println("Badcredentials exeption " + e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Authenticate failed.");
+        } catch (RuntimeException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User blocked.");
         }
     }
 

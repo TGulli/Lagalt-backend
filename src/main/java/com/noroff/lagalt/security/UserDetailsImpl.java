@@ -2,11 +2,14 @@ package com.noroff.lagalt.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 /*
     This class is our extension of the default UserDetails Spring Security has.
@@ -15,6 +18,7 @@ import java.util.Objects;
  */
 
 public class UserDetailsImpl implements UserDetails {
+
     // Fields
     private Long id;
 
@@ -24,6 +28,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @JsonIgnore
     private String password;
+
 
     // Constructor
     public UserDetailsImpl(Long id, String username, String email,

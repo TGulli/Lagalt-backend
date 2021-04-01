@@ -1,6 +1,7 @@
 package com.noroff.lagalt.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.api.client.util.DateTime;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
@@ -8,6 +9,7 @@ import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
