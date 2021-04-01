@@ -1,6 +1,7 @@
 package com.noroff.lagalt.user.controller;
 
 
+import com.noroff.lagalt.security.JwtTokenUtil;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
 
 
     @GetMapping("/users")
@@ -26,8 +30,8 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long id) {
-        return userService.getById(id);
+    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long id, @RequestHeader(value = "Authorization") String authHeader) {
+        return userService.getById(id, authHeader);
     }
 
     @GetMapping("/users/update/{id}")

@@ -1,10 +1,10 @@
 package com.noroff.lagalt.user.service;
 
+import com.noroff.lagalt.security.JwtTokenUtil;
 import com.noroff.lagalt.security.twofa.model.ConfirmationToken;
 import com.noroff.lagalt.security.twofa.repository.ConfirmationTokenRepository;
 import com.noroff.lagalt.security.twofa.service.EmailSenderService;
 import com.noroff.lagalt.user.model.User;
-import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.user.repository.UserRepository;
 import com.noroff.lagalt.usertags.model.UserTag;
@@ -16,10 +16,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -38,6 +35,10 @@ public class UserService {
 
     @Autowired
     private EmailSenderService emailSenderService;
+
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
 
     public ResponseEntity<User> create(User user) {
@@ -70,19 +71,33 @@ public class UserService {
     }
 
     public List<User> getAll() {
+
+
+
+
+
         return userRepository.findAll();
     }
 
 
-    public ResponseEntity<User> getById(Long id) {
+    public ResponseEntity<User> getById(Long id, String authHeader) {
+
+        String requestingUser = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+
+
         Optional<User> fetchedUser = userRepository.findById(id);
+        Optional<User> requestByUser = userRepository.findByUsername(requestingUser);
 
         if (fetchedUser.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
         }
 
+        if (requestByUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request by user");
+        }
+
         //REWORK ME
-        if (fetchedUser.get().isHidden()){
+        if (fetchedUser.get().isHidden() && !fetchedUser.get().getId().equals(requestByUser.get().getId())){
             User hiddenUser = new User();
             hiddenUser.setId(fetchedUser.get().getId());
             hiddenUser.setUsername(fetchedUser.get().getUsername());

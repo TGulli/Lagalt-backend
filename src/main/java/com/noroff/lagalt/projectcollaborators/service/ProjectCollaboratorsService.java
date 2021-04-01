@@ -1,6 +1,7 @@
 package com.noroff.lagalt.projectcollaborators.service;
 
 import com.noroff.lagalt.projectcollaborators.models.Status;
+import com.noroff.lagalt.security.JwtTokenUtil;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
@@ -22,13 +23,16 @@ import java.util.stream.Collectors;
 public class ProjectCollaboratorsService {
 
     @Autowired
-    ProjectCollaboratorsRepository projectCollaboratorsRepository;
+    private ProjectCollaboratorsRepository projectCollaboratorsRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborator){
         try {
@@ -89,10 +93,22 @@ public class ProjectCollaboratorsService {
         return new ResponseEntity<>(collaborators, status);
     }
 
-    public ResponseEntity<List<ProjectCollaborators>> getAllByProjectId(Long id) {
-        List<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findAllByProject_Id(id).stream().filter(x -> x.getStatus().equals(Status.PENDING)).collect(Collectors.toList());
-        HttpStatus status = HttpStatus.OK;
-        return new ResponseEntity<>(collaborators, status);
+    public ResponseEntity<List<ProjectCollaborators>> getAllByProjectId(Long id, String authHeader) {
+
+        String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isPresent()){
+            if (!user.get().getId().equals(id)){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal user tried to read");
+            }
+            List<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findAllByProject_Id(id).stream().filter(x -> x.getStatus().equals(Status.PENDING)).collect(Collectors.toList());
+            HttpStatus status = HttpStatus.OK;
+            return new ResponseEntity<>(collaborators, status);
+
+        }
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Token user is not a legal user");
     }
 
     public ResponseEntity<ProjectCollaborators> getById(Long id) {
