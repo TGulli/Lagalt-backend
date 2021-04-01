@@ -16,10 +16,16 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
+    private final static int MAXEMAILLENGTH = 350;
+    private final static int MAXEBIOLENGTH = 1000;
+    private final static int MAXEGENERALLENGTH = 50;
+    private final static int LIMITADDTAGS = 1000;
 
     @Autowired
     public UserRepository userRepository;
@@ -42,15 +48,31 @@ public class UserService {
 
 
     public ResponseEntity<User> create(User user) {
-        if (user == null || user.getUsername() == null || user.getSecret() == null){
-//        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "User, user.email, user.name, user.secret or user.username is null.");
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bruker objektet er ikke satt.");
+        } else if (user.getUsername() == null || user.getUsername() == ""){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn er ikke satt.");
+        } else if (user.getName() == null || user.getName() == ""){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn er ikke satt.");
+        } else if (user.getSecret() == null || user.getSecret() == "") {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord er ikke satt.");
+        } else if (user.getUsername().length() > MAXEGENERALLENGTH){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getName().length() > MAXEGENERALLENGTH){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getSecret().length() > MAXEGENERALLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passord må være kortere enn  " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getEmail().length() > MAXEMAILLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Epost addresse må være kortere enn " + MAXEMAILLENGTH + " tegn.");
+        } else if (user.getLocale() != null && user.getLocale().length() > MAXEGENERALLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sted må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getBio() != null && user.getBio().length() > MAXEBIOLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Biografi må være kortere enn " + MAXEBIOLENGTH + " tegn.");
         }
        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         if (existingUser.isPresent()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bruker eksisterer allerede");
         }
         User returnUser = userRepository.save(user);
 
@@ -91,7 +113,6 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal request by user");
         }
 
-        //REWORK ME
         if (fetchedUser.get().isHidden() && !fetchedUser.get().getId().equals(requestByUser.get().getId())){
             User hiddenUser = new User();
             hiddenUser.setId(fetchedUser.get().getId());
@@ -139,13 +160,19 @@ public class UserService {
         String requestingUser = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
         Optional<User> requestUser = userRepository.findByUsername(requestingUser);
 
-        Optional<User> currentUserState = userRepository.findById(id);
+        User currentUserState = userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker funnet med id: " + id));
 
-        if (currentUserState.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by id: " + id);
-        }
-        if (user == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is null");
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bruker objektet er ikke satt.");
+        } else if (user.getName().length() > MAXEGENERALLENGTH){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navn må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getLocale() != null && user.getLocale().length() > MAXEGENERALLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sted må være kortere enn " + MAXEGENERALLENGTH + " tegn.");
+        } else if (user.getBio() != null && user.getBio().length() > MAXEBIOLENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Biografi må være kortere enn " + MAXEBIOLENGTH + " tegn.");
+        } else if (user.getUserTags() != null && user.getUserTags().size() > LIMITADDTAGS){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kan ikke legge til mer enn " + LIMITADDTAGS + " per redigering av profil.");
         }
 
         if (requestUser.isEmpty()){
@@ -157,37 +184,38 @@ public class UserService {
         }
 
         if (user.getName() != null && (!user.getName().equals(""))){
-            currentUserState.get().setName(user.getName());
+            currentUserState.setName(user.getName());
         }
         if (user.getBio() != null && !user.getBio().equals("")){
-            currentUserState.get().setBio(user.getBio());
+            currentUserState.setBio(user.getBio());
         }
         if (user.getLocale() != null && !user.getLocale().equals("")){
-            currentUserState.get().setLocale(user.getLocale());
+            currentUserState.setLocale(user.getLocale());
         }
 
-        currentUserState.get().setHidden(user.isHidden());
+        currentUserState.setHidden(user.isHidden());
 
 
         //Create the tags!
         if (user.getUserTags() != null) {
 
             List<String> currentTags = new ArrayList<>();
-            for (UserTag t : currentUserState.get().getUserTags()) {
-                currentTags.add(t.getTag());
+            for (UserTag t : currentUserState.getUserTags()) {
+                if (t.getTag().length() > MAXEGENERALLENGTH){
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lengden på kvalifikasjoner kan ikke være lengre enn " + MAXEGENERALLENGTH);
+                }
+                currentTags.add(t.getTag().toLowerCase());
             }
             for (UserTag tag : user.getUserTags()) {
                 String userTag = tag.getTag();
-                if (!currentTags.contains(userTag)) {
-                    tag.setUser(currentUserState.get());
+                if (!currentTags.contains(userTag.toLowerCase())) {
+                    tag.setUser(currentUserState);
                     userTagRepository.save(tag);
                 }
-
             }
         }
 
-        User editUser = userRepository.save(currentUserState.get());
-        return ResponseEntity.ok(editUser);
+        return ResponseEntity.ok(userRepository.save(currentUserState));
     }
 
 

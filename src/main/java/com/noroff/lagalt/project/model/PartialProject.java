@@ -1,18 +1,21 @@
 package com.noroff.lagalt.project.model;
 
 import com.noroff.lagalt.projecttags.model.ProjectTag;
+import com.noroff.lagalt.user.model.User;
 
 import java.util.List;
 
 public class PartialProject {
     private String name;
     private String description;
+    private String category;
     private Progress progress;
     private String owner_username;
 
-    public PartialProject(String name, String description, Progress progress, String owner_username) {
+    public PartialProject(String name, String description, String category, Progress progress, String owner_username) {
         this.name = name;
         this.description = description;
+        this.category = category;
         this.progress = progress;
         this.owner_username = owner_username;
     }
@@ -31,6 +34,14 @@ public class PartialProject {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public Progress getProgress() {

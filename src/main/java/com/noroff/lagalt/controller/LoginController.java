@@ -21,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,7 @@ public class LoginController {
     private Bucket googleBucket;
     private Bucket facebookBucket;
 
-    public LoginController(){
+    public LoginController() {
         Bandwidth bandwidth = Bandwidth.classic(10, Refill.intervally(10, Duration.ofSeconds(10)));
         this.internalBucket = Bucket4j.builder().addLimit(bandwidth).build();
         this.googleBucket = Bucket4j.builder().addLimit(bandwidth).build();
@@ -60,47 +61,44 @@ public class LoginController {
 
     }
 
+    private final static int MAXEGENERALLENGTH = 50;
 
 
     @PostMapping("/login/internal")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest){
-        // Todo new data for register, and new Exception based on email
-        if(internalBucket.tryConsume(1)){
+    public ResponseEntity<LoginGranted> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
+        if (internalBucket.tryConsume(1)) {
             try {
-                // Validate username & password
+                if (authenticationRequest.getUsername().length() > MAXEGENERALLENGTH || authenticationRequest.getPassword().length() > MAXEGENERALLENGTH) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn eller passord stemmer ikke.");
+                }
+                // Validates username & password
                 authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-
                 // Generates user
                 UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
                 String token = jwtTokenUtil.generateToken(userDetails);
 
                 // Gets the correct User Object
-                Optional<User> returnedUser = userRepository.findByUsername(userDetails.getUsername()); //.orElseThrow(() -> new NoItemFoundException("USER NOT MATCHING TOKEN"));
-                if (returnedUser.isEmpty()){
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
+                User returnedUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Bruker matcher ikke token."));
+                if (!returnedUser.getVerified()) {
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bruker er ikke verifisert.");
                 }
-                if(!returnedUser.get().getVerified()){
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not verified.");
-                }
-                return ResponseEntity.ok(new LoginGranted(returnedUser.get(), new JwtResponse(token)));
+                return ResponseEntity.ok(new LoginGranted(returnedUser, new JwtResponse(token)));
 
-            } catch (UsernameNotFoundException e){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not matching token.");
-            } catch (NullPointerException e){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data in LoginRequest object is null.");
+            } catch (UsernameNotFoundException e) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bruker matcher ikke token.");
+            } catch (NullPointerException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data i LoginRequest objektet er ikke satt.");
             }
         }
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-    // Todo add email?
     private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-        } catch (DisabledException | BadCredentialsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Authenticate failed.");
-        } catch (RuntimeException e){
+        } catch (AuthenticationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil brukernavn eller passord.");
+        } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User blocked.");
         }
     }
@@ -108,7 +106,7 @@ public class LoginController {
 
     @PostMapping("/login/facebook/{accessToken}")
     public ResponseEntity<LoginGranted> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
-        if(facebookBucket.tryConsume(1)) {
+        if (facebookBucket.tryConsume(1)) {
             try {
                 User createdUser = FacebookTokenVerifier.verify(accessToken);
                 Optional<User> fetchedUser = userRepository.findByUsernameOrEmail(createdUser.getUsername(), createdUser.getEmail());
@@ -129,36 +127,37 @@ public class LoginController {
 
 
             } catch (NullPointerException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not login with Facebook.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke logge inn med Facebook.");
             }
         }
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-    //Gewgle lawgin
-    @PostMapping("/login/google/{token}")
-    public ResponseEntity<?> oauthLogin(@PathVariable(value = "token") String token) {
-        if(googleBucket.tryConsume(1)) {
-            try {
-                User created = GoogleTokenVerifier.verifiyGoogleToken(token);
-                Optional<User> fetchedUser = userRepository.findByEmail(created.getEmail());
-                User addUser;
+        //Gewgle lawgin
+        @PostMapping("/login/google/{token}")
+        public ResponseEntity<?> oauthLogin (@PathVariable(value = "token") String token){
+            if (googleBucket.tryConsume(1)) {
+                try {
+                    User created = GoogleTokenVerifier.verifiyGoogleToken(token);
+                    Optional<User> fetchedUser = userRepository.findByEmail(created.getEmail());
+                    User addUser;
 
-                if (fetchedUser.isPresent()) {
-                    addUser = fetchedUser.get();
-                } else {
-                    addUser = userRepository.save(created);
+                    if (fetchedUser.isPresent()) {
+                        addUser = fetchedUser.get();
+                    } else {
+                        addUser = userRepository.save(created);
+                    }
+
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(addUser.getUsername());
+                    String generatedToken = jwtTokenUtil.generateToken(userDetails);
+
+                    return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
+
+                } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke logge inn med Google.");
                 }
-
-                UserDetails userDetails = userDetailsService.loadUserByUsername(addUser.getUsername());
-                String generatedToken = jwtTokenUtil.generateToken(userDetails);
-
-                return ResponseEntity.ok(new LoginGranted(addUser, new JwtResponse(generatedToken)));
-
-            } catch (IOException | GeneralSecurityException | VerifyException | NullPointerException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not login with Google.");
             }
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 }

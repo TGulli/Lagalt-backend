@@ -30,15 +30,32 @@ public class ChatMessageService {
     @Autowired
     ProjectRepository projectRepository;
 
-    public ChatMessage addUser(ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
+    public ChatMessage addUser(ObjectNode json, SimpMessageHeaderAccessor headerAccessor) {
+        if (json == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Json node is null");
+        } else if (headerAccessor == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "headerAccessor is null");
+        }
 
         JsonNode jsonUserId = json.get("user");
         Long userId = jsonUserId.get("id").asLong();
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonChatMessage = json.get("message");
-        ChatMessage chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
+
+
+        if (userId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke user id i json objektet");
+        } else if (jsonChatMessage == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke message i json objektet");
+        }
+
+        ChatMessage chatMessage;
+        try{
+            chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
+        } catch ( JsonProcessingException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feilet med å adde bruker i chat.");
+        }
 
         Long projectId = chatMessage.getProject().getId();
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
@@ -58,15 +75,16 @@ public class ChatMessageService {
             if (collaborator.getStatus().equals(Status.APPROVED)) {
                 if (collaborator.getUser().getId().equals(userId)) {
                     //chatMessageRepository.save(chatMessage);
+                    if (headerAccessor.getSessionAttributes() == null){
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "headerAccessor.getSessionAttributes() er null");
+                    }
                     headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
                     headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
                     return chatMessage;
                 }
             }
         }
-        System.out.println("Add user returning null");
-        //headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
-        //headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke legge til bruker i chat.");
         return null;
     }
 }

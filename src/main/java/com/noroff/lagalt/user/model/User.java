@@ -7,6 +7,8 @@ import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.usertags.model.UserTag;
+import com.sun.istack.NotNull;
+import javax.validation.constraints.Size;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -37,9 +39,6 @@ public class User {
 
     @Column(name = "email")
     private String email;
-
-    @Column(name = "description")
-    private String description;
 
     @Column(name = "hidden")
     private Boolean hidden;
@@ -104,15 +103,6 @@ public class User {
         return userTags;
     }
 
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public void setLocale(String locale) {
         this.locale = locale;
     }
@@ -127,6 +117,14 @@ public class User {
 
     public String getBio() {
         return bio;
+    }
+
+    public void setOwnedProjects(List<Project> ownedProjects) {
+        this.ownedProjects = ownedProjects;
+    }
+
+    public void setUserTags(List<UserTag> userTags) {
+        this.userTags = userTags;
     }
 
     public void setBio(String bio) {

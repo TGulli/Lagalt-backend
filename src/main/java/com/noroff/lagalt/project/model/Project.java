@@ -106,6 +106,10 @@ public class Project {
         this.owner = owner;
     }
 
+    public void setProjectTags(List<ProjectTag> projectTags) {
+        this.projectTags = projectTags;
+    }
+
     public List<ProjectTag> getProjectTags() {
         return projectTags;
     }

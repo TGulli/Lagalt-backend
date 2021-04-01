@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.message.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,13 +28,29 @@ public class MessageController {
     }
 
     @PutMapping("/message/{id}")
-    public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
+    public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json)  {
+        if (json == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Json objektet er null");
+        }
         JsonNode JsonUserId = json.get("user");
-        Long userId = JsonUserId.get("id").asLong();
+        if (JsonUserId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JsonID for user var ikke lagret.");
+        }
+        JsonNode userId = JsonUserId.get("id");
+        if (userId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId var ikke lagret.");
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonMessage = json.get("message");
-        Message message = objectMapper.treeToValue(jsonMessage, Message.class);
-        return messageService.editMessage(id, message, userId);
+        if (jsonMessage == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "jsonMessage var ikke lagret.");
+        }
+        try{
+            Message message = objectMapper.treeToValue(jsonMessage, Message.class);
+            return messageService.editMessage(id, message, userId.asLong());
+        } catch (JsonProcessingException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "jsonMessage ble ikke endret.");
+        }
     }
 
     @GetMapping("/messages/project/{id}/user/{userid}")
@@ -44,7 +62,4 @@ public class MessageController {
     public ResponseEntity<List<Message>> getAllMessages(){
         return messageService.getAll();
     }
-
-
-
 }

@@ -58,7 +58,7 @@ public class ChatMessageController {
     @MessageMapping("/chat.addUser")
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
+                               SimpMessageHeaderAccessor headerAccessor) {
         return  chatMessageService.addUser(json, headerAccessor);
 
 
@@ -66,8 +66,10 @@ public class ChatMessageController {
 
     @GetMapping("/chatmessages/project/{id}/user/{userId}")
     public ResponseEntity<List<ChatMessage>> getChatByProject(@PathVariable(name = "id") Long projectId, @PathVariable(name = "userId" ) Long userId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No User"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen prosjekt med ig: " + userId));
+        if(!userRepository.existsById(userId)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker med id: " + userId);
+        }
 
         List<ChatMessage> chatMessages = chatMessageRepository.findAll();
         List<ChatMessage> projectMessages = chatMessages.stream().filter(message ->
@@ -89,9 +91,6 @@ public class ChatMessageController {
                 }
             }
         }
-
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke chaten til prosjektet.");
     }
-
-
 }

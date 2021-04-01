@@ -22,14 +22,12 @@ public class UserTagService {
     private ProjectTagRepository projectTagRepository;
 
     public ResponseEntity<UserTag> create(UserTag userTag) {
-        UserTag createdTag = userTagRepository.save(userTag);
-        return ResponseEntity.ok(createdTag);
+        return ResponseEntity.ok(userTagRepository.save(userTag));
     }
 
 
     public ResponseEntity<List<UserTag>> getAll() {
-        List<UserTag> userTags = userTagRepository.findAll();
-        return ResponseEntity.ok(userTags);
+        return ResponseEntity.ok(userTagRepository.findAll());
     }
 
     //Gets all!

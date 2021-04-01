@@ -19,7 +19,7 @@ public class ProjectTagService {
 
     public ResponseEntity<ProjectTag> create(ProjectTag projectTag) {
         if (projectTag == null || projectTag.getTag() == null || projectTag.getTag().equals("")){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tag is not set");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tag er ikke satt.");
         }
         return ResponseEntity.ok(projectTagRepository.save(projectTag));
     }
