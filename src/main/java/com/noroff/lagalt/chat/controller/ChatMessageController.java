@@ -67,7 +67,7 @@ public class ChatMessageController {
     @GetMapping("/chatmessages/project/{id}/user/{userId}")
     public ResponseEntity<List<ChatMessage>> getChatByProject(@PathVariable(name = "id") Long projectId, @PathVariable(name = "userId" ) Long userId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen prosjekt med ig: " + userId));
-        if(userRepository.existsById(userId)){
+        if(!userRepository.existsById(userId)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker med id: " + userId);
         }
 

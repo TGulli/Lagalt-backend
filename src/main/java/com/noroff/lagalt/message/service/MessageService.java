@@ -29,6 +29,8 @@ public class MessageService {
     @Autowired
     public UserRepository userRepository;
 
+    private final static int MAXMESSAGESIZE = 1000;
+
     public ResponseEntity<List<Message>> getAll (){
         return ResponseEntity.ok(messageRepository.findAll());
     }
@@ -46,13 +48,13 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsinnhold er ikke satt.");
         }  else if (message.getUser().getId() == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet sin bruker har ikke en satt id.");
+        } else if (message.getContent().length() > MAXMESSAGESIZE){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingen kan ikke være lengre enn " + MAXMESSAGESIZE + " tegn.");
         }
         Long projectId = message.getProject().getId();
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke prosjektet med id: " + projectId + " i systemet."));
         if (project.getOwners() == null || project.getOwners().size() < 1){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjekteier(e) er ikke satt.");
-        } else if (project.getCollaborators() == null || project.getCollaborators().size() < 1){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektet har ingen medlemmer.");
         }
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
@@ -95,6 +97,8 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User iD samsvarer ikke med det som er i meldingsobjektet.");
         } else if(message.getContent() == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsinnhold er ikke satt.");
+        } else if (message.getContent().length() > MAXMESSAGESIZE){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingen kan ikke være lengre enn " + MAXMESSAGESIZE + " tegn.");
         } else if (!messageRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen prosjekt med id: " + id + " eksisterer.");
         }
@@ -108,7 +112,7 @@ public class MessageService {
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksister ingen prosjekter med prosjekt id: " + projectId));
 
-        if (userRepository.existsById(userId)){
+        if (!userRepository.existsById(userId)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer ingen prosjekster med bruker id: " + userId);
         }
 
@@ -130,6 +134,6 @@ public class MessageService {
                 }
             }
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingen ble ikke sendt, da bruker ikke ble funnet som eier eller medlem.");
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 }

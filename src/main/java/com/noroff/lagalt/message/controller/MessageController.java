@@ -28,7 +28,7 @@ public class MessageController {
     }
 
     @PutMapping("/message/{id}")
-    public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
+    public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json)  {
         if (json == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Json objektet er null");
         }
@@ -45,8 +45,12 @@ public class MessageController {
         if (jsonMessage == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "jsonMessage var ikke lagret.");
         }
-        Message message = objectMapper.treeToValue(jsonMessage, Message.class);
-        return messageService.editMessage(id, message, userId.asLong());
+        try{
+            Message message = objectMapper.treeToValue(jsonMessage, Message.class);
+            return messageService.editMessage(id, message, userId.asLong());
+        } catch (JsonProcessingException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "jsonMessage ble ikke endret.");
+        }
     }
 
     @GetMapping("/messages/project/{id}/user/{userid}")
@@ -58,7 +62,4 @@ public class MessageController {
     public ResponseEntity<List<Message>> getAllMessages(){
         return messageService.getAll();
     }
-
-
-
 }

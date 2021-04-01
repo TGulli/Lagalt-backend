@@ -6,6 +6,8 @@ import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.usertags.model.UserTag;
+import com.sun.istack.NotNull;
+import javax.validation.constraints.Size;
 
 import javax.persistence.*;
 import java.util.List;

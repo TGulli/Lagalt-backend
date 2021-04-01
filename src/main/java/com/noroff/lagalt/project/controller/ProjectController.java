@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,30 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody ObjectNode json) throws JsonProcessingException {
+    public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody ObjectNode json) {
+        if (json == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "json objektet er null.");
+        }
         JsonNode JsonUserId = json.get("user");
-        Long userId = JsonUserId.get("id").asLong();
+        if (JsonUserId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "json bruker objektet er null.");
+        }
+        JsonNode userId = JsonUserId.get("id");
+        if (userId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "json bruker objektet er null.");
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonProject = json.get("project");
-        Project project = objectMapper.treeToValue(jsonProject, Project.class);
+        if (jsonProject == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "json prosjekt objektet er null.");
+        }
+        try{
+            Project project = objectMapper.treeToValue(jsonProject, Project.class);
+            return projectService.editProject(id, project, userId.asLong());
+        } catch (JsonProcessingException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke endre prosjektet.");
+        }
 
-        return projectService.editProject(id, project, userId);
     }
 
     @DeleteMapping("/projects/{id}")
