@@ -30,69 +30,90 @@ public class MessageService {
     public UserRepository userRepository;
 
     public ResponseEntity<List<Message>> getAll (){
-        List<Message> messages = messageRepository.findAll();
-        HttpStatus status = HttpStatus.OK;
-        return new ResponseEntity<>(messages, status);
+        return ResponseEntity.ok(messageRepository.findAll());
     }
 
-
-
     public ResponseEntity<Message> create (Message message){
+        if (message == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet er null.");
+        } else if (message.getProject() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet har ikke et tilhørende prosjekt.");
+        } else if (message.getProject().getId() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet sitt prosjekt har ikke en satt id.");
+        } else if (message.getUser() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet har ingen brukere.");
+        } else if(message.getContent() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsinnhold er ikke satt.");
+        }  else if (message.getUser().getId() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet sin bruker har ikke en satt id.");
+        }
         Long projectId = message.getProject().getId();
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke prosjektet med id: " + projectId + " i systemet."));
+        if (project.getOwners() == null || project.getOwners().size() < 1){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjekteier(e) er ikke satt.");
+        } else if (project.getCollaborators() == null || project.getCollaborators().size() < 1){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjektet har ingen medlemmer.");
+        }
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
         Long userId = message.getUser().getId();
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
+        if (!userRepository.existsById(userId)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker eksisterer med id: " + userId);
+        }
 
         for(User owner : owners){
             if(owner.getId().equals(userId)){
-                Message createdMessage = messageRepository.save(message);
-                HttpStatus status = HttpStatus.CREATED;
-                return new ResponseEntity<>(createdMessage, status);
+                return new ResponseEntity<>(messageRepository.save(message), HttpStatus.CREATED);
             }
         }
         for(ProjectCollaborators collaborator : collaborators){
-            if(collaborator.getStatus().equals(Status.APPROVED)){
-                if(collaborator.getUser().getId().equals(userId)){
-                    Message createdMessage = messageRepository.save(message);
-                    HttpStatus status = HttpStatus.CREATED;
-                    return new ResponseEntity<>(createdMessage, status);
+            if(collaborator.getStatus() != null && collaborator.getStatus().equals(Status.APPROVED)){
+                if(collaborator.getUser().getId() != null && collaborator.getUser().getId().equals(userId)){
+                    return new ResponseEntity<>(messageRepository.save(message), HttpStatus.CREATED);
                 }
             }
         }
-
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        return new ResponseEntity<>(null, status);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke sende meldingen.");
     }
 
     public ResponseEntity<Message> editMessage(Long id, Message message, Long userId){
-        HttpStatus status;
-        if(!id.equals(message.getId())){
-            status = HttpStatus.BAD_REQUEST;
-            return  new ResponseEntity<>(null, status);
+        if (message == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet er null.");
+        } else if (message.getProject() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet har ikke et tilhørende prosjekt.");
+        } else if (message.getProject().getId() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet sitt prosjekt har ikke en satt id.");
+        } else if (message.getUser() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet har ingen brukere.");
+        } else if (message.getId() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet har ingen id.");
+        } else if (message.getUser().getId() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet sin bruker har ikke en satt id.");
+        } else if(!id.equals(message.getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID samsvarer ikke med det som er i meldingsobjektet.");
+        } else if(!userId.equals(message.getUser().getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User iD samsvarer ikke med det som er i meldingsobjektet.");
+        } else if(message.getContent() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsinnhold er ikke satt.");
+        } else if (!messageRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen prosjekt med id: " + id + " eksisterer.");
         }
-        Message checkMessage = messageRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
 
-        if(!userId.equals(message.getUser().getId())){
-            status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<>(null, status);
-        }
-        messageRepository.save(message);
-        status = HttpStatus.CREATED;
-        return new ResponseEntity<>(message, status);
+        return new ResponseEntity<>(messageRepository.save(message), HttpStatus.CREATED);
     }
 
     public ResponseEntity<List<Message>> getAllByProject(Long projectId, Long userId) {
         List<Message> allMessages = messageRepository.findAll();
 
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksister ingen prosjekter med prosjekt id: " + projectId));
+
+        if (userRepository.existsById(userId)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer ingen prosjekster med bruker id: " + userId);
+        }
 
         List<Message> projectMessages = allMessages.stream().filter(message ->
                 (message.getProject().getId().equals(projectId))).collect(Collectors.toList());
-
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
 
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
@@ -109,11 +130,6 @@ public class MessageService {
                 }
             }
         }
-
-        System.out.println("Length of projetmessages: " + projectMessages.size());
-        System.out.println("Responseentity: " + new ResponseEntity<>(projectMessages, HttpStatus.OK));
-        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
-
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingen ble ikke sendt, da bruker ikke ble funnet som eier eller medlem.");
     }
-
 }

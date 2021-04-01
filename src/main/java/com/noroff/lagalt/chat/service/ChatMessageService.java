@@ -30,23 +30,40 @@ public class ChatMessageService {
     @Autowired
     ProjectRepository projectRepository;
 
-    public ChatMessage addUser(ObjectNode json,
-                               SimpMessageHeaderAccessor headerAccessor) throws JsonProcessingException {
+    public ChatMessage addUser(ObjectNode json, SimpMessageHeaderAccessor headerAccessor) {
+        if (json == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Json node is null");
+        } else if (headerAccessor == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "headerAccessor is null");
+        }
 
         JsonNode jsonUserId = json.get("user");
-        Long userId = jsonUserId.get("id").asLong();
+        JsonNode userId = jsonUserId.get("id");
+        JsonNode jsonChatMessage = json.get("message");
+
+
+        if (userId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke user id i json objektet");
+        } else if (jsonChatMessage == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ikke message i json objektet");
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonChatMessage = json.get("message");
-        ChatMessage chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
+        ChatMessage chatMessage;
+        try{
+            chatMessage = objectMapper.treeToValue(jsonChatMessage, ChatMessage.class);
+        } catch ( JsonProcessingException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feilet med å adde bruker i chat.");
+        }
 
         Long projectId = chatMessage.getProject().getId();
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen prosjekter eksisterer med id: " + projectId));
         List<User> owners = project.getOwners();
         List<ProjectCollaborators> collaborators = project.getCollaborators();
 
         for (User owner : owners) {
-            if (owner.getId().equals(userId)) {
+            if (owner.getId().equals(userId.asLong())) {
                 //chatMessageRepository.save(chatMessage);
                 headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
                 headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
@@ -56,17 +73,19 @@ public class ChatMessageService {
 
         for (ProjectCollaborators collaborator : collaborators) {
             if (collaborator.getStatus().equals(Status.APPROVED)) {
-                if (collaborator.getUser().getId().equals(userId)) {
+                if (collaborator.getUser().getId().equals(userId.asLong())) {
                     //chatMessageRepository.save(chatMessage);
+                    if (headerAccessor.getSessionAttributes() == null){
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "headerAccessor.getSessionAttributes() er null");
+                    }
                     headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
                     headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
                     return chatMessage;
                 }
             }
         }
-        System.out.println("Add user returning null");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke legge til bruker i chat.");
         //headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
         //headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
-        return null;
     }
 }
