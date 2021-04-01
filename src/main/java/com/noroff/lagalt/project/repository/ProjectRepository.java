@@ -17,14 +17,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Boolean existsByName(String name);
 
 
-    //String name, String description, Progress progress List<ProjectTag> projectTags
-
-    /*
-    "SELECT a FROM Table1 a RIGHT JOIN a.table2Obj b " +
-                                              "WHERE b.column = :id" +
-                                              "AND a.id NOT IN (SELECT c.columnFromA from a.table3Obj c where state = :state)"
-     */
-
     @Query("SELECT new com.noroff.lagalt.project.model.PartialProject(p.name, p.description, p.progress, p.owner.username) FROM Project p WHERE p.id = ?1")
     PartialProject getPublicProjectById(long id);
 
