@@ -2,9 +2,16 @@ package com.noroff.lagalt.controller;
 
 import com.noroff.lagalt.user.model.PartialUser;
 import com.noroff.lagalt.user.repository.UserRepository;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
+import io.github.bucket4j.Refill;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("api/v1/public")
@@ -14,23 +21,23 @@ public class PublicUserController {
     @Autowired
     private UserRepository userRepository;
 
+    private Bucket bucket;
+
+
+    public PublicUserController(){
+        Bandwidth bandwidth = Bandwidth.classic(20, Refill.intervally(20, Duration.ofSeconds(10)));
+        this.bucket = Bucket4j.builder().addLimit(bandwidth).build();
+    }
+
+
     @GetMapping("/users/{id}")
     public ResponseEntity<PartialUser> getUserById(@PathVariable(value = "id") long id){
         PartialUser p = userRepository.findPartialById(id);
-
+        if(bucket.tryConsume(1)){ return ResponseEntity.ok(p);}
         // Validate user
 
-        return ResponseEntity.ok(p);
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-    @GetMapping("/users/email/{email}")
-    public ResponseEntity<Boolean> existingEmail(@PathVariable(value = "email") String email) {
-        return ResponseEntity.ok(userRepository.existsByEmail(email));
-    }
-
-    @GetMapping("/users/username/{username}")
-    public ResponseEntity<Boolean> existingUsername(@PathVariable(value = "username") String username) {
-        return ResponseEntity.ok(userRepository.existsByUsername(username));
-    }
 
 }
