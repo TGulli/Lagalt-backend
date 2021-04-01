@@ -8,11 +8,13 @@ public class PartialProject {
     private String name;
     private String description;
     private Progress progress;
+    private String owner_username;
 
-    public PartialProject(String name, String description, Progress progress) {
+    public PartialProject(String name, String description, Progress progress, String owner_username) {
         this.name = name;
         this.description = description;
         this.progress = progress;
+        this.owner_username = owner_username;
     }
 
     public String getName() {
@@ -39,4 +41,11 @@ public class PartialProject {
         this.progress = progress;
     }
 
+    public String getOwner_username() {
+        return owner_username;
+    }
+
+    public void setOwner_username(String owner_username) {
+        this.owner_username = owner_username;
+    }
 }
