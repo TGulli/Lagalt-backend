@@ -98,8 +98,10 @@ public class LoginController {
     private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (AuthenticationException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil brukernavn eller passord.");
+        } catch (AuthenticationException exception) {
+            String response = "";
+            response = exception.getMessage().equals("Bad credentials") ?  "Feil brukernavn/passord" : exception.getMessage();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, response);
         }
     }
 
