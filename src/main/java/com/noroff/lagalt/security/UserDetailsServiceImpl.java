@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         String ip = getClientIP();
         if (loginAttemptService.isBlocked(ip)){
-            throw new RuntimeException("blocked");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukeren er blokkert.");
         }
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bruker ikke funnet med brukernavn: " + username));

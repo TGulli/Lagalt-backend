@@ -98,10 +98,8 @@ public class LoginController {
     private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException | BadCredentialsException e) {
+        } catch (AuthenticationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feil brukernavn eller passord.");
-        } catch (RuntimeException e){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bruker er blokkert.");
         }
     }
 
