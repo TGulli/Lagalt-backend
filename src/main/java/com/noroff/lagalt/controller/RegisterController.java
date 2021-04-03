@@ -91,7 +91,7 @@ public class RegisterController {
                 User user = userOptional.get();
                 user.setVerified(true);
                 userRepository.save(user);
-                returnMessage = "Brukeren er opprettet. Du kan nå logge inn\n <a href=\"http://localhost:3000/login\">Trykk her</a>";
+                returnMessage = "Brukeren er opprettet. Du kan nå logge inn\n <a href=\"https://lagalt2021.herokuapp.com/login\">Trykk her</a>";
                 return new ResponseEntity<>(returnMessage, HttpStatus.OK);
             } else {
                 returnMessage = "Ugyldig lenke";
