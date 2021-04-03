@@ -10,13 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class LoginAttemptService {
-    private final int maxAttempts = 5;
+    private final int maxAttempts = 1000000;
     private LoadingCache<String, Integer> attemptsCache;
 
     public LoginAttemptService(){
         super();
         attemptsCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(60, TimeUnit.SECONDS)
+                .expireAfterWrite(1, TimeUnit.SECONDS)
                 .build(new CacheLoader<String, Integer>() {
                     public Integer load(String key) {
                         return 0;

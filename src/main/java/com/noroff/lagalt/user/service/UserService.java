@@ -81,7 +81,7 @@ public class UserService {
         mailMessage.setSubject("Fullfør registreringen!");
         mailMessage.setFrom("lagalt.noreply@gmail.com");
         mailMessage.setText("For å bekrefte din bruker, klikk her: "
-                +"https://lagalt-service.herokuapp.com/api/v1/public/confirm-account?token="+confirmationToken.getConfirmationToken());
+                +"http://localhost:8080/api/v1/public/confirm-account?token="+confirmationToken.getConfirmationToken());
 
         emailSenderService.sendEmail(mailMessage);
 
