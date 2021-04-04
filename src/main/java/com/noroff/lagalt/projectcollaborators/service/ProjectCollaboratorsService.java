@@ -8,6 +8,9 @@ import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.repository.ProjectCollaboratorsRepository;
 import com.noroff.lagalt.user.repository.UserRepository;
+import com.noroff.lagalt.userhistory.model.ActionType;
+import com.noroff.lagalt.userhistory.model.UserHistory;
+import com.noroff.lagalt.userhistory.repository.UserHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +37,9 @@ public class ProjectCollaboratorsService {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UserHistoryRepository userHistoryRepository;
 
     public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborator){
         if (projectCollaborator == null){
@@ -88,6 +95,14 @@ public class ProjectCollaboratorsService {
                     }
                 }
             }
+
+        LocalDate localDate = LocalDate.now();
+        UserHistory uh = new UserHistory();
+        uh.setUser(projectCollaborator.getUser());
+        uh.setProject_id(projectCollaborator.getProject().getId());
+        uh.setActionType(ActionType.APPLIED);
+        uh.setTimestamp(localDate.toString());
+        userHistoryRepository.save(uh);
 
 
         ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
@@ -156,6 +171,18 @@ public class ProjectCollaboratorsService {
         User owner = existingProject.getOwner();
 
         if (owner.getId().equals(requestUser.get().getId())){
+
+            // If user is accepted, save history as user collaborates
+            if (collaborator.getStatus().equals(Status.APPROVED)) {
+                LocalDate localDate = LocalDate.now();
+                UserHistory uh = new UserHistory();
+                uh.setUser(collaborator.getUser());
+                uh.setProject_id(collaborator.getProject().getId());
+                uh.setActionType(ActionType.COLLABORATED);
+                uh.setTimestamp(localDate.toString());
+                userHistoryRepository.save(uh);
+            }
+
             ProjectCollaborators updatedCollaborators = projectCollaboratorsRepository.save(collaborator);
             return new ResponseEntity<>(updatedCollaborators, HttpStatus.OK);
         }

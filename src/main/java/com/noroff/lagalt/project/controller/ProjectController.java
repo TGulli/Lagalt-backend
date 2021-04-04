@@ -42,8 +42,8 @@ public class ProjectController {
     }
 
     @GetMapping("/projects/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id) {
-        return projectService.getById(id);
+    public ResponseEntity<Project> getProjectById(@PathVariable (value="id") long id, @RequestHeader(value = "Authorization") String authHeader) {
+        return projectService.getById(id, authHeader);
     }
 
     @PostMapping("/projects")
@@ -52,9 +52,9 @@ public class ProjectController {
     }
 
     //public
-    @GetMapping("/public/projects/show/{page}")
-    public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
-        return projectService.showDisplayProjects(page);
+    @GetMapping("/projects/show/{page}")
+    public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page, @RequestHeader(value = "Authorization") String authHeader){
+        return projectService.showDisplayProjects(page, authHeader);
     }
 
     @PutMapping("/projects/{id}")
