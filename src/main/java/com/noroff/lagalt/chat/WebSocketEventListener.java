@@ -28,11 +28,13 @@ public class WebSocketEventListener {
     private ProjectRepository projectRepository;
 
 
+    // When a connection is made, the server prints out a new connection message
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event){
         System.out.println("Received new connection");
     }
 
+    // When connection disconnects, the state is set to LEAVE, and the server prints out information about the user left.
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event){
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -43,6 +45,7 @@ public class WebSocketEventListener {
         System.out.println(headerAccessor.getSessionAttributes());
         System.out.println("in handle disconnect");
         System.out.println(headerAccessor);
+
         if(user != null) {
             System.out.println("User left chat: " + user);
 
@@ -50,7 +53,6 @@ public class WebSocketEventListener {
             chatMessage.setType(ChatMessageType.LEAVE);
             chatMessage.setSender(user);
             chatMessage.setProject(project);
-            //chatMessageRepository.save(chatMessage);
 
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
         }

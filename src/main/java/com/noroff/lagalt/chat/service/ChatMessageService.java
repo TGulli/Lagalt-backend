@@ -10,7 +10,6 @@ import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.models.Status;
-import com.noroff.lagalt.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 
 @Transactional
 @Service
@@ -30,6 +28,7 @@ public class ChatMessageService {
     @Autowired
     ProjectRepository projectRepository;
 
+    //Adds a user to the messageheader for project, where the user and message is in the json object
     public ChatMessage addUser(ObjectNode json, SimpMessageHeaderAccessor headerAccessor) {
         if (json == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Json node is null");
@@ -57,31 +56,26 @@ public class ChatMessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feilet med å adde bruker i chat.");
         }
 
+        // Finds the project to the chat message.
         Long projectId = chatMessage.getProject().getId();
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No project"));
-        User owner = project.getOwner();
-        List<ProjectCollaborators> collaborators = project.getCollaborators();
 
-
-        if (owner.getId().equals(userId)) {
-            //chatMessageRepository.save(chatMessage);
+        // Adds the user and the project to the messageheader
+        if (project.getOwner().getId().equals(userId)) {
             headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
             headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
             return chatMessage;
         }
 
 
-        for (ProjectCollaborators collaborator : collaborators) {
-            if (collaborator.getStatus().equals(Status.APPROVED)) {
-                if (collaborator.getUser().getId().equals(userId)) {
-                    //chatMessageRepository.save(chatMessage);
-                    if (headerAccessor.getSessionAttributes() == null){
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "headerAccessor.getSessionAttributes() er null");
-                    }
-                    headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
-                    headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
-                    return chatMessage;
+        for (ProjectCollaborators collaborator : project.getCollaborators()) {
+            if (collaborator.getStatus().equals(Status.APPROVED) && collaborator.getUser().getId().equals(userId)) {
+                if (headerAccessor.getSessionAttributes() == null){
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "headerAccessor.getSessionAttributes() er null");
                 }
+                headerAccessor.getSessionAttributes().put("user", chatMessage.getSender());
+                headerAccessor.getSessionAttributes().put("project", chatMessage.getProject().getId());
+                return chatMessage;
             }
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke legge til bruker i chat.");
