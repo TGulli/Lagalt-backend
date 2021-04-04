@@ -6,10 +6,15 @@ import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
 import com.noroff.lagalt.security.JwtTokenUtil;
 import com.noroff.lagalt.user.model.User;
+import com.noroff.lagalt.userhistory.UserHistoryDTO;
+import com.noroff.lagalt.userhistory.model.ActionType;
+import com.noroff.lagalt.userhistory.model.UserHistory;
+import com.noroff.lagalt.userhistory.repository.UserHistoryRepository;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,11 +22,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.toIntExact;
 
 @Service
 public class ProjectService {
@@ -37,6 +42,9 @@ public class ProjectService {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UserHistoryRepository userHistoryRepository;
 
     private final static int MAXEDESCRIPTIONLENGTH = 1000;
     private final static int MAXEGENERALLENGTH = 50;
@@ -99,13 +107,74 @@ public class ProjectService {
         return new ResponseEntity<>(projectRepository.findAll(), HttpStatus.OK);
     }
 
-    public ResponseEntity<Project> getById(Long id) {
-        return ResponseEntity.ok(projectRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen prosjekter med id: " + id)));
+    public ResponseEntity<Project> getById(Long id, String authHeader) {
+
+        Optional<Project> project = projectRepository.findById(id);
+
+        if (project.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fant ingen prosjekter med id: " + id);
+        }
+
+        String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        User requestUser = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User mismatch"));
+
+
+        LocalDate localDate = LocalDate.now();
+        UserHistory uh = new UserHistory();
+        uh.setUser(requestUser);
+        uh.setActionType(ActionType.CLICKED);
+        uh.setTimestamp(localDate.toString());
+        uh.setProject_id(id);
+        userHistoryRepository.save(uh);
+
+        return ResponseEntity.ok(project.get());
     }
 
-    public ResponseEntity<Page<Project>> showDisplayProjects(int page) {
-        return ResponseEntity.ok(projectRepository.findAll(PageRequest.of(page, 5)));
+
+    // lage ein public, og ein private..
+    public ResponseEntity<Page<Project>> showDisplayProjects(int page, String authHeader) {
+
+        String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
+        User requestUser = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User mismatch"));
+
+        List<UserHistoryDTO> dto = userHistoryRepository.getRecordCountForId(requestUser.getId());
+        List<Project> projects = projectRepository.findAll();
+        List<Project> sortedProjects = new ArrayList<>(projects);
+
+        for (UserHistoryDTO userHistoryDTO : dto){
+            for (Project p : projects){
+                if (userHistoryDTO.getProjectId() == p.getId()){
+                    sortedProjects.remove(p);
+                    sortedProjects.add(p);
+                    break;
+                }
+            }
+        }
+
+        //Create page request
+        PageRequest pageRequest = PageRequest.of(page, 5);
+
+        int total = sortedProjects.size();
+        int start = toIntExact(pageRequest.getOffset());
+        int end = Math.min((start + pageRequest.getPageSize()), total);
+
+        List<Project> output = new ArrayList<>();
+
+        if (start <= end) {
+            output = sortedProjects.subList(start, end);
+        }
+
+        for (Project p : output){
+            LocalDate localDate = LocalDate.now();
+            UserHistory uh = new UserHistory();
+            uh.setUser(requestUser);
+            uh.setActionType(ActionType.SEEN);
+            uh.setTimestamp(localDate.toString());
+            uh.setProject_id(p.getId());
+            userHistoryRepository.save(uh);
+        }
+
+        return ResponseEntity.ok(new PageImpl<>(output, pageRequest, total));
     }
 
 
@@ -202,6 +271,17 @@ public class ProjectService {
         HttpStatus status = HttpStatus.OK;
         return status;
 
+    }
+
+
+    private UserHistory storeUserHistory(Long id, ActionType type) {
+        User u = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found by that ID"));
+        LocalDate localDate = LocalDate.now();
+        UserHistory uh = new UserHistory();
+        uh.setUser(u);
+        uh.setActionType(type);
+        uh.setTimestamp(localDate.toString());
+        return uh;
     }
 
 

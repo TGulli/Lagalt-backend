@@ -11,6 +11,6 @@ import java.util.List;
 
 public interface UserHistoryRepository extends JpaRepository<UserHistory, Long> {
 
-    @Query("SELECT new com.noroff.lagalt.userhistory.UserHistoryDTO(u.project_id, COUNT(u)) FROM UserHistory u WHERE u.user.id = ?1 GROUP BY u.project_id ORDER BY COUNT(u) DESC")
+    @Query("SELECT new com.noroff.lagalt.userhistory.UserHistoryDTO(u.project_id, COUNT(u)) FROM UserHistory u WHERE u.user.id = ?1 GROUP BY u.project_id ORDER BY COUNT(u) ASC")
     List<UserHistoryDTO> getRecordCountForId(long id);
 }

@@ -2,6 +2,7 @@ package com.noroff.lagalt.controller;
 
 import com.noroff.lagalt.project.model.PartialProject;
 import com.noroff.lagalt.project.model.PartialProjectWithTags;
+import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
@@ -11,6 +12,8 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,4 +52,11 @@ public class PublicProjectController {
         }
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
+
+
+    @GetMapping("/projects/show/{page}")
+    public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
+        return ResponseEntity.ok(projectRepository.findAll(PageRequest.of(page, 5)));
+    }
+
 }
