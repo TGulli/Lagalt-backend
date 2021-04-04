@@ -173,7 +173,6 @@ public class ProjectService {
             uh.setProject_id(p.getId());
             userHistoryRepository.save(uh);
         }
-
         return ResponseEntity.ok(new PageImpl<>(output, pageRequest, total));
     }
 

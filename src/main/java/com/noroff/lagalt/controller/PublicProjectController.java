@@ -76,19 +76,19 @@ public class PublicProjectController {
         return ResponseEntity.ok(projectRepository.findAll(PageRequest.of(page, 5)));
     }
 
-    @GetMapping("/public/projects/search/{searchstring}/p/{page}")
+    @GetMapping("/projects/search/{searchstring}/p/{page}")
     public ResponseEntity<Page<Project>> searchProject(@PathVariable(value = "searchstring") String searchstring,
                                                        @PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findByNameContainingIgnoreCase(searchstring, PageRequest.of(page, 5)));
     }
 
-    @GetMapping("/public/projects/filter/{filtertag}/p/{page}")
+    @GetMapping("/projects/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> filterProject(@PathVariable(value = "filtertag") String filtertag,
                                                        @PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findByCategoryIgnoreCase(filtertag, PageRequest.of(page, 5)));
     }
 
-    @GetMapping("/public/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
+    @GetMapping("/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> searchAndfilterProjects(@PathVariable(value = "searchstring") String searchstring,
                                                                  @PathVariable(value = "filtertag") String filtertag,
                                                                  @PathVariable(value = "page") int page){
