@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 
@@ -32,6 +33,9 @@ public class PublicUserController {
 
     @GetMapping("/users/{id}")
     public ResponseEntity<PartialUser> getUserById(@PathVariable(value = "id") long id){
+        if(!userRepository.existsById(id)) {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         PartialUser p = userRepository.findPartialById(id);
         if(bucket.tryConsume(1)){ return ResponseEntity.ok(p);}
         // Validate user

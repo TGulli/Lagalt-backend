@@ -43,6 +43,9 @@ public class PublicProjectController {
     @GetMapping("/projects/{id}")
     public ResponseEntity<PartialProjectWithTags> getPartialProjectById(@PathVariable(value = "id") long id){
         if(bucket.tryConsume(1)) {
+            if(!projectRepository.existsById(id)){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
             PartialProject p = projectRepository.getPublicProjectById(id);
             List<ProjectTag> pt = projectTagRepository.findProjectTagsByProjectId(id);
 
