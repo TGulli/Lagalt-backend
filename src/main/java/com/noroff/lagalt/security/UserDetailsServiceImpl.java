@@ -4,6 +4,7 @@ import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import jdk.jshell.spi.ExecutionControl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         String ip = getClientIP();
         if (loginAttemptService.isBlocked(ip)){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukeren er blokkert.");
+            throw new RuntimeException("Brukeren er blokkert, vent 1 minutt før du prøver igjen");
         }
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bruker ikke funnet med brukernavn: " + username));
