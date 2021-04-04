@@ -92,7 +92,7 @@ public class RegisterController {
             user.setLoginMethod(LoginMethod.internal);
             user.setSecret(encodedPassword);
             user.setHidden(false);
-            user.setVerified(true);
+            user.setVerified(false);
             return userService.create(user);
         }
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
