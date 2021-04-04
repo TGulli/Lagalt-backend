@@ -177,6 +177,18 @@ public class ProjectService {
         return ResponseEntity.ok(new PageImpl<>(output, pageRequest, total));
     }
 
+    public ResponseEntity<Page<Project>> searchProjects(int page, String searchString) {
+        return ResponseEntity.ok(projectRepository.findByNameContainingIgnoreCase(searchString, PageRequest.of(page, 5)));
+    }
+
+    public ResponseEntity<Page<Project>> filterProjects(int page, String filterString) {
+        return ResponseEntity.ok(projectRepository.findByCategoryIgnoreCase(filterString, PageRequest.of(page, 5)));
+    }
+
+    public ResponseEntity<Page<Project>> searchAndfilterProjects(int page, String filterString, String searchString) {
+        return ResponseEntity.ok(projectRepository.findByNameContainingIgnoreCaseAndCategoryIgnoreCase(searchString, filterString, PageRequest.of(page, 5)));
+    }
+
 
     public ResponseEntity<Project> editProject(Long id, Project project, String authHeader) {
 

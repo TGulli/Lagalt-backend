@@ -92,6 +92,25 @@ public class ProjectController {
         return projectService.showDisplayProjects(page, authHeader);
     }
 
+    @GetMapping("/public/projects/search/{searchstring}/p/{page}")
+    public ResponseEntity<Page<Project>> searchProject(@PathVariable(value = "searchstring") String searchstring,
+                                                       @PathVariable(value = "page") int page){
+        return projectService.searchProjects(page, searchstring);
+    }
+
+    @GetMapping("/public/projects/filter/{filtertag}/p/{page}")
+    public ResponseEntity<Page<Project>> filterProject(@PathVariable(value = "filtertag") String filtertag,
+                                                       @PathVariable(value = "page") int page){
+        return projectService.filterProjects(page, filtertag);
+    }
+
+    @GetMapping("/public/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
+    public ResponseEntity<Page<Project>> searchAndfilterProjects(@PathVariable(value = "searchstring") String searchstring,
+                                                                 @PathVariable(value = "filtertag") String filtertag,
+                                                                 @PathVariable(value = "page") int page){
+        return projectService.searchAndfilterProjects(page, filtertag, searchstring);
+    }
+
 
     @Operation(summary = "Update a project by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
