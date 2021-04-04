@@ -11,13 +11,12 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
-/*
-    This class is our extension of the default UserDetails Spring Security has.
-    It is extended to provide a way of accessing all the User entity fields as well as converting our
-    roles into GrantedAuthority.
- */
 
 public class UserDetailsImpl implements UserDetails {
+    /**
+     * UserDetails implementation for internally handling users in the authentication process.
+     * Essentially just a built upon version of the default UserDetails
+     */
 
     // Fields
     private Long id;
@@ -70,10 +69,6 @@ public class UserDetailsImpl implements UserDetails {
     public String getUsername() {
         return this.username;
     }
-
-    /**
-     * KEN FIKSE DETTA UM OSS VIL
-     */
 
     // Our accounts will never expire
     @Override

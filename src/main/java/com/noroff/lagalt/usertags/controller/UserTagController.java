@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * User tag controller
+ */
+
 @RestController
 @RequestMapping("api/v1")
 @CrossOrigin(origins = "*")

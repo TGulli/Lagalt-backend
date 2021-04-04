@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class AuthenticationSuccessEventListener implements ApplicationListener<AuthenticationSuccessEvent> {
 
+    /**
+     * Component which is called when the user is authenticated.
+     */
+
     @Autowired
     private LoginAttemptService loginAttemptService;
 
@@ -25,9 +29,5 @@ public class AuthenticationSuccessEventListener implements ApplicationListener<A
         } else {
             loginAttemptService.loginSucceeded(xfHeader.split(",")[0]);
         }
-        /*
-        WebAuthenticationDetails auth = (WebAuthenticationDetails) e.getAuthentication().getDetails();
-        loginAttemptService.loginSucceeded(auth.getRemoteAddress());
-         */
     }
 }

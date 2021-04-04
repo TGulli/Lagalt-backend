@@ -16,6 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
+    /**
+     * Service for handling UserDetails objects.
+     */
+
     @Autowired
     UserRepository userRepository;
 
@@ -27,6 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        //If a user is temporarily banned, give a proper warning.
         String ip = getClientIP();
         if (loginAttemptService.isBlocked(ip)){
             throw new RuntimeException("Brukeren er blokkert, vent 1 minutt før du prøver igjen");
@@ -38,6 +43,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     private String getClientIP(){
+        //Extract IP address from HTTP request header field
         String xfHeader = request.getHeader("X-Forwarded-For");
         if(xfHeader == null){
             return request.getRemoteAddr();

@@ -1,5 +1,10 @@
 package com.noroff.lagalt.security.dto;
 
+/**
+ * POJO for keeping the request
+ */
+
+
 public class LoginRequest {
     private String username, password;
 

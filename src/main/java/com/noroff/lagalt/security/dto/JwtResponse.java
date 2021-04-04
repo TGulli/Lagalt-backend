@@ -4,6 +4,10 @@ import java.util.List;
 
 import java.io.Serializable;
 
+/**
+ * DTO for storing the token response
+ */
+
 public class JwtResponse implements Serializable {
 
     private final String jwttoken;

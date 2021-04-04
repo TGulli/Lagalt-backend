@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.persistence.*;
 
+/**
+ * Model class UserTag for database table
+ */
+
 @Entity
 @Table(name = "UserTag")
 public class UserTag {

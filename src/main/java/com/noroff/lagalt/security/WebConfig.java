@@ -28,11 +28,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class WebConfig extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Security Config class
+     */
+
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        // Encode passwords using Bcrypt so we're not storing plaintext
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
@@ -43,12 +48,23 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        /**
+         * Authorize requests to specific parts of our API
+         * All other parts of the API requires user login (JWT token)
+         */
+
         http.cors().and().csrf().disable()
+                // Grant access to...
                 .authorizeRequests()
+                // our public api..
                 .antMatchers("/api/v1/public/**").permitAll()
+                // our chat client
                 .antMatchers("/ws/**").permitAll()
+                // our documentations
                 .antMatchers("/api-docs/**").permitAll()
+                // our OpenAPI/swagger interface
                 .antMatchers("/swagger-ui/**").permitAll().
+                //All other requests need a valid token otherwise a 401 is thrown
                         anyRequest().authenticated().and().
                         exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -11,6 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class AuthenticationFailureListener implements ApplicationListener<AuthenticationFailureBadCredentialsEvent> {
 
+    /**
+     * Component which kicks in when a login request is not authenticated
+     * Prevents repeated login attempts to the same account, thereby preventing brute-force logins
+     */
+
+
     @Autowired
     private LoginAttemptService loginAttemptService;
 

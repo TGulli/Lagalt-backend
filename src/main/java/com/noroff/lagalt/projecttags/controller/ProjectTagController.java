@@ -21,6 +21,10 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ProjectTagController {
 
+    /**
+     * Controller to create and read tags affiliated with project
+     */
+
     @Autowired
     private ProjectTagService projectTagService;
 

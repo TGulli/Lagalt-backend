@@ -1,5 +1,9 @@
 package com.noroff.lagalt.security.dto;
 
+/**
+ * POJO for keeping the response message after validating token
+ */
+
 public class MessageResponse {
     private String message;
 

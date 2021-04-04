@@ -24,6 +24,10 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class UserController {
 
+    /**
+     * User controller, exposing all user related endpoints
+     */
+
     @Autowired
     private UserService userService;
 

@@ -14,18 +14,24 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 public class GoogleTokenVerifier {
+    /**
+     * Class used to verify tokens given by google
+     */
 
     private static final String clientId = "119104222557-up2cfjpdaijqfnchovd4t33blblu11nv.apps.googleusercontent.com";
 
     public static User verifiyGoogleToken(String idTokenString) throws IOException, GeneralSecurityException {
+
+        // Verifies the actual token as a legitimate one
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Collections.singletonList(clientId))
                 .build();
-
         GoogleIdToken idToken = verifier.verify(idTokenString);
         if (idToken != null) {
+            // If the token is valid, extract payload
             Payload payload = idToken.getPayload();
 
+            // Create a user in our own system.
             User gUser = new User();
             gUser.setUsername((String) payload.get("name"));
             gUser.setEmail(payload.getEmail());

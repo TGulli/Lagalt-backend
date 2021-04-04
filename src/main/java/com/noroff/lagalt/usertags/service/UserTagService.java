@@ -12,6 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Service class for the UserTag repository
+ */
+
 @Service
 public class UserTagService {
 
@@ -26,12 +30,12 @@ public class UserTagService {
         return ResponseEntity.ok(userTagRepository.save(userTag));
     }
 
-
     public ResponseEntity<List<UserTag>> getAll() {
         return ResponseEntity.ok(userTagRepository.findAll());
     }
 
-    //Gets all!
+    // Method that creates a set from all unique tags in users and projects.
+    // This is used to populate the autosuggest box, to give users a
     public ResponseEntity<Set<String>> getAllTags() {
         Set<String> allTags = new HashSet<>();
         allTags.addAll(userTagRepository.findUniqueTags());

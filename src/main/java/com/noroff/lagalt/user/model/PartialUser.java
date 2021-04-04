@@ -1,6 +1,12 @@
 package com.noroff.lagalt.user.model;
 
 public class PartialUser {
+
+    /**
+     * POJO used in the public part of our API, and if a user has
+     * toggled "hidden mode" in their settings.
+     */
+
     private String username;
     private String name;
     private String bio;

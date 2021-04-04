@@ -13,6 +13,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * User model class as Database table.
+ */
 
 
 
@@ -22,6 +25,8 @@ import java.util.List;
         @UniqueConstraint(columnNames = "email")
 })
 public class User {
+
+    // ** FIELD VARIABLES **
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -54,7 +59,10 @@ public class User {
     @Column(name = "verified")
     private Boolean verified;
 
+    // ** RELATIONSHIPS **
 
+    // Cascadetype remove on all relations in order to delete all related content when a user self-deletes
+    // One to many relationships with user being the dominant relation
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Project> ownedProjects;
 
@@ -66,6 +74,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Message> messages;
+
+    // ** CONSTRUCTORS **
 
     public User() { }
 
@@ -80,8 +90,9 @@ public class User {
         this.bio = bio;
     }
 
-    //JsonGetter
-    //@JsonIgnore
+
+    // ** GETTERS AND SETTERS **
+
     public List<Project> getOwnedProjects() {
         return ownedProjects;
     }
@@ -186,7 +197,6 @@ public class User {
         this.verified = verified;
     }
 
-    //@JsonIgnore
     public List<ProjectCollaborators> getCollaboratorIn() {
         return collaboratorIn;
     }

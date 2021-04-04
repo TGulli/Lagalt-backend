@@ -1,5 +1,10 @@
 package com.noroff.lagalt.userhistory;
 
+/**
+ * POJO Object for returning the how many times a project has been seen
+ * Sum = seen
+ * projectId = project
+ */
 
 public class UserHistoryDTO {
     private long projectId;
