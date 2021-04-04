@@ -1,5 +1,6 @@
 package com.noroff.lagalt.controller;
 
+import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.security.twofa.model.ConfirmationToken;
 import com.noroff.lagalt.security.twofa.repository.ConfirmationTokenRepository;
 import com.noroff.lagalt.security.twofa.service.EmailSenderService;
@@ -11,6 +12,12 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +59,18 @@ public class RegisterController {
     }
 
 
+
+    @Operation(summary = "Create a user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Created the user",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "400", description = "Not a valid user object in the body/Email or username already in use in an existing user/Not valid input to create user",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "User already exists",
+                    content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content)})
     @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody User user) {
 
@@ -79,6 +98,16 @@ public class RegisterController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
+
+    @Operation(summary = "Confirm user account")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Confirmed user account",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "401", description = "Invalid confirmation link",
+                    content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content)})
     @GetMapping("/confirm-account")
     public ResponseEntity<String> confirmUserAccount(@RequestParam("token") String confirmationToken) {
         if(confirmUserbucket.tryConsume(1)) {

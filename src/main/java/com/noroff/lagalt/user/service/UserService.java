@@ -67,6 +67,7 @@ public class UserService {
         }
        Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
+        //TODO: overflødig sjekk.. vi sjekker dette i registercontroller linje 83-89
         if (existingUser.isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Bruker eksisterer allerede");
         }
@@ -85,6 +86,7 @@ public class UserService {
 
         emailSenderService.sendEmail(mailMessage);
 
+        //TODO burde vi returnere 201 created??
         return ResponseEntity.ok(returnUser);
     }
 

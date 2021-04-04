@@ -6,10 +6,17 @@ import com.noroff.lagalt.project.repository.ProjectRepository;
 import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
 import com.noroff.lagalt.user.model.PartialUser;
+import com.noroff.lagalt.user.model.User;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +44,13 @@ public class PublicProjectController {
         this.bucket = Bucket4j.builder().addLimit(bandwidth).build();
     }
 
+    @Operation(summary = "Get a partial project by its id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the project",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content)})
     @GetMapping("/projects/{id}")
     public ResponseEntity<PartialProjectWithTags> getPartialProjectById(@PathVariable(value = "id") long id){
         if(bucket.tryConsume(1)) {

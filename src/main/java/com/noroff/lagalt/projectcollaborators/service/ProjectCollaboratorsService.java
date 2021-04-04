@@ -67,6 +67,7 @@ public class ProjectCollaboratorsService {
                 }
             }
 
+            //TODO: sjekker vi ikke dette ovenfor på linje 56???
             Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.BAD_REQUEST, "Et prosjekt med id: " + projectId + " eksisterer ikke."));
 
@@ -76,7 +77,7 @@ public class ProjectCollaboratorsService {
 
             if (owner.getId().equals(userId)) {
                 throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "CAn't apply to a project you alreay own");
+                        HttpStatus.BAD_REQUEST, "Can't apply to a project you already own");
             }
 
             if (collaboratorsList != null) {
@@ -137,6 +138,8 @@ public class ProjectCollaboratorsService {
         if (requestUser.isEmpty()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Token user is not a legal user");
         }
+
+        //TODO husker vi å sjekke at projectcollaboratoren faktisk eksisterer? Vi sjekker bare prosjektet
 
         if (collaborator == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Objektet til requestobjektet er ikke satt");

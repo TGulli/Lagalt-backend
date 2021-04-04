@@ -14,6 +14,11 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +69,19 @@ public class LoginController {
     private final static int MAXEGENERALLENGTH = 50;
 
 
+    @Operation(summary = "Create an authentication token for user for internal login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Created the token for user",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginGranted.class)) }),
+            @ApiResponse(responseCode = "400", description = "Not valid username or password/Not valid LoginRequest object in body/Wrong username or password/User blocked",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "User not matching token",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "User is not verified",
+                    content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content)})
     @PostMapping("/login/internal")
     public ResponseEntity<LoginGranted> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
         if (internalBucket.tryConsume(1)) {
@@ -106,6 +124,15 @@ public class LoginController {
     }
 
 
+    @Operation(summary = "Create an authentication token for user for login with Facebook")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Created the token for user",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginGranted.class)) }),
+            @ApiResponse(responseCode = "400", description = "Could not login with Facebook",
+                    content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content)})
     @PostMapping("/login/facebook/{accessToken}")
     public ResponseEntity<LoginGranted> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
         if (facebookBucket.tryConsume(1)) {
@@ -135,7 +162,16 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-    //Gewgle lawgin
+
+    @Operation(summary = "Create an authentication token for user for login with Google")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Created the token for user",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginGranted.class)) }),
+            @ApiResponse(responseCode = "400", description = "Could not login with Google",
+                    content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content)})
     @PostMapping("/login/google/{token}")
     public ResponseEntity<?> oauthLogin(@PathVariable(value = "token") String token) {
         if (googleBucket.tryConsume(1)) {
