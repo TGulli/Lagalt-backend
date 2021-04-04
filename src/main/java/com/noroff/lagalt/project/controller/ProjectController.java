@@ -57,6 +57,25 @@ public class ProjectController {
         return projectService.showDisplayProjects(page);
     }
 
+    @GetMapping("/public/projects/search/{searchstring}/p/{page}")
+    public ResponseEntity<Page<Project>> searchProject(@PathVariable(value = "searchstring") String searchstring,
+                                                       @PathVariable(value = "page") int page){
+        return projectService.searchProjects(page, searchstring);
+    }
+
+    @GetMapping("/public/projects/filter/{filtertag}/p/{page}")
+    public ResponseEntity<Page<Project>> filterProject(@PathVariable(value = "filtertag") String filtertag,
+                                                       @PathVariable(value = "page") int page){
+        return projectService.filterProjects(page, filtertag);
+    }
+
+    @GetMapping("/public/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
+    public ResponseEntity<Page<Project>> searchAndfilterProjects(@PathVariable(value = "searchstring") String searchstring,
+                                                                 @PathVariable(value = "filtertag") String filtertag,
+                                                                 @PathVariable(value = "page") int page){
+        return projectService.searchAndfilterProjects(page, filtertag, searchstring);
+    }
+
     @PutMapping("/projects/{id}")
     public ResponseEntity<Project> editProject(@PathVariable(value="id") Long id, @RequestBody Project project, @RequestHeader(value = "Authorization") String authHeader) {
         return projectService.editProject(id, project, authHeader);
