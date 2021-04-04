@@ -114,7 +114,7 @@ public class MessageService {
                 new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksister ingen prosjekter med prosjekt id: " + projectId));
 
         if (!userRepository.existsById(userId)){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer ingen prosjekster med bruker id: " + userId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer ingen bruker med bruker id: " + userId);
         }
 
         List<Message> projectMessages = allMessages.stream().filter(message ->
