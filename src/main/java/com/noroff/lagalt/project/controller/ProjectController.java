@@ -92,19 +92,19 @@ public class ProjectController {
         return projectService.showDisplayProjects(page, authHeader);
     }
 
-    @GetMapping("/public/projects/search/{searchstring}/p/{page}")
+    @GetMapping("/projects/search/{searchstring}/p/{page}")
     public ResponseEntity<Page<Project>> searchProject(@PathVariable(value = "searchstring") String searchstring,
                                                        @PathVariable(value = "page") int page){
         return projectService.searchProjects(page, searchstring);
     }
 
-    @GetMapping("/public/projects/filter/{filtertag}/p/{page}")
+    @GetMapping("/projects/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> filterProject(@PathVariable(value = "filtertag") String filtertag,
                                                        @PathVariable(value = "page") int page){
         return projectService.filterProjects(page, filtertag);
     }
 
-    @GetMapping("/public/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
+    @GetMapping("/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> searchAndfilterProjects(@PathVariable(value = "searchstring") String searchstring,
                                                                  @PathVariable(value = "filtertag") String filtertag,
                                                                  @PathVariable(value = "page") int page){
