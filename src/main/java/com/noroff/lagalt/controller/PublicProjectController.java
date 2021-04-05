@@ -1,12 +1,9 @@
 package com.noroff.lagalt.controller;
 
-import com.noroff.lagalt.project.model.PartialProject;
 import com.noroff.lagalt.project.model.PartialProjectWithTags;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.repository.ProjectRepository;
-import com.noroff.lagalt.projecttags.model.ProjectTag;
 import com.noroff.lagalt.projecttags.repository.ProjectTagRepository;
-import com.noroff.lagalt.user.model.PartialUser;
 import com.noroff.lagalt.user.model.User;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -17,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/public")
@@ -41,12 +36,13 @@ public class PublicProjectController {
 
     private Bucket bucket;
 
-
+    // Limits the use of request to 20 per 10 seconds, so it is not possible to spam requests.
     public PublicProjectController(){
         Bandwidth bandwidth = Bandwidth.classic(20, Refill.intervally(20, Duration.ofSeconds(10)));
         this.bucket = Bucket4j.builder().addLimit(bandwidth).build();
     }
 
+    // Gets project details based on the project ID from parameter
     @Operation(summary = "Get a partial project by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the project",
@@ -56,38 +52,41 @@ public class PublicProjectController {
                     content = @Content)})
     @GetMapping("/projects/{id}")
     public ResponseEntity<PartialProjectWithTags> getPartialProjectById(@PathVariable(value = "id") long id){
-        if(bucket.tryConsume(1)) {
+        if(bucket.tryConsume(1)) { // If not blocked
             if(!projectRepository.existsById(id)){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
-            PartialProject p = projectRepository.getPublicProjectById(id);
-            List<ProjectTag> pt = projectTagRepository.findProjectTagsByProjectId(id);
 
-            PartialProjectWithTags ppt = new PartialProjectWithTags(p, pt);
+            //Finds the project, and makes a PartialProject with the public data to send.
 
-            return ResponseEntity.ok(ppt);
+            return ResponseEntity.ok(new PartialProjectWithTags(
+                    projectRepository.getPublicProjectById(id),
+                    projectTagRepository.findProjectTagsByProjectId(id)));
         }
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-
+    // Returns projects as a list based on page number.
     @GetMapping("/projects/show/{page}")
     public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findAll(PageRequest.of(page, 5)));
     }
 
+    // Returns projects, where the name containing the given string as a list based on page number
     @GetMapping("/projects/search/{searchstring}/p/{page}")
     public ResponseEntity<Page<Project>> searchProject(@PathVariable(value = "searchstring") String searchstring,
                                                        @PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findByNameContainingIgnoreCase(searchstring, PageRequest.of(page, 5)));
     }
 
+    // Returns projects with the given category as a list based on page number
     @GetMapping("/projects/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> filterProject(@PathVariable(value = "filtertag") String filtertag,
                                                        @PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findByCategoryIgnoreCase(filtertag, PageRequest.of(page, 5)));
     }
 
+    // Returns projects with the given category as a list, and where the name containing the given string based on page number.
     @GetMapping("/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> searchAndfilterProjects(@PathVariable(value = "searchstring") String searchstring,
                                                                  @PathVariable(value = "filtertag") String filtertag,

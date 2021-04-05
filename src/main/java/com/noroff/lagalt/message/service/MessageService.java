@@ -31,10 +31,12 @@ public class MessageService {
 
     private final static int MAXMESSAGESIZE = 1000;
 
+    // Returns all messages stored
     public ResponseEntity<List<Message>> getAll (){
         return ResponseEntity.ok(messageRepository.findAll());
     }
 
+    // Creates a message to store in database
     public ResponseEntity<Message> create (Message message){
         if (message == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet er null.");
@@ -56,29 +58,30 @@ public class MessageService {
         if (project.getOwner() == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prosjekteier er ikke satt.");
         }
-        User owner = project.getOwner();
-        List<ProjectCollaborators> collaborators = project.getCollaborators();
+
         Long userId = message.getUser().getId();
         if (!userRepository.existsById(userId)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingen bruker eksisterer med id: " + userId);
         }
 
-        if(owner.getId().equals(userId)){
+        // Stores the message if the user is the owner
+        if(project.getOwner().getId().equals(userId)){
             Message createdMessage = messageRepository.save(message);
             HttpStatus status = HttpStatus.CREATED;
             return new ResponseEntity<>(createdMessage, status);
         }
 
-        for(ProjectCollaborators collaborator : collaborators){
-            if(collaborator.getStatus() != null && collaborator.getStatus().equals(Status.APPROVED)){
-                if(collaborator.getUser().getId() != null && collaborator.getUser().getId().equals(userId)){
-                    return new ResponseEntity<>(messageRepository.save(message), HttpStatus.CREATED);
-                }
+        // Stores the message if the user is a collaborator
+        for(ProjectCollaborators collaborator : project.getCollaborators()){
+            if(collaborator.getStatus() != null && collaborator.getStatus().equals(Status.APPROVED) &&
+                collaborator.getUser().getId() != null && collaborator.getUser().getId().equals(userId)){
+                return new ResponseEntity<>(messageRepository.save(message), HttpStatus.CREATED);
             }
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kunne ikke sende meldingen.");
     }
 
+    // Edits a given message
     public ResponseEntity<Message> editMessage(Long id, Message message, Long userId){
         if (message == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meldingsobjektet er null.");
@@ -107,6 +110,7 @@ public class MessageService {
         return new ResponseEntity<>(messageRepository.save(message), HttpStatus.CREATED);
     }
 
+    // Gets all messages for a project if the user is owner or a collaborator
     public ResponseEntity<List<Message>> getAllByProject(Long projectId, Long userId) {
         List<Message> allMessages = messageRepository.findAll();
 
@@ -117,25 +121,22 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Det eksisterer ingen bruker med bruker id: " + userId);
         }
 
+        // Filter all messages to only messages for the project
         List<Message> projectMessages = allMessages.stream().filter(message ->
                 (message.getProject().getId().equals(projectId))).collect(Collectors.toList());
 
 
         userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user"));
 
-        User owner = project.getOwner();
-        List<ProjectCollaborators> collaborators = project.getCollaborators();
-
-
-        if(owner.getId().equals(userId)){
+        // If the user is the owner
+        if(project.getOwner().getId().equals(userId)){
             return ResponseEntity.ok(projectMessages);
         }
 
-        for(ProjectCollaborators collaborator : collaborators){
-            if(collaborator.getStatus().equals(Status.APPROVED)){
-                if(collaborator.getUser().getId().equals(userId)){
-                    return ResponseEntity.ok(projectMessages);
-                }
+        // If the user is a collaborator
+        for(ProjectCollaborators collaborator : project.getCollaborators()){
+            if(collaborator.getStatus().equals(Status.APPROVED) && collaborator.getUser().getId().equals(userId)){
+                return ResponseEntity.ok(projectMessages);
             }
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

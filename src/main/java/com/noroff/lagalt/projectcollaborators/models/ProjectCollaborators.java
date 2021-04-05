@@ -4,14 +4,11 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
-import com.noroff.lagalt.projectcollaborators.models.Status;
 import com.noroff.lagalt.usertags.model.UserTag;
 
 import javax.persistence.*;
 import java.util.List;
 import java.util.stream.Collectors;
-
-//
 
 @Entity
 @Table(name = "Project_collaborators")
@@ -24,16 +21,6 @@ public class ProjectCollaborators {
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;
-
-    /*@JsonGetter("user")
-    public String user() {
-        if(user != null){
-            //return user;
-            return "/api/v1/public/users/" + user.getId();
-        }else{
-            return null;
-        }
-    }*/
 
     @JsonGetter("user")
     public ProjectCollaborators.ReturnCollaborator user(){
@@ -57,12 +44,6 @@ public class ProjectCollaborators {
             return  new ProjectCollaborators.ReturnProject(project.getId(), project.getName());
         }
         return null;
-        /*if(project != null){
-            //return project;
-            return "/api/v1/projects/" + project.getId();
-        }else{
-            return null;
-        }*/
     }
 
     @Column
@@ -165,9 +146,6 @@ public class ProjectCollaborators {
             }
             return null;
         }
-
-
-
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -175,13 +153,11 @@ public class ProjectCollaborators {
         private Long id;
         private String name;
 
-
         public ReturnProject(Long id, String name) {
             this.id = id;
             this.name = name;
 
         }
-
     }
 }
 

@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -41,6 +40,7 @@ public class ProjectCollaboratorsService {
     @Autowired
     private UserHistoryRepository userHistoryRepository;
 
+    // Creates a new project collaborator
     public ResponseEntity<ProjectCollaborators> create(ProjectCollaborators projectCollaborator){
         if (projectCollaborator == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Objektet til requestobjektet er ikke satt");
@@ -57,6 +57,7 @@ public class ProjectCollaboratorsService {
         Long userId = projectCollaborator.getUser().getId();
         Long projectId = projectCollaborator.getProject().getId();
 
+        // Check if the user and the project already exists
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "En bruker med  id: " + userId + " eksisterer ikke.");
@@ -65,38 +66,37 @@ public class ProjectCollaboratorsService {
                     "Et prosjekt med id: " + projectId + " eksisterer ikke.");
         }
 
-
-            for (ProjectCollaborators pc : projectCollaboratorsRepository.findAll()) {
-                if(pc.getUser().getId().equals(projectCollaborator.getUser().getId()) &&
-                        pc.getProject().getId().equals(projectCollaborator.getProject().getId())){
-                    throw new ResponseStatusException(
-                            HttpStatus.CONFLICT, "The projectcallaborator already exists in the project.");
-                }
-            }
-
-            //TODO: sjekker vi ikke dette ovenfor på linje 56???
-            Project project = projectRepository.findById(projectId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Et prosjekt med id: " + projectId + " eksisterer ikke."));
-
-            User owner = project.getOwner();
-            List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
-
-
-            if (owner.getId().equals(userId)) {
+        // Checks if the project collaborator already exists
+        for (ProjectCollaborators pc : projectCollaboratorsRepository.findAll()) {
+            if(pc.getUser().getId().equals(projectCollaborator.getUser().getId()) &&
+                    pc.getProject().getId().equals(projectCollaborator.getProject().getId())){
                 throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "Can't apply to a project you already own");
+                        HttpStatus.CONFLICT, "The projectcallaborator already exists in the project.");
             }
+        }
 
-            if (collaboratorsList != null) {
-                for (ProjectCollaborators projectCollaborators : collaboratorsList) {
-                    User user = projectCollaborators.getUser();
-                    if (user.getId().equals(userId)) {
-                        throw new ResponseStatusException(
-                                HttpStatus.BAD_REQUEST, "Can't apply to same project twice or something");
-                    }
+        Project project = projectRepository.findById(projectId).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.BAD_REQUEST, "Et prosjekt med id: " + projectId + " eksisterer ikke."));
+
+
+        if (project.getOwner().getId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Can't apply to a project you already own");
+        }
+
+        List<ProjectCollaborators> collaboratorsList = project.getCollaborators();
+
+        if (collaboratorsList != null) {
+            for (ProjectCollaborators projectCollaborators : collaboratorsList) {
+                User user = projectCollaborators.getUser();
+                if (user.getId().equals(userId)) {
+                    throw new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST, "Can't apply to same project twice or something");
                 }
             }
+        }
 
+        // Saves to user history
         LocalDate localDate = LocalDate.now();
         UserHistory uh = new UserHistory();
         uh.setUser(projectCollaborator.getUser());
@@ -105,19 +105,19 @@ public class ProjectCollaboratorsService {
         uh.setTimestamp(localDate.toString());
         userHistoryRepository.save(uh);
 
-
         ProjectCollaborators newCollaborator = projectCollaboratorsRepository.save(projectCollaborator);
         return new ResponseEntity<>(newCollaborator, HttpStatus.CREATED);
     }
 
+    // Returns all the project collaborators
     public ResponseEntity<List<ProjectCollaborators>> getAll() {
         List<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findAll();
         HttpStatus status = HttpStatus.OK;
         return new ResponseEntity<>(collaborators, status);
     }
 
+    // Returns all the project collaborators for a given project
     public ResponseEntity<List<ProjectCollaborators>> getAllByProjectId(Long id, String authHeader) {
-
         String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
         Optional<User> user = userRepository.findByUsername(username);
 
@@ -135,6 +135,7 @@ public class ProjectCollaboratorsService {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "Token user is not a legal user");
     }
 
+    // Gets a project collaborator by collaborator id
     public ResponseEntity<ProjectCollaborators> getById(Long id) {
         Optional<ProjectCollaborators> collaborators = projectCollaboratorsRepository.findById(id);
         if (collaborators.isPresent()){
@@ -144,19 +145,15 @@ public class ProjectCollaboratorsService {
                 HttpStatus.CONFLICT, "Fant ikke et projektmedlem med id: " + id);
     }
 
+    // Updates a project collaborator
     public ResponseEntity<ProjectCollaborators> update (Long id, ProjectCollaborators collaborator, String authHeader){
-
-
         String username = jwtTokenUtil.getUsernameFromToken(authHeader.substring(7));
         Optional<User> requestUser = userRepository.findByUsername(username);
 
+        // Check if legal user and the required data is set
         if (requestUser.isEmpty()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Token user is not a legal user");
-        }
-
-        //TODO husker vi å sjekke at projectcollaboratoren faktisk eksisterer? Vi sjekker bare prosjektet
-
-        if (collaborator == null){
+        } else if (collaborator == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Objektet til requestobjektet er ikke satt");
         } else if (collaborator.getId() == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medlem er ikke satt i objektet projectCollaborator.");
@@ -167,6 +164,7 @@ public class ProjectCollaboratorsService {
         } else if (!collaborator.getId().equals(id)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medlem id samsvarer ikke med id i pathen.");
         }
+
 
         Long projectId = collaborator.getProject().getId();
         Project existingProject = projectRepository.findById(projectId).orElseThrow(() ->
@@ -190,8 +188,5 @@ public class ProjectCollaboratorsService {
             return new ResponseEntity<>(updatedCollaborators, HttpStatus.OK);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kan ikke oppdatere medlemmer, da bruker ikke er eier av prosjektet.");
-
     }
-
-
 }
