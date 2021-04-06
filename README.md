@@ -14,6 +14,8 @@ https://lagalt-service.herokuapp.com
 
 ## Swagger
 
+https://lagalt-service.herokuapp.com/swagger-ui/index.html?configUrl=/api-docs/swagger-config#/
+
 ## About the lagalt backend api
 It is a REST API for communication with the postgres database. The database stores users and projects, and their information.
 
