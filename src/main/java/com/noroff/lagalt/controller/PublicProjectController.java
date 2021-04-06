@@ -71,23 +71,45 @@ public class PublicProjectController {
     }
 
 
+    @Operation(summary = "Get projects for public page-view")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Got projects for public page-view",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class))}) })
     @GetMapping("/projects/show/{page}")
     public ResponseEntity<Page<Project>> showProject(@PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findAll(PageRequest.of(page, 5)));
     }
 
+    @Operation(summary = "Get projects matching search for public page-view")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Got projects matching search for public page-view",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class))}) })
     @GetMapping("/projects/search/{searchstring}/p/{page}")
     public ResponseEntity<Page<Project>> searchProject(@PathVariable(value = "searchstring") String searchstring,
                                                        @PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findByNameContainingIgnoreCase(searchstring, PageRequest.of(page, 5)));
     }
 
+
+    @Operation(summary = "Get projects matching filter for public page-view")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Got projects matching filter for public page-view",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class))}) })
     @GetMapping("/projects/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> filterProject(@PathVariable(value = "filtertag") String filtertag,
                                                        @PathVariable(value = "page") int page){
         return ResponseEntity.ok(projectRepository.findByCategoryIgnoreCase(filtertag, PageRequest.of(page, 5)));
     }
 
+
+    @Operation(summary = "Get projects matching search string and filter for public page-view")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Got projects matching search and filter for public page-view",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class))}) })
     @GetMapping("/projects/search/{searchstring}/filter/{filtertag}/p/{page}")
     public ResponseEntity<Page<Project>> searchAndfilterProjects(@PathVariable(value = "searchstring") String searchstring,
                                                                  @PathVariable(value = "filtertag") String filtertag,
