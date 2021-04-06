@@ -12,12 +12,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 
@@ -31,12 +29,14 @@ public class PublicUserController {
 
     private Bucket bucket;
 
+    // Limits the use of request to 20 per 10 seconds, so it is not possible to spam requests.
     public PublicUserController(){
         Bandwidth bandwidth = Bandwidth.classic(20, Refill.intervally(20, Duration.ofSeconds(10)));
         this.bucket = Bucket4j.builder().addLimit(bandwidth).build();
     }
 
 
+    // Gets a user with the given id with the public data
     @Operation(summary = "Get a partial user by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the user",
@@ -49,12 +49,12 @@ public class PublicUserController {
         if(!userRepository.existsById(id)) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        PartialUser p = userRepository.findPartialById(id);
-        if(bucket.tryConsume(1)){ return ResponseEntity.ok(p);}
-        // Validate user
+
+        if(bucket.tryConsume(1)){ // If not blocked
+            // Returns the public data only
+            return ResponseEntity.ok(userRepository.findPartialById(id));
+        }
 
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
-
-
 }

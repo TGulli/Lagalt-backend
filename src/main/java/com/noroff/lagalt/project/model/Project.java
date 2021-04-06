@@ -47,8 +47,6 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ProjectTag> projectTags;
 
-    //GITHUB REPO/EXTRA DETAILS
-
     @ManyToOne()
     @JoinColumn(name = "project_id")
     private User owner;
@@ -191,7 +189,6 @@ public class Project {
             this.id = id;
             this.name = name;
         }
-
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -203,7 +200,6 @@ public class Project {
             this.id = id;
 
         }
-
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -216,9 +212,6 @@ public class Project {
         private String userName;
         private String projectName;
 
-
-
-
         public ReturnCollaborator(Long id, Long user, Long project, Status status, String motivation, String userName, String projectName) {
             this.id = id;
             this.user = user;
@@ -227,12 +220,7 @@ public class Project {
             this.motivation = motivation;
             this.projectName = projectName;
             this.userName = userName;
-
-
-
-
         }
-
     }
 
 
