@@ -14,9 +14,16 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class FacebookTokenVerifier {
+
+    /**
+     * Method to verify access tokens returned by the facebook login
+     */
+
     public static User verify(String accessToken) {
 
         try{
+
+            // Validates the request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://graph.facebook.com/me?fields=id,name,email,picture,locale&access_token=" + accessToken))
                     .build();
@@ -25,6 +32,7 @@ public class FacebookTokenVerifier {
             JsonNode userData = new ObjectMapper().readTree(response.body());
             User facebookUser = new User();
 
+            // Generates a new user
             facebookUser.setName(userData.get("name").toString().replace("\"", ""));
             facebookUser.setEmail(userData.get("email").toString().replace("\"", ""));
             facebookUser.setUsername(facebookUser.getEmail());

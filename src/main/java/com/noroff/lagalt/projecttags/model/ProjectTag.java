@@ -9,12 +9,17 @@ import javax.persistence.*;
 @Table(name = "ProjectTag")
 public class ProjectTag {
 
+    /**
+     * Project Tag model
+     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
     private String tag;
+
 
     @ManyToOne()
     @JoinColumn(name = "project_id")

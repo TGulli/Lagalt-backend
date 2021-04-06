@@ -1,10 +1,5 @@
 package com.noroff.lagalt.projectcollaborators.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import com.noroff.lagalt.projectcollaborators.service.ProjectCollaboratorsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +23,7 @@ public class ProjectCollaboratorsController {
     @Autowired
     private ProjectCollaboratorsService projectCollaboratorsService;
 
-
+    // Gets all project collaborators
     @Operation(summary = "Get all projectCollaborators", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all projectCollaborators",
@@ -39,7 +34,7 @@ public class ProjectCollaboratorsController {
         return projectCollaboratorsService.getAll();
     }
 
-
+    // Get a project collaborator by its id
     @Operation(summary = "Get a projectCollaborator by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the projectCollaborator",
@@ -52,6 +47,7 @@ public class ProjectCollaboratorsController {
         return projectCollaboratorsService.getById(id);
     }
 
+    // Gets all project collaborators by project id
     @Operation(summary = "Get all projectCollaborators by project id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all projectCollaborators by project id",
@@ -66,7 +62,7 @@ public class ProjectCollaboratorsController {
         return projectCollaboratorsService.getAllByProjectId(id, authHeader);
     }
 
-
+    // Creates a new project collaborator
     @Operation(summary = "Create a projectCollaborator", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created the projectCollaborator",
@@ -81,7 +77,7 @@ public class ProjectCollaboratorsController {
         return projectCollaboratorsService.create(projectCollaborators);
     }
 
-
+    // Updates a project collaborator by its id
     @Operation(summary = "Update a projectCollaborator by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Updated the projectCollaborator",

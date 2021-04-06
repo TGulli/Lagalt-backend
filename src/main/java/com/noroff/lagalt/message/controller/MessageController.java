@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.message.service.MessageService;
-import com.noroff.lagalt.project.model.Project;
-import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +29,7 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    // Adds a message to the database
     @Operation(summary = "Create a message", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created a message",
@@ -43,7 +42,7 @@ public class MessageController {
         return messageService.create(message);
     }
 
-
+    // Updates a message by its id
     @Operation(summary = "Update a message by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Updated message",
@@ -51,7 +50,6 @@ public class MessageController {
                             schema = @Schema(implementation = Message.class)) }),
             @ApiResponse(responseCode = "400", description = "Not a valid request body/Not valid input to edit message/Could not edit message/request is not from an existing user",
                     content = @Content)})
-    //TODO her bruker vi jsonNode skal det endres??
     @PutMapping("/message/{id}")
     public ResponseEntity<Message> editMessage(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json)  {
         if (json == null){
@@ -78,6 +76,7 @@ public class MessageController {
         }
     }
 
+    // Gets all messages by project id
     @Operation(summary = "Get all messages by project id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all messages by project",
@@ -85,13 +84,12 @@ public class MessageController {
                             array = @ArraySchema(schema = @Schema(implementation = Message.class)))}),
             @ApiResponse(responseCode = "400", description = "No existing projects by project id/No existing users by user id/request is not from an existing user",
                     content = @Content)})
-    //TODO skal denne også endres til å ha user i requestheader og ikkek i pathen??
     @GetMapping("/messages/project/{id}/user/{userid}")
     public ResponseEntity<List<Message>> getMessagesByProjectId(@PathVariable(value ="id") Long id, @PathVariable(value = "userid") Long userid){
         return messageService.getAllByProject(id, userid);
     }
 
-
+    // Gets all the messages stored
     @Operation(summary = "Get all messages", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all messages",

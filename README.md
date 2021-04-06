@@ -1,6 +1,6 @@
 # LagAlt - Backend
 
-This project is the backend part of the lagalt project. This project is a REST AP which is connected to a postgres database. 
+This project is the backend part of the lagalt project. This project is a REST AP which is connected to a postgres database.
 
 ## Team members
 - Camilla Felin
@@ -49,6 +49,26 @@ It is a REST API for communication with the postgres database. The database stor
   - Progress
   - Owners username
   - Tags
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/public/projects/show/{page})
+
+  Get projects for a given page. 5 Projects per page.
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/public/projects/search/{searchstring}/p/{page})
+
+  Get projects, where the name containing the given string as a list based on page number
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/public/projects/filter/{filtertag}/p/{page})
+
+  Get projects with the given category as a list based on page number
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/public/projects/filter/{filtertag}/p/{page})
+
+  Get projects with the given category as a list, and where the name containing the given string based on page number.
     
 
 ### Public user controller
@@ -72,7 +92,8 @@ It is a REST API for communication with the postgres database. The database stor
   - Email address
 
 
-- https://lagalt-service.herokuapp.com/api/v1/public/confirm-account
+- Get Mapping (https://lagalt-service.herokuapp.com/api/v1/public/confirm-account)
+  
   Confirms a user with a given token, if the token is valid, the corresponding user is set to verified.
   It also sends a redirect link for login.
     
@@ -106,7 +127,7 @@ It is a REST API for communication with the postgres database. The database stor
   Gets all tags stored in users and projects.
 
 
-- Post mapping (https://lagalt-service.herokuapp.com/api/v1/alltags)
+- Post mapping (https://lagalt-service.herokuapp.com/api/v1/usertags)
 
   Posts a new usertag, with the given usertag in requestbody,
 
@@ -122,9 +143,24 @@ It is a REST API for communication with the postgres database. The database stor
   Posts a new project from requestbody. Requires a bearer token in body.
 
 
-- Get mapping (https://lagalt-service.herokuapp.com/api/v1/public/projects/show/{page})
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/projects/show/{page})
 
-  Gets the project based on a given site from paramter.
+  Get projects for a given page. 5 Projects per page.
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/projects/search/{searchstring}/p/{page})
+
+  Get projects, where the name containing the given string as a list based on page number
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/projects/filter/{filtertag}/p/{page})
+
+  Get projects with the given category as a list based on page number
+
+
+- Get mapping (https://lagalt-service.herokuapp.com/api/v1/projects/filter/{filtertag}/p/{page})
+
+  Get projects with the given category as a list, and where the name containing the given string based on page number.
 
 
 - Delete mapping (https://lagalt-service.herokuapp.com/api/v1/projects/{id})

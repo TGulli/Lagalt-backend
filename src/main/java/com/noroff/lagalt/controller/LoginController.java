@@ -23,8 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,17 +56,17 @@ public class LoginController {
     private Bucket googleBucket;
     private Bucket facebookBucket;
 
+    // Limits the use of request to 10 per 10 seconds, so it is not possible to spam requests.
     public LoginController() {
         Bandwidth bandwidth = Bandwidth.classic(10, Refill.intervally(10, Duration.ofSeconds(10)));
         this.internalBucket = Bucket4j.builder().addLimit(bandwidth).build();
         this.googleBucket = Bucket4j.builder().addLimit(bandwidth).build();
         this.facebookBucket = Bucket4j.builder().addLimit(bandwidth).build();
-
     }
 
-    private final static int MAXEGENERALLENGTH = 50;
+    private final static int MAXGENERALLENGTH = 50;
 
-
+    // Creates an authentication token, if the username and password is correct, and the user account is verified.
     @Operation(summary = "Create an authentication token for user for internal login")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created the token for user",
@@ -84,11 +82,11 @@ public class LoginController {
                     content = @Content)})
     @PostMapping("/login/internal")
     public ResponseEntity<LoginGranted> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
-        if (internalBucket.tryConsume(1)) {
+        if (internalBucket.tryConsume(1)) { // If not blocked
             try {
                 System.out.println(authenticationRequest);
 
-                if (authenticationRequest.getUsername().length() > MAXEGENERALLENGTH || authenticationRequest.getPassword().length() > MAXEGENERALLENGTH) {
+                if (authenticationRequest.getUsername().length() > MAXGENERALLENGTH || authenticationRequest.getPassword().length() > MAXGENERALLENGTH) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brukernavn eller passord stemmer ikke.");
                 }
                 // Validates username & password
@@ -113,6 +111,7 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
+    // Authenticates the username and password. If wrong, the function throws a ResponseStatusException
     private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -124,6 +123,8 @@ public class LoginController {
     }
 
 
+    // Creates a new authentication token from the facebook token. Creates a new user, if the email address is not registered in the database.
+    // Else, it creates an token for the existing user with the email address.
     @Operation(summary = "Create an authentication token for user for login with Facebook")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created the token for user",
@@ -135,12 +136,15 @@ public class LoginController {
                     content = @Content)})
     @PostMapping("/login/facebook/{accessToken}")
     public ResponseEntity<LoginGranted> createUserWithToken(@PathVariable(value = "accessToken") String accessToken) {
-        if (facebookBucket.tryConsume(1)) {
+        if (facebookBucket.tryConsume(1)) { // If not blocked
             try {
+                // Creates a user with data from facebook with the given facebook token, and checks if the user exist in
+                // the database from before.
                 User createdUser = FacebookTokenVerifier.verify(accessToken);
                 Optional<User> fetchedUser = userRepository.findByUsernameOrEmail(createdUser.getUsername(), createdUser.getEmail());
                 User addUser;
 
+                // Sets the addUser to the existing user if it exist, else creates a new user and addUser is set to the new one
                 if (fetchedUser.isPresent()) {
                     addUser = fetchedUser.get();
                 } else {
@@ -162,7 +166,8 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-
+    // Creates a new authentication token from the google token. Creates a new user, if the email address is not registered in the database.
+    // Else, it creates an token for the existing user with the email address.
     @Operation(summary = "Create an authentication token for user for login with Google")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created the token for user",
@@ -174,18 +179,22 @@ public class LoginController {
                     content = @Content)})
     @PostMapping("/login/google/{token}")
     public ResponseEntity<?> oauthLogin(@PathVariable(value = "token") String token) {
-        if (googleBucket.tryConsume(1)) {
+        if (googleBucket.tryConsume(1)) { // If not blocked
             try {
+                // Creates a user with data from google with the given google token, and checks if the user exist in
+                // the database from before.
                 User created = GoogleTokenVerifier.verifiyGoogleToken(token);
                 Optional<User> fetchedUser = userRepository.findByEmail(created.getEmail());
                 User addUser;
 
+                // Sets the addUser to the existing user if it exist, else creates a new user and addUser is set to the new one
                 if (fetchedUser.isPresent()) {
                     addUser = fetchedUser.get();
                 } else {
                     addUser = userRepository.save(created);
                 }
 
+                // Generates token
                 UserDetails userDetails = userDetailsService.loadUserByUsername(addUser.getUsername());
                 String generatedToken = jwtTokenUtil.generateToken(userDetails);
 

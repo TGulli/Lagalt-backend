@@ -1,11 +1,5 @@
 package com.noroff.lagalt.project.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.noroff.lagalt.user.model.User;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,17 +9,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1")
@@ -35,7 +25,7 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-
+    // Gets all projects
     @Operation(summary = "Get all projects")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all projects",
@@ -46,7 +36,7 @@ public class ProjectController {
         return projectService.getAll();
     }
 
-
+    // Gets all projects by category
     @Operation(summary = "Get all projects by category", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all projects by category",
@@ -57,7 +47,7 @@ public class ProjectController {
         return projectService.getAllFromCategory(category);
     }
 
-
+    // Gets a project by id
     @Operation(summary = "Get a project by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the project",
@@ -70,6 +60,7 @@ public class ProjectController {
         return projectService.getById(id, authHeader);
     }
 
+    // Saves a project to the database
     @Operation(summary = "Create a project", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created the project",
@@ -82,7 +73,7 @@ public class ProjectController {
         return projectService.create(project);
     }
 
-
+    // Get projects for a given page
     @Operation(summary = "Get projects for page-view")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got projects for page-view",
@@ -93,7 +84,7 @@ public class ProjectController {
         return projectService.showDisplayProjects(page, authHeader);
     }
 
-
+    // Get projects with the name containing the search string for a given page
     @Operation(summary = "Get projects matching serach string for page-view")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got projects matching search for page-view",
@@ -105,7 +96,7 @@ public class ProjectController {
         return projectService.searchProjects(page, searchstring);
     }
 
-
+    // Get projects filtered by category for a given page
     @Operation(summary = "Get projects matching filter for page-view")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got projects matching filter for page-view",
@@ -117,7 +108,7 @@ public class ProjectController {
         return projectService.filterProjects(page, filtertag);
     }
 
-
+    // Get projects with the name containing the search string, and filtered based on category for a given page
     @Operation(summary = "Get projects matching serach string and filter for page-view")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got projects matching search and filter for page-view",
@@ -130,7 +121,7 @@ public class ProjectController {
         return projectService.searchAndfilterProjects(page, filtertag, searchstring);
     }
 
-
+    // Updates a project by its id
     @Operation(summary = "Update a project by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Project edited",
@@ -143,6 +134,7 @@ public class ProjectController {
         return projectService.editProject(id, project, authHeader);
     }
 
+    // Deletes a project with a id
     @Operation(summary = "Delete a project by its id", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Project deleted",

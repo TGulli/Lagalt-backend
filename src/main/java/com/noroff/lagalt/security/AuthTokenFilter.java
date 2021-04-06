@@ -17,6 +17,11 @@ import java.io.IOException;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 
+    /**
+     * Class to check if access token is valid.
+     * Called upon each request to the non-public part of the API
+     */
+
     @Autowired
     private UserDetailsServiceImpl jwtUserDetailsService;
 
@@ -26,6 +31,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+
+        /**
+         * Checks the HTTP requests header for an Authorization key and a
+         * value in accordance to the JWT format ('Bearer ' + token)
+         */
 
         final String requestTokenHeader = request.getHeader("Authorization");
 
@@ -45,13 +55,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             System.out.println("JWT Token does not begin with Bearer String");
         }
 
-        // VALIDER TOKEN LOGIX
+        /**
+         * Validates the token
+         */
+
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            // Loads the relevant user
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 
+            // Validates the token format
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
 
+                // Generates a new token for validation
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken

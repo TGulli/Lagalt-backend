@@ -6,6 +6,7 @@ import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.userhistory.model.UserHistory;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.sun.istack.NotNull;
 
@@ -13,6 +14,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * User model class as Database table.
+ */
 
 
 
@@ -22,6 +26,8 @@ import java.util.List;
         @UniqueConstraint(columnNames = "email")
 })
 public class User {
+
+    // ** FIELD VARIABLES **
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -54,7 +60,10 @@ public class User {
     @Column(name = "verified")
     private Boolean verified;
 
+    // ** RELATIONSHIPS **
 
+    // Cascadetype remove on all relations in order to delete all related content when a user self-deletes
+    // One to many relationships with user being the dominant relation
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Project> ownedProjects;
 
@@ -66,6 +75,11 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Message> messages;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserHistory> records;
+
+    // ** CONSTRUCTORS **
 
     public User() { }
 
@@ -80,8 +94,13 @@ public class User {
         this.bio = bio;
     }
 
-    //JsonGetter
-    //@JsonIgnore
+    // ** GETTERS AND SETTERS **
+
+    @JsonIgnore
+    public List<UserHistory> getRecords() {
+        return records;
+    }
+
     public List<Project> getOwnedProjects() {
         return ownedProjects;
     }
@@ -186,7 +205,6 @@ public class User {
         this.verified = verified;
     }
 
-    //@JsonIgnore
     public List<ProjectCollaborators> getCollaboratorIn() {
         return collaboratorIn;
     }

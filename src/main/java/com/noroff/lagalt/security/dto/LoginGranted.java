@@ -2,6 +2,10 @@ package com.noroff.lagalt.security.dto;
 
 import com.noroff.lagalt.user.model.User;
 
+/**
+ * POJO for storing user and the token
+ */
+
 public class LoginGranted {
 
     private User user;

@@ -7,7 +7,9 @@ import com.noroff.lagalt.user.model.User;
 
 import javax.persistence.*;
 
-//tableId, userId, ActionType (enum), projectId, timeStamp
+/**
+ * User History table, primarily used for storing which projects has been viewed by a given user
+ */
 
 @Entity
 @Table(name = "UserHistory")

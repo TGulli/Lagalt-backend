@@ -1,6 +1,5 @@
 package com.noroff.lagalt.controller;
 
-import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.security.twofa.model.ConfirmationToken;
 import com.noroff.lagalt.security.twofa.repository.ConfirmationTokenRepository;
 import com.noroff.lagalt.security.twofa.service.EmailSenderService;
@@ -17,17 +16,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.swing.text.html.Option;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -52,6 +47,7 @@ public class RegisterController {
     private Bucket createUserbucket;
     private Bucket confirmUserbucket;
 
+    // Limits the use of request to 3 per 10 seconds, so it is not possible to spam requests.
     public RegisterController(){
         Bandwidth bandwidth = Bandwidth.classic(3, Refill.intervally(3, Duration.ofSeconds(10)));
         this.createUserbucket = Bucket4j.builder().addLimit(bandwidth).build();
@@ -59,7 +55,7 @@ public class RegisterController {
     }
 
 
-
+    // Adds a new user to the database, where the password is stored encoded
     @Operation(summary = "Create a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created the user",
@@ -74,8 +70,9 @@ public class RegisterController {
     @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody User user) {
 
-        if(createUserbucket.tryConsume(1)) {
+        if(createUserbucket.tryConsume(1)) { // If not blocked
 
+            // If data is missing, or the username/ email is already defined in the database, it throws an ResponseStatusException
             if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getSecret() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User, user.email, user.name, user.secret or user.username is null.");
             }
@@ -98,7 +95,7 @@ public class RegisterController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
-
+    // Confirms the account when a user has send a verification request. Sets the user from token to verified.
     @Operation(summary = "Confirm user account")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Confirmed user account",
@@ -110,26 +107,20 @@ public class RegisterController {
                     content = @Content)})
     @GetMapping("/confirm-account")
     public ResponseEntity<String> confirmUserAccount(@RequestParam("token") String confirmationToken) {
-        if(confirmUserbucket.tryConsume(1)) {
+        if(confirmUserbucket.tryConsume(1)) { // If not blocked
             ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
             Optional<User> userOptional = userRepository.findByEmail(token.getUser().getEmail());
-            String returnMessage;
 
-            if (token != null && userOptional.isPresent()) {
+            if (userOptional.isPresent()) {
 
                 User user = userOptional.get();
                 user.setVerified(true);
                 userRepository.save(user);
-                returnMessage = "Brukeren er opprettet. Du kan nå logge inn\n <a href=\"https://lagalt2021.herokuapp.com/login\">Trykk her</a>";
-                return new ResponseEntity<>(returnMessage, HttpStatus.OK);
+                return new ResponseEntity<>("Brukeren er opprettet. Du kan nå logge inn\n <a href=\"https://lagalt2021.herokuapp.com/login\">Trykk her</a>", HttpStatus.OK);
             } else {
-                returnMessage = "Ugyldig lenke";
-                return new ResponseEntity<>(returnMessage, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Ugyldig lenke", HttpStatus.UNAUTHORIZED);
             }
         }
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
-
     }
-
-
 }
