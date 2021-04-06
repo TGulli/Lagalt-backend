@@ -250,6 +250,145 @@ This project was made as a case assignment during the Experis Academy Java Fulls
 
 ## Project tree
 
++---.idea
+|   +---artifacts
+|   \---libraries
++---.mvn
+|   \---wrapper
++---out
+|   \---artifacts
+|       \---lagalt_jar
++---src
+|   +---main
+|   |   +---java
+|   |   |   \---com
+|   |   |       \---noroff
+|   |   |           \---lagalt
+|   |   |               +---chat
+|   |   |               |   +---config
+|   |   |               |   +---controller
+|   |   |               |   +---model
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               +---controller
+|   |   |               +---message
+|   |   |               |   +---controller
+|   |   |               |   +---model
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               +---project
+|   |   |               |   +---controller
+|   |   |               |   +---model
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               +---projectcollaborators
+|   |   |               |   +---controller
+|   |   |               |   +---models
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               +---projecttags
+|   |   |               |   +---controller
+|   |   |               |   +---model
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               +---security
+|   |   |               |   +---dto
+|   |   |               |   \---twofa
+|   |   |               |       +---model
+|   |   |               |       +---repository
+|   |   |               |       \---service
+|   |   |               +---user
+|   |   |               |   +---controller
+|   |   |               |   +---model
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               +---userhistory
+|   |   |               |   +---model
+|   |   |               |   \---repository
+|   |   |               +---usertags
+|   |   |               |   +---controller
+|   |   |               |   +---model
+|   |   |               |   +---repository
+|   |   |               |   \---service
+|   |   |               \---utility
+|   |   \---resources
+|   |       +---static
+|   |       \---templates
+|   \---test
+|       \---java
+|           \---com
+|               \---noroff
+|                   \---lagalt
++---target
+|   +---classes
+|   |   \---com
+|   |       \---noroff
+|   |           \---lagalt
+|   |               +---chat
+|   |               |   +---config
+|   |               |   +---controller
+|   |               |   +---model
+|   |               |   +---repository
+|   |               |   \---service
+|   |               +---controller
+|   |               +---message
+|   |               |   +---controller
+|   |               |   +---model
+|   |               |   +---repository
+|   |               |   \---service
+|   |               +---project
+|   |               |   +---controller
+|   |               |   +---model
+|   |               |   +---repository
+|   |               |   \---service
+|   |               +---projectcollaborators
+|   |               |   +---controller
+|   |               |   +---models
+|   |               |   +---repository
+|   |               |   \---service
+|   |               +---projecttags
+|   |               |   +---controller
+|   |               |   +---model
+|   |               |   +---repository
+|   |               |   \---service
+|   |               +---security
+|   |               |   +---dto
+|   |               |   \---twofa
+|   |               |       +---model
+|   |               |       +---repository
+|   |               |       \---service
+|   |               +---user
+|   |               |   +---controller
+|   |               |   +---model
+|   |               |   +---repository
+|   |               |   \---service
+|   |               +---userhistory
+|   |               |   +---model
+|   |               |   \---repository
+|   |               +---usertags
+|   |               |   +---controller
+|   |               |   +---model
+|   |               |   +---repository
+|   |               |   \---service
+|   |               \---utility
+|   +---generated-sources
+|   |   \---annotations
+|   +---generated-test-sources
+|   |   \---test-annotations
+|   +---maven-archiver
+|   +---maven-status
+|   |   \---maven-compiler-plugin
+|   |       +---compile
+|   |       |   \---default-compile
+|   |       \---testCompile
+|   |           \---default-testCompile
+|   +---surefire-reports
+|   \---test-classes
+|       \---com
+|           \---noroff
+|               \---lagalt
+\---WEB-INF
+
 ## Credits
 
 Thanks to our mentor Steven James Delton for great guidance and discussions.
