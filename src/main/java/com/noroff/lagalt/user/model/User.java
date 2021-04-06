@@ -6,6 +6,7 @@ import com.noroff.lagalt.message.model.Message;
 import com.noroff.lagalt.project.model.Project;
 import com.noroff.lagalt.user.model.LoginMethod;
 import com.noroff.lagalt.projectcollaborators.models.ProjectCollaborators;
+import com.noroff.lagalt.userhistory.model.UserHistory;
 import com.noroff.lagalt.usertags.model.UserTag;
 import com.sun.istack.NotNull;
 
@@ -75,6 +76,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Message> messages;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<UserHistory> records;
+
     // ** CONSTRUCTORS **
 
     public User() { }
@@ -92,6 +96,11 @@ public class User {
 
 
     // ** GETTERS AND SETTERS **
+
+    @JsonIgnore
+    public List<UserHistory> getRecords() {
+        return records;
+    }
 
     public List<Project> getOwnedProjects() {
         return ownedProjects;
