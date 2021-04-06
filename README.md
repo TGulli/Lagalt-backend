@@ -249,7 +249,7 @@ It is a REST API for communication with the postgres database. The database stor
 This project was made as a case assignment during the Experis Academy Java Fullstack course.
 
 ## Project tree
-
+```bash
 +---.idea
 |   +---artifacts
 |   \---libraries
@@ -388,7 +388,7 @@ This project was made as a case assignment during the Experis Academy Java Fulls
 |           \---noroff
 |               \---lagalt
 \---WEB-INF
-
+```
 ## Credits
 
 Thanks to our mentor Steven James Delton for great guidance and discussions.
