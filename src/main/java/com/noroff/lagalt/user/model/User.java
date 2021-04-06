@@ -94,7 +94,6 @@ public class User {
         this.bio = bio;
     }
 
-
     // ** GETTERS AND SETTERS **
 
     @JsonIgnore
