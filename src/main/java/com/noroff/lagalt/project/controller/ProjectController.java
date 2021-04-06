@@ -70,7 +70,6 @@ public class ProjectController {
         return projectService.getById(id, authHeader);
     }
 
-
     @Operation(summary = "Create a project", security = { @SecurityRequirement(name = "bearer-key")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created the project",
